@@ -1,16 +1,15 @@
 <?php
 
 /**
- * @package     Triangle Engine (FrameX)
- * @link        https://github.com/localzet/FrameX
+ * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
  * 
- * @author      Ivan Zorin (localzet) <creator@localzet.com>
- * @copyright   Copyright (c) 2018-2022 Localzet Group
+ * @author      Ivan Zorin <creator@localzet.com>
+ * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.localzet.com/license GNU GPLv3 License
  */
 
-namespace localzet\FrameX;
+namespace Triangle\Engine;
 
 use Closure;
 use Exception;
@@ -26,14 +25,14 @@ use ReflectionFunction;
 use ReflectionFunctionAbstract;
 use ReflectionMethod;
 use Throwable;
-use localzet\FrameX\Exception\ExceptionHandler;
-use localzet\FrameX\Exception\ExceptionHandlerInterface;
-use localzet\FrameX\Http\Request;
-use localzet\FrameX\Http\Response;
-use localzet\FrameX\Route\Route as RouteObject;
-use localzet\Core\Connection\TcpConnection;
-use localzet\Core\Protocols\Http;
-use localzet\Core\Server;
+use Triangle\Engine\Exception\ExceptionHandler;
+use Triangle\Engine\Exception\ExceptionHandlerInterface;
+use Triangle\Engine\Http\Request;
+use Triangle\Engine\Http\Response;
+use Triangle\Engine\Route\Route as RouteObject;
+use localzet\Server\Connection\TcpConnection;
+use localzet\Server\Protocols\Http;
+use localzet\Server\Server;
 use function array_merge;
 use function array_pop;
 use function array_reduce;

@@ -1,19 +1,16 @@
 <?php
 
 /**
- * @package     Triangle Engine (FrameX)
- * @link        https://github.com/localzet/FrameX
+ * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
  * 
- * @author      Ivan Zorin (localzet) <creator@localzet.com>
- * @copyright   Copyright (c) 2018-2022 Localzet Group
+ * @author      Ivan Zorin <creator@localzet.com>
+ * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.localzet.com/license GNU GPLv3 License
  */
 
-use support\Db;
 use support\Request;
 use support\Response;
-use support\Container;
 use support\Translation;
 use support\database\MySQL;
 use support\view\Blade;
@@ -23,10 +20,11 @@ use support\view\Twig;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
-use localzet\FrameX\App;
-use localzet\FrameX\Config;
-use localzet\FrameX\Route;
-use localzet\Core\Server;
+use Triangle\Engine\App;
+use Triangle\Engine\Config;
+use Triangle\Engine\Route;
+use localzet\Server\Server;
+
 
 define('BASE_PATH', dirname(__DIR__));
 
@@ -39,37 +37,23 @@ define('WEBCORE_VERSION', '2.0.0');
 define('WEBKIT_VERSION', '1.1.9');
 define('FRAMEX_VERSION', '1.2.9');
 
+
 /** 
- * @param string|null $connection
- * @param string|null $collection
- * @return \support\mongodb\Connection|\support\mongodb\Query\Builder
+ * @deprecated 
+ * @see MySQL()
  */
-function MongoDB(string $connection = NULL, string $collection = NULL)
+function db(string $connection = NULL)
 {
-    if (empty($connection)) {
-        $connection = config('database.default', 'default');
-    }
-
-    if (!in_array($connection, array_keys(config('database.connections'))) || config("database.connections.$connection.driver") != 'mongodb') {
-        throw new Exception("MongoDB соединения не существует в конфигурации");
-    }
-
-    /** @var \support\mongodb\Connection $db */
-    $db = Db::connection($connection);
-    return empty($collection) ? $db : $db->collection($collection);
+    return MySQL($connection);
 }
 
-/** 
- * @param string|null $connection
- * @return \support\database\MySQL
- */
 function MySQL(string $connection = NULL)
 {
     if (empty($connection)) {
         $connection = config('database.default', 'default');
     }
 
-    if (!in_array($connection, array_keys(config('database.connections'))) || config("database.connections.$connection.driver") != 'mysql') {
+    if (!in_array($connection, array_keys(config('database.connections'))) || config("database.connections.$connection.driver") == 'mysql') {
         throw new Exception("MySQL соединения не существует в конфигурации");
     }
 
@@ -342,7 +326,7 @@ function twig_view(string $template, array $vars = [], string $app = null): Resp
 }
 
 /**
- * @return \localzet\FrameX\Http\Request|Request|null
+ * @return \Triangle\Engine\Http\Request|Request|null
  */
 function request()
 {

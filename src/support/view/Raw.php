@@ -1,19 +1,18 @@
 <?php
 
 /**
- * @package     Triangle Engine (FrameX)
- * @link        https://github.com/localzet/FrameX
+ * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
  * 
- * @author      Ivan Zorin (localzet) <creator@localzet.com>
- * @copyright   Copyright (c) 2018-2022 Localzet Group
+ * @author      Ivan Zorin <creator@localzet.com>
+ * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.localzet.com/license GNU GPLv3 License
  */
 
 namespace support\view;
 
 use Throwable;
-use localzet\FrameX\View;
+use Triangle\Engine\View;
 use function app_path;
 use function array_merge;
 use function base_path;
@@ -83,9 +82,9 @@ class Raw implements View
         $logo = config('app.info.logo', 'https://static.localzet.com/localzet.svg');
         $og_image = config('app.info.og_image', 'https://static.localzet.com/localzet.svg');
 
-        $owner = config('app.info.owner', 'Ivan Zorin (localzet) <creator@localzet.com>');
-        $designer = config('app.info.designer', 'Ivan Zorin (localzet) <creator@localzet.com>');
-        $author = config('app.info.author', 'Ivan Zorin (localzet) <creator@localzet.com>');
+        $owner = config('app.info.owner', 'Ivan Zorin <creator@localzet.com>');
+        $designer = config('app.info.designer', 'Ivan Zorin <creator@localzet.com>');
+        $author = config('app.info.author', 'Ivan Zorin <creator@localzet.com>');
         $copyright = config('app.info.copyright', 'Localzet Group');
         $reply_to = config('app.info.reply_to', 'support@localzet.com');
 
@@ -166,9 +165,9 @@ class Raw implements View
         $logo = config('app.info.logo', 'https://static.localzet.com/localzet.svg');
         $og_image = config('app.info.og_image', 'https://static.localzet.com/localzet.svg');
 
-        $owner = config('app.info.owner', 'Ivan Zorin (localzet) <creator@localzet.com>');
-        $designer = config('app.info.designer', 'Ivan Zorin (localzet) <creator@localzet.com>');
-        $author = config('app.info.author', 'Ivan Zorin (localzet) <creator@localzet.com>');
+        $owner = config('app.info.owner', 'Ivan Zorin <creator@localzet.com>');
+        $designer = config('app.info.designer', 'Ivan Zorin <creator@localzet.com>');
+        $author = config('app.info.author', 'Ivan Zorin <creator@localzet.com>');
         $copyright = config('app.info.copyright', 'Localzet Group');
         $reply_to = config('app.info.reply_to', 'support@localzet.com');
 

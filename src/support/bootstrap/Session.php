@@ -1,21 +1,20 @@
 <?php
 
 /**
- * @package     Triangle Engine (FrameX)
- * @link        https://github.com/localzet/FrameX
+ * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
  * 
- * @author      Ivan Zorin (localzet) <creator@localzet.com>
- * @copyright   Copyright (c) 2018-2022 Localzet Group
+ * @author      Ivan Zorin <creator@localzet.com>
+ * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.localzet.com/license GNU GPLv3 License
  */
 
 namespace support\bootstrap;
 
-use localzet\FrameX\Bootstrap;
-use localzet\Core\Protocols\Http;
-use localzet\Core\Protocols\Http\Session as SessionBase;
-use localzet\Core\Server;
+use Triangle\Engine\Bootstrap;
+use localzet\Server\Protocols\Http;
+use localzet\Server\Protocols\Http\Session as SessionBase;
+use localzet\Server\Server;
 use function config;
 use function property_exists;
 

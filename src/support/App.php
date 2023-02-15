@@ -1,12 +1,11 @@
 <?php
 
 /**
- * @package     Triangle Engine (FrameX)
- * @link        https://github.com/localzet/FrameX
+ * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
  * 
- * @author      Ivan Zorin (localzet) <creator@localzet.com>
- * @copyright   Copyright (c) 2018-2022 Localzet Group
+ * @author      Ivan Zorin <creator@localzet.com>
+ * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.localzet.com/license GNU GPLv3 License
  */
 
@@ -15,10 +14,10 @@ namespace support;
 use Dotenv\Dotenv;
 use RuntimeException;
 use support\http\Curl;
-use localzet\FrameX\Config;
-use localzet\FrameX\Util;
-use localzet\Core\Connection\TcpConnection;
-use localzet\Core\Server;
+use Triangle\Engine\Config;
+use Triangle\Engine\Util;
+use localzet\Server\Connection\TcpConnection;
+use localzet\Server\Server;
 use function base_path;
 use function call_user_func;
 use function is_dir;
@@ -110,81 +109,47 @@ class App
             }
 
             $server->onServerStart = function ($server) {
-                if ($connected = @fsockopen("www.example.com", 80)) {
-                    $is_conn = true;
-                    fclose($connected);
-                } else {
-                    $is_conn = false;
-                    Config::set(['app' => [
-                        'core_version' => WEBCORE_VERSION,
-                        'engine_version' => WEBKIT_VERSION,
-                        'version' => FRAMEX_VERSION,
-                    ]]);
-                }
-
-                if (class_exists(Curl::class) && $is_conn) {
-                    $http = new Curl();
-
-                    // Ядро (WebCore) - Сервер
-                    $core_version = $http->request('https://repo.packagist.org/p2/localzet/core.json', 'GET');
-                    $core_version = json_decode($core_version, true);
-
-                    // Механика (FrameX (FX) Engine) - Фреймворк
-                    $engine_version = $http->request('https://repo.packagist.org/p2/localzet/framex.json', 'GET');
-                    $engine_version = json_decode($engine_version, true);
-
-                    // Окружение (WebKit) - Приложение
-                    $version = $http->request('https://repo.packagist.org/p2/localzet/webkit.json', 'GET');
-                    $version = json_decode($version, true);
-
-                    Config::set(['app' => [
-                        'core_version' => $core_version['packages']['localzet/core'][0]['version'],
-                        'engine_version' => $engine_version['packages']['localzet/framex'][0]['version'],
-                        'version' => $version['packages']['localzet/webkit'][0]['version'],
-                    ]]);
-                }
-
                 require_once base_path() . '/support/bootstrap.php';
-                $app = new \localzet\FrameX\App(config('app.request_class', Request::class), Log::channel('default'), app_path(), public_path());
+                $app = new \Triangle\Engine\App(config('app.request_class', Request::class), Log::channel('default'), app_path(), public_path());
                 $server->onMessage = [$app, 'onMessage'];
                 \call_user_func([$app, 'onServerStart'], $server);
             };
 
-            $server->onServerReload = function ($server) {
-                if ($connected = @fsockopen("www.example.com", 80)) {
-                    $is_conn = true;
-                    fclose($connected);
-                } else {
-                    $is_conn = false;
-                    Config::set(['app' => [
-                        'core_version' => WEBCORE_VERSION,
-                        'engine_version' => WEBKIT_VERSION,
-                        'version' => FRAMEX_VERSION,
-                    ]]);
-                }
+            // $server->onServerReload = function ($server) {
+            //     if ($connected = @fsockopen("www.example.com", 80)) {
+            //         $is_conn = true;
+            //         fclose($connected);
+            //     } else {
+            //         $is_conn = false;
+            //         Config::set(['app' => [
+            //             'core_version' => WEBCORE_VERSION,
+            //             'engine_version' => WEBKIT_VERSION,
+            //             'version' => FRAMEX_VERSION,
+            //         ]]);
+            //     }
 
-                if (class_exists(Curl::class) && $is_conn) {
-                    $http = new Curl();
+            //     if (class_exists(Curl::class) && $is_conn) {
+            //         $http = new Curl();
 
-                    // Ядро (WebCore) - Сервер
-                    $core_version = $http->request('https://repo.packagist.org/p2/localzet/core.json', 'GET');
-                    $core_version = json_decode($core_version, true);
+            //         // Ядро (WebCore) - Сервер
+            //         $core_version = $http->request('https://repo.packagist.org/p2/localzet/core.json', 'GET');
+            //         $core_version = json_decode($core_version, true);
 
-                    // Механика (FrameX (FX) Engine) - Фреймворк
-                    $engine_version = $http->request('https://repo.packagist.org/p2/localzet/framex.json', 'GET');
-                    $engine_version = json_decode($engine_version, true);
+            //         // Механика (FrameX (FX) Engine) - Фреймворк
+            //         $engine_version = $http->request('https://repo.packagist.org/p2/localzet/framex.json', 'GET');
+            //         $engine_version = json_decode($engine_version, true);
 
-                    // Окружение (WebKit) - Приложение
-                    $version = $http->request('https://repo.packagist.org/p2/localzet/webkit.json', 'GET');
-                    $version = json_decode($version, true);
+            //         // Окружение (WebKit) - Приложение
+            //         $version = $http->request('https://repo.packagist.org/p2/localzet/webkit.json', 'GET');
+            //         $version = json_decode($version, true);
 
-                    Config::set(['app' => [
-                        'core_version' => $core_version['packages']['localzet/core'][0]['version'],
-                        'engine_version' => $engine_version['packages']['localzet/framex'][0]['version'],
-                        'version' => $version['packages']['localzet/webkit'][0]['version'],
-                    ]]);
-                }
-            };
+            //         Config::set(['app' => [
+            //             'core_version' => $core_version['packages']['localzet/core'][0]['version'],
+            //             'engine_version' => $engine_version['packages']['localzet/framex'][0]['version'],
+            //             'version' => $version['packages']['localzet/webkit'][0]['version'],
+            //         ]]);
+            //     }
+            // };
         }
 
         // Windows does not support custom processes.

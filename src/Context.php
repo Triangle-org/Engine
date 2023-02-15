@@ -1,26 +1,25 @@
 <?php
 
 /**
- * @package     Triangle Engine (FrameX)
- * @link        https://github.com/localzet/FrameX
+ * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
  * 
- * @author      Ivan Zorin (localzet) <creator@localzet.com>
- * @copyright   Copyright (c) 2018-2022 Localzet Group
+ * @author      Ivan Zorin <creator@localzet.com>
+ * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.localzet.com/license GNU GPLv3 License
  */
 
-namespace localzet\FrameX;
+namespace Triangle\Engine;
 
 use Fiber;
 use SplObjectStorage;
 use StdClass;
 use WeakMap;
 use Swow\Coroutine;
-use localzet\Core\Events\Revolt;
-use localzet\Core\Events\Swoole;
-use localzet\Core\Events\Swow;
-use localzet\Core\Server;
+use localzet\Server\Events\Revolt;
+use localzet\Server\Events\Swoole;
+use localzet\Server\Events\Swow;
+use localzet\Server\Server;
 
 use function property_exists;
 

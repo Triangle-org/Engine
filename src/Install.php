@@ -1,16 +1,15 @@
 <?php
 
 /**
- * @package     Triangle Engine (FrameX)
- * @link        https://github.com/localzet/FrameX
+ * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
  * 
- * @author      Ivan Zorin (localzet) <creator@localzet.com>
- * @copyright   Copyright (c) 2018-2022 Localzet Group
+ * @author      Ivan Zorin <creator@localzet.com>
+ * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.localzet.com/license GNU GPLv3 License
  */
 
-namespace localzet\FrameX;
+namespace Triangle\Engine;
 
 class Install
 {
@@ -20,7 +19,6 @@ class Install
      * @var array
      */
     protected static $pathRelation = [
-        'master' => 'master',
         'start.php' => 'start.php',
         'windows.php' => 'windows.php',
         'support/bootstrap.php' => 'support/bootstrap.php',

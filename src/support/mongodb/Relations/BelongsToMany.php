@@ -1,12 +1,11 @@
 <?php
 
 /**
- * @package     Triangle Engine (FrameX)
- * @link        https://github.com/localzet/FrameX
+ * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
  * 
- * @author      Ivan Zorin (localzet) <creator@localzet.com>
- * @copyright   Copyright (c) 2018-2022 Localzet Group
+ * @author      Ivan Zorin <creator@localzet.com>
+ * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.localzet.com/license GNU GPLv3 License
  */
 
@@ -312,6 +311,26 @@ class BelongsToMany extends EloquentBelongsToMany
     public function getQualifiedRelatedPivotKeyName()
     {
         return $this->relatedPivotKey;
+    }
+
+    /**
+     * Format the sync list so that it is keyed by ID. (Legacy Support)
+     * The original function has been renamed to formatRecordsList since Laravel 5.3.
+     * @param array $records
+     * @return array
+     * @deprecated
+     */
+    protected function formatSyncList(array $records)
+    {
+        $results = [];
+        foreach ($records as $id => $attributes) {
+            if (! is_array($attributes)) {
+                [$id, $attributes] = [$attributes, []];
+            }
+            $results[$id] = $attributes;
+        }
+
+        return $results;
     }
 
     /**

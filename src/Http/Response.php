@@ -1,19 +1,18 @@
 <?php
 
 /**
- * @package     Triangle Engine (FrameX)
- * @link        https://github.com/localzet/FrameX
+ * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
  * 
- * @author      Ivan Zorin (localzet) <creator@localzet.com>
- * @copyright   Copyright (c) 2018-2022 Localzet Group
+ * @author      Ivan Zorin <creator@localzet.com>
+ * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.localzet.com/license GNU GPLv3 License
  */
 
-namespace localzet\FrameX\Http;
+namespace Triangle\Engine\Http;
 
 use Throwable;
-use localzet\FrameX\App;
+use Triangle\Engine\App;
 use function filemtime;
 use function gmdate;
 
@@ -21,7 +20,7 @@ use function gmdate;
 /**
  * Class Response
  */
-class Response extends \localzet\Core\Protocols\Http\Response
+class Response extends \localzet\Server\Protocols\Http\Response
 {
     /**
      * @var Throwable

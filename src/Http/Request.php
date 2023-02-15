@@ -1,18 +1,17 @@
 <?php
 
 /**
- * @package     Triangle Engine (FrameX)
- * @link        https://github.com/localzet/FrameX
+ * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
  * 
- * @author      Ivan Zorin (localzet) <creator@localzet.com>
- * @copyright   Copyright (c) 2018-2022 Localzet Group
+ * @author      Ivan Zorin <creator@localzet.com>
+ * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.localzet.com/license GNU GPLv3 License
  */
 
-namespace localzet\FrameX\Http;
+namespace Triangle\Engine\Http;
 
-use localzet\FrameX\Route\Route;
+use Triangle\Engine\Route\Route;
 use function current;
 use function filter_var;
 use function ip2long;
@@ -26,7 +25,7 @@ use const FILTER_VALIDATE_IP;
 /**
  * Class Request
  */
-class Request extends \localzet\Core\Protocols\Http\Request
+class Request extends \localzet\Server\Protocols\Http\Request
 {
     /**
      * @var string

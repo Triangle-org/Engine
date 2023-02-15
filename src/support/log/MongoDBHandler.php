@@ -2,12 +2,11 @@
 
 declare(strict_types=1);
 /**
- * @package     Triangle Engine (FrameX)
- * @link        https://github.com/localzet/FrameX
+ * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
  * 
- * @author      Ivan Zorin (localzet) <creator@localzet.com>
- * @copyright   Copyright (c) 2018-2022 Localzet Group
+ * @author      Ivan Zorin <creator@localzet.com>
+ * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.localzet.com/license GNU GPLv3 License
  */
 
@@ -34,7 +33,7 @@ use Monolog\Handler\AbstractProcessingHandler;
  * The above examples uses the MongoDB PHP library's client class; however, the
  * MongoDB\Driver\Manager class from ext-mongodb is also supported.
  * 
- * @author      Ivan Zorin (localzet) <creator@localzet.com>
+ * @author      Ivan Zorin <creator@localzet.com>
  * @author      Jordi Boggiano <j.boggiano@seld.be>
  */
 class MongoDBHandler extends AbstractProcessingHandler
