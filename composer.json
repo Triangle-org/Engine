@@ -51,7 +51,8 @@
         "doctrine/annotations": "^1.13",
         "illuminate/support": "^8.0",
         "illuminate/container": "^8.0",
-        "mongodb/mongodb": "^1.6"
+        "mongodb/mongodb": "^1.6",
+        "vlucas/phpdotenv": "^5.5"
     },
     "autoload": {
         "psr-4": {
