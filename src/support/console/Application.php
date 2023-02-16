@@ -1130,13 +1130,13 @@ class Application implements ResetInterface
     protected function getDefaultInputDefinition()
     {
         return new InputDefinition([
-            new InputArgument('command', InputArgument::REQUIRED, 'The command to execute'),
-            new InputOption('--help', '-h', InputOption::VALUE_NONE, 'Display help for the given command. When no command is given display help for the <info>' . $this->defaultCommand . '</info> command'),
-            new InputOption('--quiet', '-q', InputOption::VALUE_NONE, 'Do not output any message'),
-            new InputOption('--verbose', '-v|vv|vvv', InputOption::VALUE_NONE, 'Increase the verbosity of messages: 1 for normal output, 2 for more verbose output and 3 for debug'),
-            new InputOption('--version', '-V', InputOption::VALUE_NONE, 'Display this application version'),
-            new InputOption('--ansi', '', InputOption::VALUE_NEGATABLE, 'Force (or disable --no-ansi) ANSI output', null),
-            new InputOption('--no-interaction', '-n', InputOption::VALUE_NONE, 'Do not ask any interactive question'),
+            new InputArgument('command', InputArgument::REQUIRED, 'Команда для выполнения'),
+            new InputOption('--help', '-h', InputOption::VALUE_NONE, 'Показать справку для данной команды. Если команда не задана, отобразить справку для команды <info>' . $this->defaultCommand . '</info>'),
+            new InputOption('--quiet', '-q', InputOption::VALUE_NONE, 'Не выводить никаких сообщений'),
+            new InputOption('--verbose', '-v|vv|vvv', InputOption::VALUE_NONE, 'Назначьте уровень детализации сообщений: 1 для обычного вывода, 2 для более подробного вывода и 3 для отладки.'),
+            new InputOption('--version', '-V', InputOption::VALUE_NONE, 'Показать версию приложения'),
+            new InputOption('--ansi', '', InputOption::VALUE_NEGATABLE, 'Включить (или отключить --no-ansi) вывод ANSI', null),
+            new InputOption('--no-interaction', '-n', InputOption::VALUE_NONE, 'Не задавайте никаких интерактивных вопросов'),
         ]);
     }
 
@@ -1150,7 +1150,7 @@ class Application implements ResetInterface
         return [
             new CompleteCommand(), ////
             new ConnectionsCommand(),
-            new DumpCompletionCommand(), ////
+            // new DumpCompletionCommand(), ////
             new HelpCommand(), ////
             new InstallCommand(),
 

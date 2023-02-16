@@ -280,7 +280,7 @@ class Command
             if (\function_exists('cli_set_process_title')) {
                 if (!@cli_set_process_title($this->processTitle)) {
                     if ('Darwin' === \PHP_OS) {
-                        $output->writeln('<comment>Running "cli_set_process_title" as an unprivileged user is not supported on MacOS.</comment>', OutputInterface::VERBOSITY_VERY_VERBOSE);
+                        $output->writeln('<comment>Запуск «cli_set_process_title» от имени непривилегированного пользователя не поддерживается в MacOS..</comment>', OutputInterface::VERBOSITY_VERY_VERBOSE);
                     } else {
                         cli_set_process_title($this->processTitle);
                     }
@@ -288,7 +288,7 @@ class Command
             } elseif (\function_exists('setproctitle')) {
                 setproctitle($this->processTitle);
             } elseif (OutputInterface::VERBOSITY_VERY_VERBOSE === $output->getVerbosity()) {
-                $output->writeln('<comment>Install the proctitle PECL to be able to change the process title.</comment>');
+                $output->writeln('<comment>Установите proctitle PECL, чтобы иметь возможность изменить название процесса.</comment>');
             }
         }
 
