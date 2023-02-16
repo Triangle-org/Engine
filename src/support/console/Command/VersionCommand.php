@@ -73,7 +73,7 @@ class VersionCommand extends Command
                         $out = 'Фреймворк:  Triangle Web';
                         break;
                 }
-                $output->writeln($out . ' ' . $version_info['versions'][$package]['pretty_version']);
+                $output->writeln($out . ' (' . $version_info['versions'][$package]['pretty_version'] . ')');
             }
         }
 
