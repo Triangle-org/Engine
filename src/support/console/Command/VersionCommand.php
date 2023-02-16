@@ -43,27 +43,37 @@ class VersionCommand extends Command
         $installed_file = base_path() . '/vendor/composer/installed.php';
         if (is_file($installed_file)) {
             $version_info = include $installed_file;
-            $output->writeln(print_r($version_info['versions'], true));
         } else {
             $output->writeln("Файла $installed_file не существует");
         }
 
-        foreach (['localzet/server', 'triangle/engine', 'triangle/web'] as $package) {
+        foreach (['localzet/core', 'localzet/framex', 'localzet/webkit', 'localzet/server', 'triangle/engine', 'triangle/web'] as $package) {
             $out = '';
             if (isset($version_info['versions'][$package])) {
-                $output->writeln('Пакет Triangle v2');
                 switch ($package) {
+                        // Server
+                    case 'localzet/core':
                     case 'localzet/server':
-                        $out = 'Localzet Server';
+                        $out = 'Сервер:     Localzet Server';
+                        break;
+
+                        // Engine
+                    case 'localzet/framex':
+                        $out = 'Движок:     FrameX (FX) Engine';
                         break;
                     case 'triangle/engine':
-                        $out .= 'Triangle Engine';
+                        $out = 'Движок:     Triangle Engine';
+                        break;
+
+                        // Framework
+                    case 'localzet/webkit':
+                        $out = 'Фреймворк:  Localzet WebKit';
                         break;
                     case 'triangle/web':
-                        $out = 'Triangle Web';
+                        $out = 'Фреймворк:  Triangle Web';
                         break;
                 }
-                $output->writeln($out . ': ' . $version_info['versions'][$package]['pretty_version']);
+                $output->writeln($out . ' ' . $version_info['versions'][$package]['pretty_version']);
             }
         }
 
