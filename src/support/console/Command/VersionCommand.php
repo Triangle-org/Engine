@@ -41,48 +41,29 @@ class VersionCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $installed_file = base_path() . '/vendor/composer/installed.php';
-        $output->writeln("$installed_file");
         if (is_file($installed_file)) {
             $version_info = include $installed_file;
+            $output->writeln(print_r($version_info['versions'], true));
+        } else {
+            $output->writeln("Файла $installed_file не существует");
         }
 
-        $old = ['localzet/core', 'localzet/framex', 'localzet/webkit'];
-        $new = ['localzet/server', 'triangle/engine', 'triangle/web'];
-        foreach ($old + $new as $package) {
+        foreach (['localzet/server', 'triangle/engine', 'triangle/web'] as $package) {
             $out = '';
             if (isset($version_info['versions'][$package])) {
-                if (in_array($package, $old)) {
-                    $output->writeln('Пакет Triangle v1');
-                    switch ($package) {
-                        case 'localzet/core':
-                            $out .= 'WebCore Server';
-                            break;
-                        case 'localzet/framex':
-                            $out .= 'FrameX Engine';
-                            break;
-                        case 'localzet/webkit':
-                            $out .= 'WebKit';
-                            break;
-                    }
+                $output->writeln('Пакет Triangle v2');
+                switch ($package) {
+                    case 'localzet/server':
+                        $out = 'Localzet Server';
+                        break;
+                    case 'triangle/engine':
+                        $out .= 'Triangle Engine';
+                        break;
+                    case 'triangle/web':
+                        $out = 'Triangle Web';
+                        break;
                 }
-
-                if (in_array($package, $new)) {
-                    $output->writeln('Пакет Triangle v2');
-                    switch ($package) {
-                        case 'localzet/server':
-                            $out .= 'Localzet Server';
-                            break;
-                        case 'triangle/engine':
-                            $out .= 'Triangle Engine';
-                            break;
-                        case 'triangle/web':
-                            $out .= 'Triangle Web';
-                            break;
-                    }
-                }
-
-                $out .= ': ' . $version_info['versions'][$package]['pretty_version'];
-                $output->writeln("$out");
+                $output->writeln($out . ': ' . $version_info['versions'][$package]['pretty_version']);
             }
         }
 
