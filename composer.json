@@ -1,6 +1,6 @@
 {
     "name": "triangle/engine",
-    "description": "Triangle Engine - Ядро нового поколения.",
+    "description": "Triangle Engine - Next generation low-level HTTP engine",
     "type": "library",
     "keywords": [
         "localzet",

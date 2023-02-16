@@ -1,15 +1,12 @@
 <?php
 
 /**
- * @package     FrameX (FX) CLI Plugin
- * @link        https://localzet.gitbook.io
+ * @package     Triangle Engine
+ * @link        https://github.com/Triangle-org/Engine
  * 
- * @author      localzet <creator@localzet.ru>
- * 
- * @copyright   Copyright (c) 2018-2020 Zorin Projects 
- * @copyright   Copyright (c) 2020-2022 NONA Team
- * 
- * @license     https://www.localzet.ru/license GNU GPLv3 License
+ * @author      Ivan Zorin <creator@localzet.com>
+ * @copyright   Copyright (c) 2018-2023 Localzet Group
+ * @license     https://www.localzet.com/license GNU GPLv3 License
  */
 
 namespace support\console;

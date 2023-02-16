@@ -1,12 +1,12 @@
 <?php
 
-/*
- * This file is part of the Symfony package.
- *
- * (c) Fabien Potencier <fabien@symfony.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
+/**
+ * @package     Triangle Engine
+ * @link        https://github.com/Triangle-org/Engine
+ * 
+ * @author      Ivan Zorin <creator@localzet.com>
+ * @copyright   Copyright (c) 2018-2023 Localzet Group
+ * @license     https://www.localzet.com/license GNU GPLv3 License
  */
 
 namespace support\console\Input;
