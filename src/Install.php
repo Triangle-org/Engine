@@ -33,8 +33,8 @@ class Install
      */
     protected static $pathRelation = [
         'master' => 'master',
-        'start.php' => 'start.php',
-        'windows.php' => 'windows.php',
+        // 'start.php' => 'start.php',
+        // 'windows.php' => 'windows.php',
         'support/bootstrap.php' => 'support/bootstrap.php',
         // 'support/helpers.php' => 'support/helpers.php',
     ];
