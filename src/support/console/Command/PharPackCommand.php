@@ -106,13 +106,9 @@ __HALT_COMPILER();
         }
 
         if (ini_get('phar.readonly')) {
-            ini_set('phar.readonly', 'Off');
+            throw new RuntimeException(
+                "'phar.readonly' сейчас в 'On', phar должен установить его в 'Off' или выполнить 'php -d phar.readonly=0 ./framex phar:pack'"
+            );
         }
-
-        // if (ini_get('phar.readonly')) {
-        //     throw new RuntimeException(
-        //         "'phar.readonly' сейчас в 'On', phar должен установить его в 'Off' или выполнить 'php -d phar.readonly=0 ./framex phar:pack'"
-        //     );
-        // }
     }
 }
