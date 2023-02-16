@@ -46,7 +46,7 @@ class VersionCommand extends Command
         }
 
         $old = ['localzet/core', 'localzet/framex', 'localzet/webkit'];
-        $new = ['triangle/server', 'triangle/engine', 'triangle/framework'];
+        $new = ['localzet/server', 'triangle/engine', 'triangle/web'];
         foreach ($old + $new as $package) {
             $out = '';
             if (isset($version_info['versions'][$package])) {
@@ -68,14 +68,14 @@ class VersionCommand extends Command
                 if (in_array($package, $new)) {
                     $output->writeln('Пакет Triangle v2');
                     switch ($package) {
-                        case 'triangle/server':
-                            $out .= 'Server';
+                        case 'localzet/server':
+                            $out .= 'Localzet Server';
                             break;
                         case 'triangle/engine':
-                            $out .= 'Engine';
+                            $out .= 'Triangle Engine';
                             break;
-                        case 'triangle/framework':
-                            $out .= 'Framework';
+                        case 'triangle/web':
+                            $out .= 'Triangle Web';
                             break;
                     }
                 }
