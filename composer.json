@@ -52,7 +52,8 @@
         "illuminate/support": "^8.0",
         "illuminate/container": "^8.0",
         "mongodb/mongodb": "^1.6",
-        "vlucas/phpdotenv": "^5.5"
+        "vlucas/phpdotenv": "^5.5",
+        "league/event": "^3.0"
     },
     "autoload": {
         "psr-4": {
