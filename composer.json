@@ -53,7 +53,8 @@
         "illuminate/container": "^8.0",
         "mongodb/mongodb": "^1.6",
         "vlucas/phpdotenv": "^5.5",
-        "league/event": "^2.0"
+        "guzzlehttp/guzzle": "^6.5.8 || ^7.4.5",
+        "league/event": "^2.1"
     },
     "autoload": {
         "psr-4": {
