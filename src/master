@@ -53,6 +53,7 @@ if (is_dir($command_path = app_path() . '/command')) {
 }
 
 foreach (config('plugin', []) as $firm => $projects) {
+    if (config("plugin.$firm.app", false)) continue;
     foreach ($projects as $name => $project) {
         foreach ($project['command'] ?? [] as $command) {
             $cli->add(new $command);
