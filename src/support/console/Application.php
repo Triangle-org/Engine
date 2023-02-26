@@ -23,10 +23,10 @@
  */
 namespace support\console;
 
-use app\command\DisableCommand;
 use support\console\Command\Command;
 use support\console\Command\CompleteCommand;
 use support\console\Command\ConnectionsCommand;
+use support\console\Command\DisableCommand;
 use support\console\Command\DumpCompletionCommand;
 use support\console\Command\EnableCommand;
 use support\console\Command\HelpCommand;
