@@ -38,6 +38,8 @@ use support\console\Command\MakeCommandCommand;
 use support\console\Command\MakeControllerCommand;
 use support\console\Command\MakeMiddlewareCommand;
 use support\console\Command\MakeModelCommand;
+use support\console\Command\NginxDisableCommand;
+use support\console\Command\NginxEnableCommand;
 use support\console\Command\PharPackCommand;
 use support\console\Command\PluginCreateCommand;
 use support\console\Command\PluginDisableCommand;
@@ -1160,6 +1162,9 @@ class Application implements ResetInterface
 
             new EnableCommand(),
             new DisableCommand(),
+
+            new NginxEnableCommand(),
+            new NginxDisableCommand(),
             
             new MakeBootstrapCommand(),
             new MakeCommandCommand(),
