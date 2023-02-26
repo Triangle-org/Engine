@@ -23,10 +23,12 @@
  */
 namespace support\console;
 
+use app\command\DisableCommand;
 use support\console\Command\Command;
 use support\console\Command\CompleteCommand;
 use support\console\Command\ConnectionsCommand;
 use support\console\Command\DumpCompletionCommand;
+use support\console\Command\EnableCommand;
 use support\console\Command\HelpCommand;
 use support\console\Command\InstallCommand;
 use support\console\Command\LazyCommand;
@@ -1156,6 +1158,9 @@ class Application implements ResetInterface
 
             new ListCommand(), ////
 
+            new EnableCommand(),
+            new DisableCommand(),
+            
             new MakeBootstrapCommand(),
             new MakeCommandCommand(),
             new MakeControllerCommand(),
