@@ -1,8 +1,7 @@
 <?php
 
-namespace app\command;
+namespace support\console\Command;
 
-use support\console\Command\Command;
 use support\console\Input\InputInterface;
 use support\console\Output\OutputInterface;
 
