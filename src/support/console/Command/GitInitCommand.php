@@ -39,9 +39,6 @@ class GitInitCommand extends Command
         exec('cd ' . base_path() . ' && sudo git fetch origin');
         $output->writeln("<info>Получены данные</>");
 
-        exec('cd ' . base_path() . ' && sudo git reset --mixed origin/main');
-        $output->writeln("<info>Сброшены заголовки</>");
-
         $output->writeln("<info>Репозиторий связан с удалённым</>");
         return self::SUCCESS;
     }
