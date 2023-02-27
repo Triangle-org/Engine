@@ -23,7 +23,7 @@ class GitWebhookCommand extends Command
      * @return int
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
-    {        
+    {
         $file = base_path() . "/config/route.php";
         $conf = <<<EOF
 
@@ -33,11 +33,11 @@ class GitWebhookCommand extends Command
         });
         EOF;
 
-        $fstream = fopen($file, 'a+');
+        $fstream = fopen($file, 'a');
         fwrite($fstream, $conf);
         fclose($fstream);
 
-        $output->writeln("<info>Route добавлен. Настройте репозиторий на отправку Webhook на {домен}/.githook</>");
+        $output->writeln("<info>Route добавлен. Настройте репозиторий на отправку Webhook на " . config('app.domain', '{домен}') . "/.githook</>");
         return self::SUCCESS;
     }
 }
