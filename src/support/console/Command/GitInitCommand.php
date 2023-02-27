@@ -30,6 +30,8 @@ class GitInitCommand extends Command
             return self::FAILURE;
         }
 
+
+        exec('git config --global --add safe.directory ' . base_path());
         exec('cd ' . base_path() . ' && sudo git init .');
         $output->writeln("<info>Git инициирован</>");
 
