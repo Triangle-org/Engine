@@ -1156,7 +1156,7 @@ class Application implements ResetInterface
         return [
             new CompleteCommand(), ////
             new ConnectionsCommand(),
-            // new DumpCompletionCommand(), ////
+
             new HelpCommand(), ////
             new InstallCommand(),
 
