@@ -8,7 +8,7 @@ use support\console\Output\OutputInterface;
 class GitWebhookCommand extends Command
 {
     protected static $defaultName = 'git:webhook|git-webhook';
-    protected static $defaultDescription = 'Добавить Route для GitHub WebHook';
+    protected static $defaultDescription = 'Добавить Route для GitHub Webhook';
 
     /**
      * @return void
