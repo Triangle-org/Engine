@@ -8,7 +8,7 @@ use Throwable;
 
 class EnableCommand extends Command
 {
-    protected static $defaultName = 'enable';
+    protected static $defaultName = 'supervisor:enable|enable';
     protected static $defaultDescription = 'Добавить проект в автозагрузку';
 
     /**
@@ -30,35 +30,39 @@ class EnableCommand extends Command
             return self::FAILURE;
         }
 
-        // Парсим домен из пути до сайта
-        $domain = config('app.domain', explode('://', config('server.listen'))[1]);
+        if (empty(config('app.domain'))) {
+            $output->writeln("<error>Не задан app.domain</>");
+            return self::FAILURE;
+        }
+
+        $domain = config('app.domain');
         $directory = base_path();
+        $file = $directory . "/resources/supervisor.conf";
 
-        // Собираем конфигурацию
-        $conf = <<<EOF
-        [program:$domain]
-        user = root
-        command = php master restart
-        directory = $directory
-        numprocs = 1
-        autorestart = true
-        autostart = true
-        EOF;
+        if (!is_file($file)) {
+            $conf = <<<EOF
+            [program:$domain]
+            user = root
+            command = php master restart
+            directory = $directory
+            numprocs = 1
+            autorestart = true
+            autostart = true
+            EOF;
 
-        // Задаём путь до файла
-        $file = "/etc/supervisor/conf.d/$domain.conf";
+            $fstream = fopen($file, 'w');
+            fwrite($fstream, $conf);
+            fclose($fstream);
 
-        // Создаём файл и записываем конфигурацию
-        $fstream = fopen($file, 'w');
-        fwrite($fstream, $conf);
-        fclose($fstream);
+            $output->writeln("<comment>Конфигурация создана</>");
+        }
 
-        $output->writeln("<comment>Конфигурация создана</>");
+        exec("ln -sf $file /etc/supervisor/conf.d/$domain.conf");
+        $output->writeln("<info>Ссылка создана</>");
 
-        // Перезапускаем Supervisor
         exec("service supervisor restart");
-
         $output->writeln("<info>Supervisor перезапущен</>");
+        
         return self::SUCCESS;
     }
 }

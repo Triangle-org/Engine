@@ -29,6 +29,8 @@ use support\console\Command\ConnectionsCommand;
 use support\console\Command\DisableCommand;
 use support\console\Command\DumpCompletionCommand;
 use support\console\Command\EnableCommand;
+use support\console\Command\GitInitCommand;
+use support\console\Command\GitWebhookCommand;
 use support\console\Command\HelpCommand;
 use support\console\Command\InstallCommand;
 use support\console\Command\LazyCommand;
@@ -1154,7 +1156,7 @@ class Application implements ResetInterface
         return [
             new CompleteCommand(), ////
             new ConnectionsCommand(),
-            // new DumpCompletionCommand(), ////
+
             new HelpCommand(), ////
             new InstallCommand(),
 
@@ -1165,6 +1167,9 @@ class Application implements ResetInterface
 
             new NginxEnableCommand(),
             new NginxDisableCommand(),
+
+            new GitInitCommand(),
+            new GitWebhookCommand(),
             
             new MakeBootstrapCommand(),
             new MakeCommandCommand(),

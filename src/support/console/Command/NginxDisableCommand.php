@@ -29,14 +29,13 @@ class NginxDisableCommand extends Command
             return self::FAILURE;
         }
 
-        // Парсим домен из пути до сайта
         $domain = config('app.domain');
         if (empty($domain)) {
             $output->writeln("<error>Не задан app.domain</>");
             return self::FAILURE;
         }
-
         $file = "/etc/nginx/sites-enabled/$domain.conf";
+
         if (is_file($file)) {
             @unlink($file);
             $output->writeln("<info>Ссылка удалена</>");

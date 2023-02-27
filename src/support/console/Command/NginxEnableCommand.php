@@ -34,7 +34,6 @@ class NginxEnableCommand extends Command
             return self::FAILURE;
         }
 
-        // Парсим домен из пути до сайта
         $domain = config('app.domain');
         $directory = base_path();
         $file = $directory . "/resources/nginx.conf";
@@ -182,7 +181,6 @@ class NginxEnableCommand extends Command
                 EOF;
             }
 
-            // Создаём файл и записываем конфигурацию
             $fstream = fopen($file, 'w');
             fwrite($fstream, $conf);
             fclose($fstream);
@@ -190,15 +188,12 @@ class NginxEnableCommand extends Command
             $output->writeln("<comment>Конфигурация создана</>");
         }
 
-        // Создаём symlink
         exec("ln -sf $file /etc/nginx/sites-enabled/$domain.conf");
         $output->writeln("<info>Ссылка создана</>");
 
-        // Проверка конфигурации
         $output->writeln("<info>Проверка конфигурации:</>");
         exec("nginx -t");
 
-        // Перезагрузка Nginx
         exec("service nginx restart");
         $output->writeln("<info>Nginx перезагружен</>");
 
