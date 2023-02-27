@@ -33,7 +33,7 @@ class GitWebhookCommand extends Command
         });
         EOF;
 
-        $fstream = fopen($file, 'w');
+        $fstream = fopen($file, 'a');
         fwrite($fstream, $conf);
         fclose($fstream);
 
