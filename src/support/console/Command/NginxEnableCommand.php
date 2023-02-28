@@ -41,6 +41,7 @@ class NginxEnableCommand extends Command
         if (!is_file($file)) {
             // Внутренний IP
             $listen = config('server.listen');
+            $port = explode(':', $listen)[2];
 
             // Внешние IP 
             $listen_http = '';
@@ -101,40 +102,43 @@ class NginxEnableCommand extends Command
                 disable_symlinks if_not_owner from=\$root_path;
             
                 location / {
-                    proxy_pass $listen;
-                    proxy_redirect $listen/ /;
-
-                    proxy_pass_header Server;
+                    proxy_pass          http://Triangle$port;
+                    proxy_pass_header   Server;
                     
-                    proxy_set_header Host \$host;
+                    proxy_set_header    Host               \$host;
+                    proxy_set_header    Connection          "";
 
-                    proxy_set_header X-Real-IP \$remote_addr;
-                    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-                    proxy_set_header X-Forwarded-Port \$server_port;
-                    proxy_set_header X-Forwarded-Proto \$scheme;
+                    proxy_set_header    X-Real-IP          \$remote_addr;
+                    proxy_set_header    X-Forwarded-For    \$proxy_add_x_forwarded_for;
+                    proxy_set_header    X-Forwarded-Port   \$server_port;
+                    proxy_set_header    X-Forwarded-Proto  \$scheme;
 
-                    proxy_set_header  QUERY_STRING       \$query_string;
-                    proxy_set_header  REQUEST_METHOD     \$request_method;
-                    proxy_set_header  CONTENT_TYPE       \$content_type;
-                    proxy_set_header  CONTENT_LENGTH     \$content_length;
+                    proxy_set_header    QUERY_STRING       \$query_string;
+                    proxy_set_header    REQUEST_METHOD     \$request_method;
+                    proxy_set_header    CONTENT_TYPE       \$content_type;
+                    proxy_set_header    CONTENT_LENGTH     \$content_length;
 
-                    proxy_set_header  REQUEST_URI        \$request_uri;
-                    proxy_set_header  PATH_INFO          \$document_uri;
-                    proxy_set_header  DOCUMENT_ROOT      \$document_root;
-                    proxy_set_header  SERVER_PROTOCOL    \$server_protocol;
-                    proxy_set_header  REQUEST_SCHEME     \$scheme;
-                    proxy_set_header  HTTPS              \$https;
+                    proxy_set_header    REQUEST_URI        \$request_uri;
+                    proxy_set_header    PATH_INFO          \$document_uri;
+                    proxy_set_header    DOCUMENT_ROOT      \$document_root;
+                    proxy_set_header    SERVER_PROTOCOL    \$server_protocol;
+                    proxy_set_header    REQUEST_SCHEME     \$scheme;
+                    proxy_set_header    HTTPS              \$https;
 
-                    proxy_set_header  REMOTE_ADDR        \$remote_addr;
-                    proxy_set_header  REMOTE_PORT        \$remote_port;
-                    proxy_set_header  SERVER_PORT        \$server_port;
-                    proxy_set_header  SERVER_NAME        \$server_name;
+                    proxy_set_header    REMOTE_ADDR        \$remote_addr;
+                    proxy_set_header    REMOTE_PORT        \$remote_port;
+                    proxy_set_header    SERVER_PORT        \$server_port;
+                    proxy_set_header    SERVER_NAME        \$server_name;
                 }
             EOF;
 
             if (!empty($ssl_certificate)) {
                 // Конфигурация для HTTPS
                 $conf = <<<EOF
+                upstream Triangle$port {
+                    server $listen;
+                    keepalive 10240;
+                }
                 server {
                     server_name $domain;
                     
@@ -166,6 +170,10 @@ class NginxEnableCommand extends Command
             } else {
                 // Конфигурация для HTTP
                 $conf = <<<EOF
+                upstream Triangle$port {
+                    server $listen;
+                    keepalive 10240;
+                }
                 server {
                     server_name $domain;
 

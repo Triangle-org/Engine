@@ -27,8 +27,9 @@ class GitWebhookCommand extends Command
         $file = base_path() . "/config/route.php";
         $conf = <<<EOF
 
-        Triangle\Engine\Route::any('/.githook', function(support\Request \$request) {
+        Route::any('/.githook', function(\$request) {
             \$output = exec('cd ' . base_path() . ' && sudo git pull');
+            exec('cd ' . base_path() . ' && sudo php master restart');
             return responseJson(\$output);
         });
         EOF;
