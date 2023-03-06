@@ -84,9 +84,9 @@ class MakeMiddlewareCommand extends Command
 <?php
 namespace $namespace;
 
-use localzet\FrameX\MiddlewareInterface;
-use localzet\FrameX\Http\Response;
-use localzet\FrameX\Http\Request;
+use Triangle\Engine\MiddlewareInterface;
+use Triangle\Engine\Http\Response;
+use Triangle\Engine\Http\Request;
 
 class $name implements MiddlewareInterface
 {

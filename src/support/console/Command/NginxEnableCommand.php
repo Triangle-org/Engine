@@ -40,8 +40,8 @@ class NginxEnableCommand extends Command
 
         if (!is_file($file)) {
             // Внутренний IP
-            $listen = config('server.listen');
-            $port = explode(':', $listen)[2];
+            $listen = explode('://', config('server.listen'))[1];
+            $port = explode(':', $listen)[1];
 
             // Внешние IP 
             $listen_http = '';
