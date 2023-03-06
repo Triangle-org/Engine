@@ -85,20 +85,13 @@ class MakeBootstrapCommand extends Command
 
 namespace $namespace;
 
-use localzet\FrameX\Bootstrap;
+use Triangle\Engine\Bootstrap;
 
 class $name implements Bootstrap
 {
     public static function start(\$server)
     {
-        // Это консоль?
-        \$is_console = !\$server;
-        if (\$is_console) {
-            // Если вы не хотите выполнять это в консоли, просто оставь return.
-            return;
-        }
-
-
+        
     }
 
 }

@@ -28,7 +28,7 @@ use support\console\Command\Command;
 use support\console\Input\InputInterface;
 use support\console\Output\OutputInterface;
 use support\console\Helper\Table;
-use localzet\FrameX\Route;
+use Triangle\Engine\Route;
 
 class RouteListCommand extends Command
 {
