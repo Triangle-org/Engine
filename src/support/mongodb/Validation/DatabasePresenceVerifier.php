@@ -22,12 +22,13 @@
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
- namespace support\mongodb\Validation;
+namespace support\mongodb\Validation;
 
 class DatabasePresenceVerifier extends \Illuminate\Validation\DatabasePresenceVerifier
 {
     /**
      * Count the number of objects in a collection having the given value.
+     *
      * @param string $collection
      * @param string $column
      * @param string $value
@@ -38,7 +39,7 @@ class DatabasePresenceVerifier extends \Illuminate\Validation\DatabasePresenceVe
      */
     public function getCount($collection, $column, $value, $excludeId = null, $idColumn = null, array $extra = [])
     {
-        $query = $this->table($collection)->where($column, 'regex', '/'.preg_quote($value).'/i');
+        $query = $this->table($collection)->where($column, 'regex', '/' . preg_quote($value) . '/i');
 
         if ($excludeId !== null && $excludeId != 'NULL') {
             $query->where($idColumn ?: 'id', '<>', $excludeId);
@@ -53,6 +54,7 @@ class DatabasePresenceVerifier extends \Illuminate\Validation\DatabasePresenceVe
 
     /**
      * Count the number of objects in a collection with the given values.
+     *
      * @param string $collection
      * @param string $column
      * @param array $values
@@ -62,7 +64,7 @@ class DatabasePresenceVerifier extends \Illuminate\Validation\DatabasePresenceVe
     public function getMultiCount($collection, $column, array $values, array $extra = [])
     {
         // Generates a regex like '/(a|b|c)/i' which can query multiple values
-        $regex = '/('.implode('|', $values).')/i';
+        $regex = '/(' . implode('|', $values) . ')/i';
 
         $query = $this->table($collection)->where($column, 'regex', $regex);
 

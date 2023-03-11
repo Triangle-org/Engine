@@ -196,7 +196,7 @@ class Builder extends EloquentBuilder
             $results = iterator_to_array($results, false);
 
             return $this->model->hydrate($results);
-        } // Convert Mongo BSONDocument to a single object.
+        } // Convert MongoDB BSONDocument to a single object.
         elseif ($results instanceof BSONDocument) {
             $results = $results->getArrayCopy();
 
@@ -220,7 +220,7 @@ class Builder extends EloquentBuilder
      */
     protected function addUpdatedAtColumn(array $values)
     {
-        if (! $this->model->usesTimestamps() || $this->model->getUpdatedAtColumn() === null) {
+        if (!$this->model->usesTimestamps() || $this->model->getUpdatedAtColumn() === null) {
             return $values;
         }
 

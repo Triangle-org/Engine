@@ -35,6 +35,7 @@ class BelongsToMany extends EloquentBelongsToMany
 {
     /**
      * Get the key for comparing against the parent key in "has" query.
+     *
      * @return string
      */
     public function getHasCompareKey()
@@ -60,6 +61,7 @@ class BelongsToMany extends EloquentBelongsToMany
 
     /**
      * Set the select clause for the relation query.
+     *
      * @param array $columns
      * @return array
      */
@@ -88,6 +90,7 @@ class BelongsToMany extends EloquentBelongsToMany
 
     /**
      * Set the where clause for the relation query.
+     *
      * @return $this
      */
     protected function setWhere()
@@ -178,7 +181,8 @@ class BelongsToMany extends EloquentBelongsToMany
         // touching until after the entire operation is complete so we don't fire a
         // ton of touch operations until we are totally done syncing the records.
         $changes = array_merge(
-            $changes, $this->attachNew($records, $current, false)
+            $changes,
+            $this->attachNew($records, $current, false)
         );
 
         if (count($changes['attached']) || count($changes['updated'])) {
@@ -294,6 +298,7 @@ class BelongsToMany extends EloquentBelongsToMany
 
     /**
      * Create a new query builder for the related model.
+     *
      * @return \Illuminate\Database\Query\Builder
      */
     public function newRelatedQuery()
@@ -303,6 +308,7 @@ class BelongsToMany extends EloquentBelongsToMany
 
     /**
      * Get the fully qualified foreign key for the relation.
+     *
      * @return string
      */
     public function getForeignKey()
@@ -329,6 +335,7 @@ class BelongsToMany extends EloquentBelongsToMany
     /**
      * Format the sync list so that it is keyed by ID. (Legacy Support)
      * The original function has been renamed to formatRecordsList since Laravel 5.3.
+     *
      * @param array $records
      * @return array
      * @deprecated
@@ -337,7 +344,7 @@ class BelongsToMany extends EloquentBelongsToMany
     {
         $results = [];
         foreach ($records as $id => $attributes) {
-            if (! is_array($attributes)) {
+            if (!is_array($attributes)) {
                 [$id, $attributes] = [$attributes, []];
             }
             $results[$id] = $attributes;
@@ -348,6 +355,7 @@ class BelongsToMany extends EloquentBelongsToMany
 
     /**
      * Get the related key with backwards compatible support.
+     *
      * @return string
      */
     public function getRelatedKey()
@@ -357,6 +365,7 @@ class BelongsToMany extends EloquentBelongsToMany
 
     /**
      * Get the name of the "where in" method for eager loading.
+     *
      * @param \Illuminate\Database\Eloquent\Model $model
      * @param string $key
      * @return string

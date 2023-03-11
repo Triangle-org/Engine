@@ -32,6 +32,7 @@ trait EmbedsRelations
 {
     /**
      * Define an embedded one-to-many relationship.
+     *
      * @param string $related
      * @param string $localKey
      * @param string $foreignKey
@@ -66,6 +67,7 @@ trait EmbedsRelations
 
     /**
      * Define an embedded one-to-many relationship.
+     *
      * @param string $related
      * @param string $localKey
      * @param string $foreignKey
