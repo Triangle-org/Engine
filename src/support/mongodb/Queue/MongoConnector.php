@@ -32,12 +32,14 @@ class MongoConnector implements ConnectorInterface
 {
     /**
      * Database connections.
+     *
      * @var \Illuminate\Database\ConnectionResolverInterface
      */
     protected $connections;
 
     /**
      * Create a new connector instance.
+     *
      * @param \Illuminate\Database\ConnectionResolverInterface $connections
      */
     public function __construct(ConnectionResolverInterface $connections)
@@ -47,6 +49,7 @@ class MongoConnector implements ConnectorInterface
 
     /**
      * Establish a queue connection.
+     *
      * @param array $config
      * @return \Illuminate\Contracts\Queue\Queue
      */

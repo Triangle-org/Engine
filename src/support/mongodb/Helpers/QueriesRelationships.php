@@ -37,12 +37,14 @@ trait QueriesRelationships
 {
     /**
      * Add a relationship count / exists condition to the query.
+     *
      * @param Relation|string $relation
      * @param string $operator
      * @param int $count
      * @param string $boolean
      * @param Closure|null $callback
      * @return Builder|static
+     * @throws Exception
      */
     public function has($relation, $operator = '>=', $count = 1, $boolean = 'and', Closure $callback = null)
     {
@@ -68,7 +70,8 @@ trait QueriesRelationships
             : 'getRelationExistenceCountQuery';
 
         $hasQuery = $relation->{$method}(
-            $relation->getRelated()->newQuery(), $this
+            $relation->getRelated()->newQuery(),
+            $this
         );
 
         // Next we will call any given callback as an "anonymous" scope so they can get the
@@ -79,7 +82,11 @@ trait QueriesRelationships
         }
 
         return $this->addHasWhere(
-            $hasQuery, $relation, $operator, $count, $boolean
+            $hasQuery,
+            $relation,
+            $operator,
+            $count,
+            $boolean
         );
     }
 
@@ -94,6 +101,7 @@ trait QueriesRelationships
 
     /**
      * Compare across databases.
+     *
      * @param Relation $relation
      * @param string $operator
      * @param int $count
@@ -113,7 +121,7 @@ trait QueriesRelationships
         $not = in_array($operator, ['<', '<=', '!=']);
         // If we are comparing to 0, we need an additional $not flip.
         if ($count == 0) {
-            $not = ! $not;
+            $not = !$not;
         }
 
         $relations = $hasQuery->pluck($this->getHasCompareKey($relation));
@@ -172,6 +180,7 @@ trait QueriesRelationships
 
     /**
      * Returns key we are constraining this parent model's query with.
+     *
      * @param Relation $relation
      * @return string
      * @throws Exception
@@ -186,10 +195,10 @@ trait QueriesRelationships
             return $relation->getForeignKeyName();
         }
 
-        if ($relation instanceof BelongsToMany && ! $this->isAcrossConnections($relation)) {
+        if ($relation instanceof BelongsToMany && !$this->isAcrossConnections($relation)) {
             return $this->model->getKeyName();
         }
 
-        throw new Exception(class_basename($relation).' is not supported for hybrid query constraints.');
+        throw new Exception(class_basename($relation) . ' is not supported for hybrid query constraints.');
     }
 }

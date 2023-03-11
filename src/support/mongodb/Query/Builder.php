@@ -46,42 +46,49 @@ class Builder extends BaseBuilder
 {
     /**
      * The database collection.
+     *
      * @var \MongoDB\Collection
      */
     protected $collection;
 
     /**
      * The column projections.
+     *
      * @var array
      */
     public $projections;
 
     /**
      * The cursor timeout value.
+     *
      * @var int
      */
     public $timeout;
 
     /**
      * The cursor hint value.
+     *
      * @var int
      */
     public $hint;
 
     /**
      * Custom options to add to the query.
+     *
      * @var array
      */
     public $options = [];
 
     /**
      * Indicate if we are executing a pagination query.
+     *
      * @var bool
      */
     public $paginating = false;
 
     /**
      * All of the available clause operators.
+     *
      * @var array
      */
     public $operators = [
@@ -129,6 +136,7 @@ class Builder extends BaseBuilder
 
     /**
      * Operator conversion.
+     *
      * @var array
      */
     protected $conversion = [
@@ -153,7 +161,8 @@ class Builder extends BaseBuilder
 
     /**
      * Set the projections.
-     * @param array $columns
+     *
+     * @param  array  $columns
      * @return $this
      */
     public function project($columns)
@@ -165,7 +174,8 @@ class Builder extends BaseBuilder
 
     /**
      * Set the cursor timeout in seconds.
-     * @param int $seconds
+     *
+     * @param  int  $seconds
      * @return $this
      */
     public function timeout($seconds)
@@ -177,7 +187,8 @@ class Builder extends BaseBuilder
 
     /**
      * Set the cursor hint.
-     * @param mixed $index
+     *
+     * @param  mixed  $index
      * @return $this
      */
     public function hint($index)
@@ -227,8 +238,9 @@ class Builder extends BaseBuilder
 
     /**
      * Execute the query as a fresh "select" statement.
-     * @param array $columns
-     * @param bool $returnLazy
+     *
+     * @param  array  $columns
+     * @param  bool  $returnLazy
      * @return array|static[]|Collection|LazyCollection
      */
     public function getFresh($columns = [], $returnLazy = false)
@@ -356,6 +368,8 @@ class Builder extends BaseBuilder
                 $options = array_merge($options, $this->options);
             }
 
+            $options = $this->inheritConnectionOptions($options);
+
             // Execute aggregation
             $results = iterator_to_array($this->collection->aggregate($pipeline, $options));
 
@@ -366,12 +380,10 @@ class Builder extends BaseBuilder
             // Return distinct results directly
             $column = isset($this->columns[0]) ? $this->columns[0] : '_id';
 
+            $options = $this->inheritConnectionOptions();
+
             // Execute distinct
-            if ($wheres) {
-                $result = $this->collection->distinct($column, $wheres);
-            } else {
-                $result = $this->collection->distinct($column);
-            }
+            $result = $this->collection->distinct($column, $wheres ?: [], $options);
 
             return new Collection($result);
         } // Normal query
@@ -391,7 +403,7 @@ class Builder extends BaseBuilder
 
             // Apply order, offset, limit and projection
             if ($this->timeout) {
-                $options['maxTimeMS'] = $this->timeout;
+                $options['maxTimeMS'] = $this->timeout * 1000;
             }
             if ($this->orders) {
                 $options['sort'] = $this->orders;
@@ -417,6 +429,8 @@ class Builder extends BaseBuilder
                 $options = array_merge($options, $this->options);
             }
 
+            $options = $this->inheritConnectionOptions($options);
+
             // Execute query and get MongoCursor
             $cursor = $this->collection->find($wheres, $options);
 
@@ -437,6 +451,7 @@ class Builder extends BaseBuilder
 
     /**
      * Generate the unique cache key for the current query.
+     *
      * @return string
      */
     public function generateCacheKey()
@@ -522,7 +537,7 @@ class Builder extends BaseBuilder
         if ($column == 'natural') {
             $this->orders['$natural'] = $direction;
         } else {
-            $this->orders[$column] = $direction;
+            $this->orders[(string) $column] = $direction;
         }
 
         return $this;
@@ -530,10 +545,11 @@ class Builder extends BaseBuilder
 
     /**
      * Add a "where all" clause to the query.
-     * @param string $column
-     * @param array $values
-     * @param string $boolean
-     * @param bool $not
+     *
+     * @param  string  $column
+     * @param  array  $values
+     * @param  string  $boolean
+     * @param  bool  $not
      * @return $this
      */
     public function whereAll($column, array $values, $boolean = 'and', $not = false)
@@ -548,7 +564,7 @@ class Builder extends BaseBuilder
     /**
      * @inheritdoc
      */
-    public function whereBetween($column, array $values, $boolean = 'and', $not = false)
+    public function whereBetween($column, iterable $values, $boolean = 'and', $not = false)
     {
         $type = 'between';
 
@@ -589,8 +605,9 @@ class Builder extends BaseBuilder
             $values = [$values];
         }
 
-        // Batch insert
-        $result = $this->collection->insertMany($values);
+        $options = $this->inheritConnectionOptions();
+
+        $result = $this->collection->insertMany($values, $options);
 
         return 1 == (int) $result->isAcknowledged();
     }
@@ -600,7 +617,9 @@ class Builder extends BaseBuilder
      */
     public function insertGetId(array $values, $sequence = null)
     {
-        $result = $this->collection->insertOne($values);
+        $options = $this->inheritConnectionOptions();
+
+        $result = $this->collection->insertOne($values, $options);
 
         if (1 == (int) $result->isAcknowledged()) {
             if ($sequence === null) {
@@ -622,6 +641,8 @@ class Builder extends BaseBuilder
             $values = ['$set' => $values];
         }
 
+        $options = $this->inheritConnectionOptions($options);
+
         return $this->performUpdate($values, $options);
     }
 
@@ -642,6 +663,8 @@ class Builder extends BaseBuilder
 
             $query->orWhereNotNull($column);
         });
+
+        $options = $this->inheritConnectionOptions($options);
 
         return $this->performUpdate($query, $options);
     }
@@ -704,7 +727,10 @@ class Builder extends BaseBuilder
         }
 
         $wheres = $this->compileWheres();
-        $result = $this->collection->DeleteMany($wheres);
+        $options = $this->inheritConnectionOptions();
+
+        $result = $this->collection->deleteMany($wheres, $options);
+
         if (1 == (int) $result->isAcknowledged()) {
             return $result->getDeletedCount();
         }
@@ -729,16 +755,19 @@ class Builder extends BaseBuilder
      */
     public function truncate(): bool
     {
-        $result = $this->collection->deleteMany([]);
+        $options = $this->inheritConnectionOptions();
+        $result = $this->collection->deleteMany([], $options);
 
         return 1 === (int) $result->isAcknowledged();
     }
 
     /**
      * Get an array with the values of a given column.
-     * @param string $column
-     * @param string $key
+     *
+     * @param  string  $column
+     * @param  string  $key
      * @return array
+     *
      * @deprecated
      */
     public function lists($column, $key = null)
@@ -767,9 +796,10 @@ class Builder extends BaseBuilder
 
     /**
      * Append one or more values to an array.
-     * @param mixed $column
-     * @param mixed $value
-     * @param bool $unique
+     *
+     * @param  mixed  $column
+     * @param  mixed  $value
+     * @param  bool  $unique
      * @return int
      */
     public function push($column, $value = null, $unique = false)
@@ -793,8 +823,9 @@ class Builder extends BaseBuilder
 
     /**
      * Remove one or more values from an array.
-     * @param mixed $column
-     * @param mixed $value
+     *
+     * @param  mixed  $column
+     * @param  mixed  $value
      * @return int
      */
     public function pull($column, $value = null)
@@ -816,7 +847,8 @@ class Builder extends BaseBuilder
 
     /**
      * Remove one or more fields.
-     * @param mixed $columns
+     *
+     * @param  mixed  $columns
      * @return int
      */
     public function drop($columns)
@@ -846,8 +878,9 @@ class Builder extends BaseBuilder
 
     /**
      * Perform an update query.
-     * @param array $query
-     * @param array $options
+     *
+     * @param  array  $query
+     * @param  array  $options
      * @return int
      */
     protected function performUpdate($query, array $options = [])
@@ -856,6 +889,8 @@ class Builder extends BaseBuilder
         if (! array_key_exists('multiple', $options)) {
             $options['multiple'] = true;
         }
+
+        $options = $this->inheritConnectionOptions($options);
 
         $wheres = $this->compileWheres();
         $result = $this->collection->UpdateMany($wheres, $query, $options);
@@ -868,7 +903,8 @@ class Builder extends BaseBuilder
 
     /**
      * Convert a key to ObjectID if needed.
-     * @param mixed $id
+     *
+     * @param  mixed  $id
      * @return mixed
      */
     public function convertKey($id)
@@ -900,14 +936,15 @@ class Builder extends BaseBuilder
             }
         }
 
-        return call_user_func_array(parent::class . '::where', $params);
+        return parent::where(...$params);
     }
 
     /**
      * Compile the where array.
+     *
      * @return array
      */
-    protected function compileWheres()
+    protected function compileWheres(): array
     {
         // The wheres to compile.
         $wheres = $this->wheres ?: [];
@@ -1001,10 +1038,10 @@ class Builder extends BaseBuilder
     }
 
     /**
-     * @param array $where
+     * @param  array  $where
      * @return array
      */
-    protected function compileWhereAll(array $where)
+    protected function compileWhereAll(array $where): array
     {
         extract($where);
 
@@ -1012,10 +1049,10 @@ class Builder extends BaseBuilder
     }
 
     /**
-     * @param array $where
+     * @param  array  $where
      * @return array
      */
-    protected function compileWhereBasic(array $where)
+    protected function compileWhereBasic(array $where): array
     {
         extract($where);
 
@@ -1068,10 +1105,10 @@ class Builder extends BaseBuilder
     }
 
     /**
-     * @param array $where
+     * @param  array  $where
      * @return mixed
      */
-    protected function compileWhereNested(array $where)
+    protected function compileWhereNested(array $where): mixed
     {
         extract($where);
 
@@ -1079,10 +1116,10 @@ class Builder extends BaseBuilder
     }
 
     /**
-     * @param array $where
+     * @param  array  $where
      * @return array
      */
-    protected function compileWhereIn(array $where)
+    protected function compileWhereIn(array $where): array
     {
         extract($where);
 
@@ -1090,10 +1127,10 @@ class Builder extends BaseBuilder
     }
 
     /**
-     * @param array $where
+     * @param  array  $where
      * @return array
      */
-    protected function compileWhereNotIn(array $where)
+    protected function compileWhereNotIn(array $where): array
     {
         extract($where);
 
@@ -1101,10 +1138,10 @@ class Builder extends BaseBuilder
     }
 
     /**
-     * @param array $where
+     * @param  array  $where
      * @return array
      */
-    protected function compileWhereNull(array $where)
+    protected function compileWhereNull(array $where): array
     {
         $where['operator'] = '=';
         $where['value'] = null;
@@ -1113,10 +1150,10 @@ class Builder extends BaseBuilder
     }
 
     /**
-     * @param array $where
+     * @param  array  $where
      * @return array
      */
-    protected function compileWhereNotNull(array $where)
+    protected function compileWhereNotNull(array $where): array
     {
         $where['operator'] = '!=';
         $where['value'] = null;
@@ -1125,10 +1162,10 @@ class Builder extends BaseBuilder
     }
 
     /**
-     * @param array $where
+     * @param  array  $where
      * @return array
      */
-    protected function compileWhereBetween(array $where)
+    protected function compileWhereBetween(array $where): array
     {
         extract($where);
 
@@ -1158,10 +1195,10 @@ class Builder extends BaseBuilder
     }
 
     /**
-     * @param array $where
+     * @param  array  $where
      * @return array
      */
-    protected function compileWhereDate(array $where)
+    protected function compileWhereDate(array $where): array
     {
         extract($where);
 
@@ -1172,10 +1209,10 @@ class Builder extends BaseBuilder
     }
 
     /**
-     * @param array $where
+     * @param  array  $where
      * @return array
      */
-    protected function compileWhereMonth(array $where)
+    protected function compileWhereMonth(array $where): array
     {
         extract($where);
 
@@ -1186,10 +1223,10 @@ class Builder extends BaseBuilder
     }
 
     /**
-     * @param array $where
+     * @param  array  $where
      * @return array
      */
-    protected function compileWhereDay(array $where)
+    protected function compileWhereDay(array $where): array
     {
         extract($where);
 
@@ -1200,10 +1237,10 @@ class Builder extends BaseBuilder
     }
 
     /**
-     * @param array $where
+     * @param  array  $where
      * @return array
      */
-    protected function compileWhereYear(array $where)
+    protected function compileWhereYear(array $where): array
     {
         extract($where);
 
@@ -1214,10 +1251,10 @@ class Builder extends BaseBuilder
     }
 
     /**
-     * @param array $where
+     * @param  array  $where
      * @return array
      */
-    protected function compileWhereTime(array $where)
+    protected function compileWhereTime(array $where): array
     {
         extract($where);
 
@@ -1228,17 +1265,18 @@ class Builder extends BaseBuilder
     }
 
     /**
-     * @param array $where
+     * @param  array  $where
      * @return mixed
      */
-    protected function compileWhereRaw(array $where)
+    protected function compileWhereRaw(array $where): mixed
     {
         return $where['sql'];
     }
 
     /**
      * Set custom options for the query.
-     * @param array $options
+     *
+     * @param  array  $options
      * @return $this
      */
     public function options(array $options)
@@ -1249,12 +1287,24 @@ class Builder extends BaseBuilder
     }
 
     /**
+     * Apply the connection's session to options if it's not already specified.
+     */
+    private function inheritConnectionOptions(array $options = []): array
+    {
+        if (! isset($options['session']) && ($session = $this->connection->getSession())) {
+            $options['session'] = $session;
+        }
+
+        return $options;
+    }
+
+    /**
      * @inheritdoc
      */
     public function __call($method, $parameters)
     {
         if ($method == 'unset') {
-            return call_user_func_array([$this, 'drop'], $parameters);
+            return $this->drop(...$parameters);
         }
 
         return parent::__call($method, $parameters);

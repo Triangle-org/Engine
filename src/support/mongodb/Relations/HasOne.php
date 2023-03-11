@@ -32,6 +32,7 @@ class HasOne extends EloquentHasOne
 {
     /**
      * Get the key for comparing against the parent key in "has" query.
+     *
      * @return string
      */
     public function getForeignKeyName()
@@ -41,6 +42,7 @@ class HasOne extends EloquentHasOne
 
     /**
      * Get the key for comparing against the parent key in "has" query.
+     *
      * @return string
      */
     public function getHasCompareKey()
@@ -60,6 +62,7 @@ class HasOne extends EloquentHasOne
 
     /**
      * Get the name of the "where in" method for eager loading.
+     *
      * @param \Illuminate\Database\Eloquent\Model $model
      * @param string $key
      * @return string
