@@ -41,10 +41,6 @@
 
         "localzet/server": ">=2.2.4",
 
-        "jenssegers/blade": "^1.4.0",
-        "topthink/think-template": "^2.0.8",
-        "twig/twig": "^3.3.10",
-
         "illuminate/support": "^10.0",
         "illuminate/container": "^10.0",
         "illuminate/database": "^10.0",
