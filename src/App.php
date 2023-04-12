@@ -46,7 +46,6 @@ use Triangle\Engine\Route\Route as RouteObject;
 use localzet\Server\Connection\TcpConnection;
 use localzet\Server\Protocols\Http;
 use localzet\Server\Server;
-use support\ja3\Ja3;
 
 use function array_merge;
 use function array_pop;
@@ -118,11 +117,6 @@ class App
     protected static $requestClass = '';
 
     /**
-     * @var mixed
-     */
-    protected static $ja3 = null;
-
-    /**
      * @param string $requestClass
      * @param Logger $logger
      * @param string $appPath
@@ -144,10 +138,6 @@ class App
     public function onMessage($connection, $request)
     {
         try {
-            // if ($ja3 = Ja3::get($request)) {
-            //     static::$ja3 = $ja3;
-            // }
-
             Context::set(TcpConnection::class, $connection);
             Context::set(Request::class, $request);
             $path = $request->path();
@@ -531,14 +521,6 @@ class App
     public static function server(): ?Server
     {
         return static::$server;
-    }
-
-    /**
-     * @return mixed
-     */
-    public static function ja3()
-    {
-        return static::$ja3;
     }
 
     /**
