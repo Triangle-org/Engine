@@ -130,7 +130,7 @@ class Route
     /**
      * @return callable|null
      */
-    public function getCallback()//:?callable fix: null|callable|array
+    public function getCallback()
     {
         return $this->callback;
     }

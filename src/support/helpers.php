@@ -273,15 +273,16 @@ function redirect(string $location, int $status = 302, array $headers = []): Res
  * @param string $template
  * @param array $vars
  * @param string|null $app
+ * @param string|null $plugin
  * @param int $http_code
  * @return Response
  */
-function view(string $template, array $vars = [], string $app = null, int $http_code = 200): Response
+function view(string $template, array $vars = [], string $app = null, string $plugin = null, int $http_code = 200): Response
 {
     $request = \request();
-    $plugin = $request->plugin ?? '';
+    $plugin = $plugin === null ? ($request->plugin ?? '') : $plugin;
     $handler = config($plugin ? "plugin.$plugin.view.handler" : 'view.handler');
-    return new Response($http_code, [], $handler::render($template, $vars, $app));
+    return new Response($http_code, [], $handler::render($template, $vars, $app, $plugin));
 }
 
 /**
@@ -495,7 +496,8 @@ function server_bind($server, $class)
         'onBufferFull',
         'onBufferDrain',
         'onServerStop',
-        'onWebSocketConnect'
+        'onWebSocketConnect',
+        'onServerReload'
     ];
     foreach ($callbackMap as $name) {
         if (method_exists($class, $name)) {
