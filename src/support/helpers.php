@@ -155,7 +155,7 @@ function path_combine(string $front, string $back): string
  * @param string $body
  * @return Response
  */
-function response(string $body = '', int $status = 200, array $headers = [], $http_status = false, $onlyJson = false): Response
+function response($body = '', int $status = 200, array $headers = [], $http_status = false, $onlyJson = false): Response
 {
     $headers = $headers;
     $body = [
