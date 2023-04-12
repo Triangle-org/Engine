@@ -214,13 +214,14 @@ class Request extends \localzet\Server\Protocols\Http\Request
         if ($safeMode && !static::isIntranetIp($remoteIp)) {
             return $remoteIp;
         }
-        return $this->header('x-real-ip', $this->header(
+        $ip = $this->header('x-real-ip', $this->header(
             'x-forwarded-for',
             $this->header('client-ip', $this->header(
                 'x-client-ip',
                 $this->header('via', $remoteIp)
             ))
         ));
+        return filter_var($ip, FILTER_VALIDATE_IP) ? $ip : $remoteIp;
     }
 
     /**

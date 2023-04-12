@@ -65,12 +65,13 @@ class Raw implements View
      * @param string $template
      * @param array $vars
      * @param string|null $app
+     * @param string|null $plugin
      * @return false|string
      */
-    public static function render(string $template, array $vars, string $app = null, $plugin = null): string
+    public static function render(string $template, array $vars, string $app = null, string $plugin = null): string
     {
         $request = request();
-        $plugin = $plugin === null ? ($request->plugin ?? ''): $plugin;
+        $plugin = $plugin === null ? ($request->plugin ?? '') : $plugin;
         $configPrefix = $plugin ? "plugin.$plugin." : '';
         $view_global = config("{$configPrefix}view.options.view_global", false);
         $viewSuffix = config("{$configPrefix}view.options.view_suffix", 'html');
@@ -82,38 +83,29 @@ class Raw implements View
         $__template_head__ = ($view_global == true ? \app_path() : $baseViewPath) . ($app === '' ? "/view/$view_head.$viewSuffix" : "/$app/view/$view_head.$viewSuffix");
         $__template_foot__ = ($view_global == true ? \app_path() : $baseViewPath) . ($app === '' ? "/view/$view_footer.$viewSuffix" : "/$app/view/$view_footer.$viewSuffix");
 
-        $name = config('app.info.name', 'Triangle App');
-        $description = config('app.info.description', 'Simple web application on Triangle Engine');
-        $keywords = config('app.info.keywords', 'Triangle, Localzet Group, PHP');
-        $viewport = config('app.info.viewport', 'width=device-width, initial-scale=1');
+        $name = config('app.name', 'Triangle App');
+        $description = config('app.description', 'Simple web application on Triangle Engine');
+        $keywords = config('app.keywords', '');
+        $viewport = config('app.viewport', 'width=device-width, initial-scale=1');
 
         $domain = config('app.domain', 'https://' . $request->host(true));
         $canonical = config('app.canonical', $request->url());
         $src = config('app.src', 'https://static.localzet.com');
         $fonts = config('app.fonts', 'https://fonts.localzet.com');
 
-        $logo = config('app.info.logo', 'https://static.localzet.com/localzet.svg');
-        $og_image = config('app.info.og_image', 'https://static.localzet.com/localzet.svg');
+        $logo = config('app.logo', 'https://static.localzet.com/localzet.svg');
+        $og_image = config('app.og_image', 'https://static.localzet.com/localzet.svg');
 
-        $owner = config('app.info.owner', 'Ivan Zorin <creator@localzet.com>');
-        $designer = config('app.info.designer', 'Ivan Zorin <creator@localzet.com>');
-        $author = config('app.info.author', 'Ivan Zorin <creator@localzet.com>');
-        $copyright = config('app.info.copyright', 'Localzet Group');
-        $reply_to = config('app.info.reply_to', 'support@localzet.com');
-
-        // Backend
-        $_API = $_CORE = 'https://core.localzet.com';
-        $_STATIC = 'https://static.localzet.com';
-
-        // Frontend
-        $_COM = 'https://www.localzet.com';
-        $_ru = 'https://www.localzet.ru';
+        $owner = config('app.owner', '');
+        $designer = config('app.designer', '');
+        $author = config('app.author', '');
+        $copyright = config('app.copyright', '');
+        $reply_to = config('app.reply_to', '');
 
         $custom = [];
         $assets = [];
-        $user = [];
         $page = '';
-        
+
         $AppInfo = [
             'name' => $name,
             'description' => $description,
@@ -165,38 +157,27 @@ class Raw implements View
         $config_prefix = $plugin ? "plugin.$plugin." : '';
         $view = \config("{$config_prefix}view.system.$template", \app_path() . "/view/response/$template.phtml");
 
-        $name = config('app.info.name', 'Triangle App');
-        $description = config('app.info.description', 'Simple web application on Triangle Engine');
-        $keywords = config('app.info.keywords', 'Triangle, Localzet Group, PHP');
-        $viewport = config('app.info.viewport', 'width=device-width, initial-scale=1');
+        $name = config('app.name', 'Triangle App');
+        $description = config('app.description', 'Simple web application on Triangle Engine');
+        $keywords = config('app.keywords', '');
+        $viewport = config('app.viewport', 'width=device-width, initial-scale=1');
 
-        // $domain = config('app.domain', 'https://' . request()->host(true));
-        // $canonical = config('app.canonical', request()->url());
         $src = config('app.src', 'https://static.localzet.com');
         $fonts = config('app.fonts', 'https://fonts.localzet.com');
 
-        $logo = config('app.info.logo', 'https://static.localzet.com/localzet.svg');
-        $og_image = config('app.info.og_image', 'https://static.localzet.com/localzet.svg');
+        $logo = config('app.logo', 'https://static.localzet.com/localzet.svg');
+        $og_image = config('app.og_image', 'https://static.localzet.com/localzet.svg');
 
-        $owner = config('app.info.owner', 'Ivan Zorin <creator@localzet.com>');
-        $designer = config('app.info.designer', 'Ivan Zorin <creator@localzet.com>');
-        $author = config('app.info.author', 'Ivan Zorin <creator@localzet.com>');
-        $copyright = config('app.info.copyright', 'Localzet Group');
-        $reply_to = config('app.info.reply_to', 'support@localzet.com');
-
-        // Backend
-        $_API = $_CORE = 'https://core.localzet.com';
-        $_STATIC = 'https://static.localzet.com';
-
-        // Frontend
-        $_COM = 'https://www.localzet.com';
-        $_ru = 'https://www.localzet.ru';
+        $owner = config('app.owner', '');
+        $designer = config('app.designer', '');
+        $author = config('app.author', '');
+        $copyright = config('app.copyright', '');
+        $reply_to = config('app.reply_to', '');
 
         $custom = [];
         $assets = [];
-        $user = [];
         $page = '';
-        
+
         $AppInfo = [
             'name' => $name,
             'description' => $description,
@@ -212,8 +193,6 @@ class Raw implements View
             'copyright' => $copyright,
             'reply_to' => $reply_to,
 
-            // 'domain' => $domain,
-            // 'canonical' => $canonical,
             'src' => $src,
             'fonts' => $fonts,
         ];

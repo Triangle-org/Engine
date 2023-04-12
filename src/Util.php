@@ -45,7 +45,7 @@ class Util
             return [];
         }
         $paths = array_diff(scandir($basePath), array('.', '..')) ?: [];
-        return $withBasePath ? array_map(function ($path) use ($basePath) {
+        return $withBasePath ? array_map(static function ($path) use ($basePath) {
             return $basePath . DIRECTORY_SEPARATOR . $path;
         }, $paths) : $paths;
     }

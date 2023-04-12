@@ -31,7 +31,7 @@ namespace support\telegram;
  * The status is set for 5 seconds or less (when a message arrives from your bot, Telegram clients clear its typing
  * status).
  */
-class Actions
+final class Actions
 {
     /** Sets chat status as Typing. */
     public const TYPING = 'typing';
