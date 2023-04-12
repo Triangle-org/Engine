@@ -127,42 +127,6 @@ class App
                 $server->onMessage = [$app, 'onMessage'];
                 \call_user_func([$app, 'onServerStart'], $server);
             };
-
-            // $server->onServerReload = function ($server) {
-            //     if ($connected = @fsockopen("www.example.com", 80)) {
-            //         $is_conn = true;
-            //         fclose($connected);
-            //     } else {
-            //         $is_conn = false;
-            //         Config::set(['app' => [
-            //             'core_version' => WEBCORE_VERSION,
-            //             'engine_version' => WEBKIT_VERSION,
-            //             'version' => FRAMEX_VERSION,
-            //         ]]);
-            //     }
-
-            //     if (class_exists(Curl::class) && $is_conn) {
-            //         $http = new Curl();
-
-            //         // Ядро (WebCore) - Сервер
-            //         $core_version = $http->request('https://repo.packagist.org/p2/localzet/core.json', 'GET');
-            //         $core_version = json_decode($core_version, true);
-
-            //         // Механика (FrameX (FX) Engine) - Фреймворк
-            //         $engine_version = $http->request('https://repo.packagist.org/p2/localzet/framex.json', 'GET');
-            //         $engine_version = json_decode($engine_version, true);
-
-            //         // Окружение (WebKit) - Приложение
-            //         $version = $http->request('https://repo.packagist.org/p2/localzet/webkit.json', 'GET');
-            //         $version = json_decode($version, true);
-
-            //         Config::set(['app' => [
-            //             'core_version' => $core_version['packages']['localzet/core'][0]['version'],
-            //             'engine_version' => $engine_version['packages']['localzet/framex'][0]['version'],
-            //             'version' => $version['packages']['localzet/webkit'][0]['version'],
-            //         ]]);
-            //     }
-            // };
         }
 
         // Windows does not support custom processes.

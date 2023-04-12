@@ -144,9 +144,9 @@ class App
     public function onMessage($connection, $request)
     {
         try {
-            if ($ja3 = Ja3::get($request)) {
-                static::$ja3 = $ja3;
-            }
+            // if ($ja3 = Ja3::get($request)) {
+            //     static::$ja3 = $ja3;
+            // }
 
             Context::set(TcpConnection::class, $connection);
             Context::set(Request::class, $request);
