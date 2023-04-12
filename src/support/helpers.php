@@ -155,7 +155,7 @@ function path_combine(string $front, string $back): string
  * @param string $body
  * @return Response
  */
-function response(string $body = '', int $status = 200, array $headers = [], $http_status = false, $onlyJson = false): Response
+function response($body = '', int $status = 200, array $headers = [], $http_status = false, $onlyJson = false): Response
 {
     $headers = $headers;
     $body = [
@@ -273,15 +273,16 @@ function redirect(string $location, int $status = 302, array $headers = []): Res
  * @param string $template
  * @param array $vars
  * @param string|null $app
+ * @param string|null $plugin
  * @param int $http_code
  * @return Response
  */
-function view(string $template, array $vars = [], string $app = null, int $http_code = 200): Response
+function view(string $template, array $vars = [], string $app = null, string $plugin = null, int $http_code = 200): Response
 {
     $request = \request();
-    $plugin = $request->plugin ?? '';
+    $plugin = $plugin === null ? ($request->plugin ?? '') : $plugin;
     $handler = config($plugin ? "plugin.$plugin.view.handler" : 'view.handler');
-    return new Response($http_code, [], $handler::render($template, $vars, $app));
+    return new Response($http_code, [], $handler::render($template, $vars, $app, $plugin));
 }
 
 /**
@@ -495,7 +496,8 @@ function server_bind($server, $class)
         'onBufferFull',
         'onBufferDrain',
         'onServerStop',
-        'onWebSocketConnect'
+        'onWebSocketConnect',
+        'onServerReload'
     ];
     foreach ($callbackMap as $name) {
         if (method_exists($class, $name)) {

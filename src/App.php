@@ -46,6 +46,8 @@ use Triangle\Engine\Route\Route as RouteObject;
 use localzet\Server\Connection\TcpConnection;
 use localzet\Server\Protocols\Http;
 use localzet\Server\Server;
+use support\ja3\Ja3;
+
 use function array_merge;
 use function array_pop;
 use function array_reduce;
@@ -116,6 +118,11 @@ class App
     protected static $requestClass = '';
 
     /**
+     * @var mixed
+     */
+    protected static $ja3 = null;
+
+    /**
      * @param string $requestClass
      * @param Logger $logger
      * @param string $appPath
@@ -137,6 +144,11 @@ class App
     public function onMessage($connection, $request)
     {
         try {
+            if ($ja3 = Ja3::get($request)) {
+                static::$ja3 = $ja3;
+            }
+
+            Context::set(TcpConnection::class, $connection);
             Context::set(Request::class, $request);
             $path = $request->path();
             $key = $request->method() . $path;
@@ -157,6 +169,7 @@ class App
             $controllerAndAction = static::parseControllerAction($path);
             $plugin = $controllerAndAction['plugin'] ?? static::getPluginByPath($path);
             if (!$controllerAndAction || Route::hasDisableDefaultRoute($plugin)) {
+                $request->plugin = $plugin;
                 $callback = static::getFallback($plugin);
                 $request->app = $request->controller = $request->action = '';
                 static::send($connection, $callback($request), $request);
@@ -407,11 +420,9 @@ class App
             }
         }
         if (!$firstParameter->hasType()) {
-            if (count($args) <= count($reflectionParameters)) {
-                return false;
-            }
-            return true;
-        } elseif (!is_a(static::$requestClass, $firstParameter->getType()->getName())) {
+            return count($args) > count($reflectionParameters);
+        }
+        if (!is_a(static::$requestClass, $firstParameter->getType()->getName())) {
             return true;
         }
 
@@ -499,6 +510,14 @@ class App
     }
 
     /**
+     * @return TcpConnection
+     */
+    public static function connection()
+    {
+        return Context::get(TcpConnection::class);
+    }
+
+    /**
      * @return Request|\support\Request
      */
     public static function request()
@@ -515,6 +534,14 @@ class App
     }
 
     /**
+     * @return mixed
+     */
+    public static function ja3()
+    {
+        return static::$ja3;
+    }
+
+    /**
      * @param TcpConnection $connection
      * @param string $path
      * @param string $key
@@ -526,13 +553,13 @@ class App
      */
     protected static function findRoute(TcpConnection $connection, string $path, string $key, $request): bool
     {
-        $ret = Route::dispatch($request->method(), $path);
-        if ($ret[0] === Dispatcher::FOUND) {
-            $ret[0] = 'route';
-            $callback = $ret[1]['callback'];
-            $route = clone $ret[1]['route'];
+        $routeInfo = Route::dispatch($request->method(), $path);
+        if ($routeInfo[0] === Dispatcher::FOUND) {
+            $routeInfo[0] = 'route';
+            $callback = $routeInfo[1]['callback'];
+            $route = clone $routeInfo[1]['route'];
             $app = $controller = $action = '';
-            $args = !empty($ret[2]) ? $ret[2] : null;
+            $args = !empty($routeInfo[2]) ? $routeInfo[2] : null;
             if ($args) {
                 $route->setParams($args);
             }
@@ -623,6 +650,9 @@ class App
      */
     protected static function send($connection, $response, $request)
     {
+        if ($response === null) {
+            return;
+        }
         $keepAlive = $request->header('connection');
         Context::destroy();
         if (($keepAlive === null && $request->protocolVersion() === '1.1')
@@ -893,7 +923,7 @@ class App
     }
 
     /**
-     * @param $data
+     * @param mixed $data
      * @return string
      */
     protected static function stringify($data): string
