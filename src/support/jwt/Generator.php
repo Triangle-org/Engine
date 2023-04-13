@@ -117,9 +117,9 @@ class Generator
         $allow = ['iss', 'sub', 'aud', 'nbf', 'iat', 'jti'];
         $disallow = ['access_exp', 'refresh_exp', 'exp'];
         $payload = [
-            'iss' => 'Triangle Security System',
+            'iss' => 'Triangle JWT Module',
             'sub' => 'Verify Key',
-            'aud' => 'Localzet Group',
+            'aud' => config('app.name', 'Triangle App'),
             'nbf' => time(),
             'iat' => time(),
         ];
