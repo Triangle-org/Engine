@@ -63,42 +63,18 @@ class Install
     public static function installByRelation()
     {
         foreach (static::$pathRelation as $source => $dest) {
-            if ($pos = \strrpos($dest, '/')) {
-                $parentDir = base_path() . '/' . \substr($dest, 0, $pos);
-                if (!\is_dir($parentDir)) {
-                    \mkdir($parentDir, 0777, true);
+            if ($pos = strrpos($dest, '/')) {
+                $parentDir = base_path() . '/' . substr($dest, 0, $pos);
+                if (!is_dir($parentDir)) {
+                    mkdir($parentDir, 0777, true);
                 }
             }
             $sourceFile = __DIR__ . "/$source";
             copy_dir($sourceFile, base_path() . "/$dest", true);
             echo "Создан $dest\r\n";
-            if (\is_file($sourceFile)) {
-                @\unlink($sourceFile);
+            if (is_file($sourceFile)) {
+                @unlink($sourceFile);
             }
         }
-    }
-}
-
-/**
- * Copy dir
- * @param string $source
- * @param string $dest
- * @param bool $overwrite
- * @return void
- */
-function copy_dir(string $source, string $dest, bool $overwrite = false)
-{
-    if (is_dir($source)) {
-        if (!is_dir($dest)) {
-            mkdir($dest);
-        }
-        $files = scandir($source);
-        foreach ($files as $file) {
-            if ($file !== "." && $file !== "..") {
-                copy_dir("$source/$file", "$dest/$file");
-            }
-        }
-    } else if (file_exists($source) && ($overwrite || !file_exists($dest))) {
-        copy($source, $dest);
     }
 }

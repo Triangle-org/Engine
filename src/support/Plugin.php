@@ -27,14 +27,16 @@ namespace support;
 class Plugin
 {
     /**
+     * Install.
      * @param mixed $event
      * @return void
      */
     public static function install($event)
     {
+        static::findHelper();
         $psr4 = static::getPsr4($event);
         foreach ($psr4 as $namespace => $path) {
-            $pluginConst  = "\\{$namespace}Install::FRAMEX_PLUGIN";
+            $pluginConst = "\\{$namespace}Install::FRAMEX_PLUGIN";
             if (!defined($pluginConst)) {
                 continue;
             }
@@ -46,11 +48,13 @@ class Plugin
     }
 
     /**
+     * Update.
      * @param mixed $event
      * @return void
      */
     public static function update($event)
     {
+        static::findHelper();
         $psr4 = static::getPsr4($event);
         foreach ($psr4 as $namespace => $path) {
             $pluginConst = "\\{$namespace}Install::FRAMEX_PLUGIN";
@@ -70,11 +74,13 @@ class Plugin
     }
 
     /**
+     * Uninstall.
      * @param mixed $event
      * @return void
      */
     public static function uninstall($event)
     {
+        static::findHelper();
         $psr4 = static::getPsr4($event);
         foreach ($psr4 as $namespace => $path) {
             $pluginConst = "\\{$namespace}Install::FRAMEX_PLUGIN";
@@ -102,17 +108,18 @@ class Plugin
     }
 
     /**
+     * FindHelper.
      * @return void
      */
-    protected static function findHepler()
+    protected static function findHelper()
     {
         // Plugin.php in vendor
         $file = __DIR__ . '/../../../../../support/helpers.php';
-        if (\is_file($file)) {
+        if (is_file($file)) {
             require_once $file;
             return;
         }
-        // Plugin.php
+        // Plugin.php in webman
         require_once __DIR__ . '/helpers.php';
     }
 }
