@@ -34,34 +34,30 @@ abstract class EmbedsOneOrMany extends Relation
 {
     /**
      * The local key of the parent model.
-     *
      * @var string
      */
     protected $localKey;
 
     /**
      * The foreign key of the parent model.
-     *
      * @var string
      */
     protected $foreignKey;
 
     /**
      * The "name" of the relationship.
-     *
      * @var string
      */
     protected $relation;
 
     /**
      * Create a new embeds many relationship instance.
-     *
-     * @param  Builder  $query
-     * @param  Model  $parent
-     * @param  Model  $related
-     * @param  string  $localKey
-     * @param  string  $foreignKey
-     * @param  string  $relation
+     * @param Builder $query
+     * @param Model $parent
+     * @param Model $related
+     * @param string $localKey
+     * @param string $foreignKey
+     * @param string $relation
      */
     public function __construct(Builder $query, Model $parent, Model $related, $localKey, $foreignKey, $relation)
     {
@@ -116,8 +112,7 @@ abstract class EmbedsOneOrMany extends Relation
 
     /**
      * Shorthand to get the results of the relationship.
-     *
-     * @param  array  $columns
+     * @param array $columns
      * @return Collection
      */
     public function get($columns = ['*'])
@@ -127,7 +122,6 @@ abstract class EmbedsOneOrMany extends Relation
 
     /**
      * Get the number of embedded models.
-     *
      * @return int
      */
     public function count()
@@ -137,8 +131,7 @@ abstract class EmbedsOneOrMany extends Relation
 
     /**
      * Attach a model instance to the parent model.
-     *
-     * @param  Model  $model
+     * @param Model $model
      * @return Model|bool
      */
     public function save(Model $model)
@@ -150,8 +143,7 @@ abstract class EmbedsOneOrMany extends Relation
 
     /**
      * Attach a collection of models to the parent instance.
-     *
-     * @param  Collection|array  $models
+     * @param Collection|array $models
      * @return Collection|array
      */
     public function saveMany($models)
@@ -165,8 +157,7 @@ abstract class EmbedsOneOrMany extends Relation
 
     /**
      * Create a new instance of the related model.
-     *
-     * @param  array  $attributes
+     * @param array $attributes
      * @return Model
      */
     public function create(array $attributes = [])
@@ -185,8 +176,7 @@ abstract class EmbedsOneOrMany extends Relation
 
     /**
      * Create an array of new instances of the related model.
-     *
-     * @param  array  $records
+     * @param array $records
      * @return array
      */
     public function createMany(array $records)
@@ -202,8 +192,7 @@ abstract class EmbedsOneOrMany extends Relation
 
     /**
      * Transform single ID, single Model or array of Models into an array of IDs.
-     *
-     * @param  mixed  $ids
+     * @param mixed $ids
      * @return array
      */
     protected function getIdsArrayFrom($ids)
@@ -257,8 +246,7 @@ abstract class EmbedsOneOrMany extends Relation
 
     /**
      * Get the foreign key value for the relation.
-     *
-     * @param  mixed  $id
+     * @param mixed $id
      * @return mixed
      */
     protected function getForeignKeyValue($id)
@@ -268,13 +256,12 @@ abstract class EmbedsOneOrMany extends Relation
         }
 
         // Convert the id to MongoId if necessary.
-        return $this->toBase()->convertKey($id);
+        return $this->getBaseQuery()->convertKey($id);
     }
 
     /**
      * Convert an array of records to a Collection.
-     *
-     * @param  array  $records
+     * @param array $records
      * @return Collection
      */
     protected function toCollection(array $records = [])
@@ -294,8 +281,7 @@ abstract class EmbedsOneOrMany extends Relation
 
     /**
      * Create a related model instanced.
-     *
-     * @param  array  $attributes
+     * @param array $attributes
      * @return Model
      */
     protected function toModel($attributes = [])
@@ -323,7 +309,6 @@ abstract class EmbedsOneOrMany extends Relation
 
     /**
      * Get the relation instance of the parent.
-     *
      * @return Relation
      */
     protected function getParentRelation()
@@ -344,7 +329,7 @@ abstract class EmbedsOneOrMany extends Relation
     /**
      * @inheritdoc
      */
-    public function toBase()
+    public function getBaseQuery()
     {
         // Because we are sharing this relation instance to models, we need
         // to make sure we use separate query instances.
@@ -353,7 +338,6 @@ abstract class EmbedsOneOrMany extends Relation
 
     /**
      * Check if this relation is nested in another relation.
-     *
      * @return bool
      */
     protected function isNested()
@@ -363,8 +347,7 @@ abstract class EmbedsOneOrMany extends Relation
 
     /**
      * Get the fully qualified local key name.
-     *
-     * @param  string  $glue
+     * @param string $glue
      * @return string
      */
     protected function getPathHierarchy($glue = '.')
@@ -390,7 +373,6 @@ abstract class EmbedsOneOrMany extends Relation
 
     /**
      * Get the primary key value of the parent.
-     *
      * @return string
      */
     protected function getParentKey()
@@ -400,9 +382,8 @@ abstract class EmbedsOneOrMany extends Relation
 
     /**
      * Return update values.
-     *
      * @param $array
-     * @param  string  $prepend
+     * @param string $prepend
      * @return array
      */
     public static function getUpdateValues($array, $prepend = '')
@@ -418,7 +399,6 @@ abstract class EmbedsOneOrMany extends Relation
 
     /**
      * Get the foreign key for the relationship.
-     *
      * @return string
      */
     public function getQualifiedForeignKeyName()
@@ -428,9 +408,8 @@ abstract class EmbedsOneOrMany extends Relation
 
     /**
      * Get the name of the "where in" method for eager loading.
-     *
-     * @param  \Illuminate\Database\Eloquent\Model  $model
-     * @param  string  $key
+     * @param \Illuminate\Database\Eloquent\Model $model
+     * @param string $key
      * @return string
      */
     protected function whereInMethod(EloquentModel $model, $key)

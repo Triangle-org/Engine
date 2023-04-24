@@ -196,7 +196,7 @@ class Builder extends EloquentBuilder
             $results = iterator_to_array($results, false);
 
             return $this->model->hydrate($results);
-        } // Convert MongoDB BSONDocument to a single object.
+        } // Convert Mongo BSONDocument to a single object.
         elseif ($results instanceof BSONDocument) {
             $results = $results->getArrayCopy();
 
