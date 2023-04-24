@@ -899,8 +899,7 @@ class Builder extends BaseBuilder
                 $operator = substr($operator, 1);
             }
         }
-
-        return call_user_func_array('parent::where', $params);
+        return parent::where(...$params);
     }
 
     /**
