@@ -48,11 +48,16 @@
         "symfony/polyfill-mbstring": "~1.0",
         "symfony/service-contracts": "^1.1|^2|^3",
         "symfony/string": "^5.4|^6.0",
+
+        "illuminate/support": "^8.0",
+        "illuminate/container": "^8.0",
+        "illuminate/database": "^8.0",
+        "illuminate/events": "^8.0",
+        "mongodb/mongodb": "^1.6",
         
         "php-di/php-di": "^6.4",
         "doctrine/annotations": "^1.13",
         "monolog/monolog": "^2.0",
-        "mongodb/mongodb": "^1.15",
         "vlucas/phpdotenv": "^5.5",
         "guzzlehttp/guzzle": "^6.5.8 || ^7.4.5",
         "league/event": "^2.1",
