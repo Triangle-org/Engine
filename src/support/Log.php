@@ -56,14 +56,15 @@ class Log
      * @param string $name
      * @return Logger
      */
-    public static function channel(string $name = 'default'): Logger
+    public static function channel(string $name = 'default', $localConfig = []): Logger
     {
         if (!isset(static::$instance[$name])) {
-            $config = config('log', [])[$name];
+            $config = config("log.$name", $localConfig);
             $handlers = self::handlers($config);
             $processors = self::processors($config);
             static::$instance[$name] = new Logger($name, $handlers, $processors);
         }
+
         return static::$instance[$name];
     }
 
@@ -79,10 +80,9 @@ class Log
         foreach ($handlerConfigs as $value) {
             $class = $value['class'] ?? [];
             $constructor = $value['constructor'] ?? [];
+            $formatter = $value['formatter'] ?? [];
 
-            $formatterConfig = $value['formatter'] ?? [];
-
-            $class && $handlers[] = self::handler($class, $constructor, $formatterConfig);
+            $class && $handlers[] = self::handler($class, $constructor, $formatter);
         }
 
         return $handlers;

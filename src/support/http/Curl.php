@@ -115,13 +115,15 @@ class Curl implements HttpClientInterface
     /**
      * logger instance
      *
-     * @var Log
+     * @var Log|null
      */
     protected $logger = null;
 
     function __construct()
     {
-        $this->logger = Log::channel('http');
+        if (config('log.http', false)) {
+            $this->logger = Log::channel('http');
+        }
     }
 
     /**
