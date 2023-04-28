@@ -16,6 +16,11 @@ abstract class Command implements CommandInterface
     use Answerable;
 
     /**
+     * @var string
+     */
+    private const OPTIONAL_BOT_NAME = '(?:\@[\w]*bot\b)?\s+';
+
+    /**
      * The name of the Telegram command.
      * Ex: help - Whenever the user sends /help, this would be resolved.
      *
@@ -349,13 +354,13 @@ abstract class Command implements CommandInterface
         $message = $this->getUpdate()
             ->getMessage();
 
-        return ! $message->hasCommand() ?
+        return !$message->hasCommand() ?
             collect() :
             $message
-                ->get('entities', collect())
-                ->filter(function (MessageEntity $entity) {
-                    return $entity->type === 'bot_command';
-                })
-                ->pluck('offset');
+            ->get('entities', collect())
+            ->filter(function (MessageEntity $entity) {
+                return $entity->type === 'bot_command';
+            })
+            ->pluck('offset');
     }
 }

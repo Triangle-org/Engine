@@ -89,14 +89,16 @@ class TelegramResponse
      */
     public function decodeBody()
     {
-        $this->decodedBody = json_decode($this->body, true);
-
+        if ($this->body !== '' && $this->body !== '0') {
+            $this->decodedBody = json_decode($this->body, true, 512, JSON_THROW_ON_ERROR);
+        }
+        
         if ($this->decodedBody === null) {
             $this->decodedBody = [];
             parse_str($this->body, $this->decodedBody);
         }
 
-        if (! is_array($this->decodedBody)) {
+        if (!is_array($this->decodedBody)) {
             $this->decodedBody = [];
         }
 
@@ -201,7 +203,7 @@ class TelegramResponse
      */
     public function getResult()
     {
-        return $this->decodedBody['result'];
+        return $this->decodedBody['result'] ?? false;
     }
 
     /**
