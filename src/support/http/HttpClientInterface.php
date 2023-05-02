@@ -3,21 +3,21 @@
 /**
  * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
- * 
+ *
  * @author      Ivan Zorin <creator@localzet.com>
  * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.gnu.org/licenses/agpl AGPL-3.0 license
- * 
+ *
  *              This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU Affero General Public License as
  *              published by the Free Software Foundation, either version 3 of the
  *              License, or (at your option) any later version.
- *              
+ *
  *              This program is distributed in the hope that it will be useful,
  *              but WITHOUT ANY WARRANTY; without even the implied warranty of
  *              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *              GNU Affero General Public License for more details.
- *              
+ *
  *              You should have received a copy of the GNU Affero General Public License
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -42,28 +42,28 @@ interface HttpClientInterface
      *
      * @return mixed
      */
-    public function request($uri, $method = 'GET', $parameters = [], $headers = [], $multipart = false);
+    public function request(string $uri, string $method = 'GET', array $parameters = [], array $headers = [], bool $multipart = false): mixed;
 
     /**
      * Returns raw response from the server on success, FALSE on failure
      *
      * @return mixed
      */
-    public function getResponseBody();
+    public function getResponseBody(): mixed;
 
     /**
      * Retriever the headers returned in the response
      *
      * @return array
      */
-    public function getResponseHeader();
+    public function getResponseHeader(): array;
 
     /**
      * Returns latest request HTTP status code
      *
      * @return int
      */
-    public function getResponseHttpCode();
+    public function getResponseHttpCode(): int;
 
     /**
      * Returns latest error encountered by the client
@@ -71,5 +71,5 @@ interface HttpClientInterface
      *
      * @return mixed
      */
-    public function getResponseClientError();
+    public function getResponseClientError(): mixed;
 }

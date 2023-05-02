@@ -3,21 +3,21 @@
 /**
  * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
- * 
+ *
  * @author      Ivan Zorin <creator@localzet.com>
  * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.gnu.org/licenses/agpl AGPL-3.0 license
- * 
+ *
  *              This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU Affero General Public License as
  *              published by the Free Software Foundation, either version 3 of the
  *              License, or (at your option) any later version.
- *              
+ *
  *              This program is distributed in the hope that it will be useful,
  *              but WITHOUT ANY WARRANTY; without even the implied warranty of
  *              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *              GNU Affero General Public License for more details.
- *              
+ *
  *              You should have received a copy of the GNU Affero General Public License
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -25,15 +25,14 @@
 namespace Triangle\Engine;
 
 use Fiber;
-use SplObjectStorage;
-use StdClass;
-use WeakMap;
-use Swow\Coroutine;
 use localzet\Server\Events\Revolt;
 use localzet\Server\Events\Swoole;
 use localzet\Server\Events\Swow;
 use localzet\Server\Server;
-
+use SplObjectStorage;
+use StdClass;
+use Swow\Coroutine;
+use WeakMap;
 use function property_exists;
 
 /**
@@ -45,12 +44,12 @@ class Context
     /**
      * @var SplObjectStorage|WeakMap
      */
-    protected static $objectStorage;
+    protected static WeakMap|SplObjectStorage $objectStorage;
 
     /**
      * @var StdClass
      */
-    protected static $object;
+    protected static StdClass $object;
 
     /**
      * @return StdClass
@@ -71,24 +70,21 @@ class Context
     /**
      * @return mixed
      */
-    protected static function getKey()
+    protected static function getKey(): mixed
     {
-        switch (Server::$eventLoopClass) {
-            case Revolt::class:
-                return Fiber::getCurrent();
-            case Swoole::class:
-                return \Swoole\Coroutine::getContext();
-            case Swow::class:
-                return Coroutine::getCurrent();
-        }
-        return static::$object;
+        return match (Server::$eventLoopClass) {
+            Revolt::class => Fiber::getCurrent(),
+            Swoole::class => \Swoole\Coroutine::getContext(),
+            Swow::class => Coroutine::getCurrent(),
+            default => static::$object,
+        };
     }
 
     /**
      * @param string|null $key
      * @return mixed
      */
-    public static function get(string $key = null)
+    public static function get(string $key = null): mixed
     {
         $obj = static::getObject();
         if ($key === null) {

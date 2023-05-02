@@ -10,6 +10,8 @@ use Psr\Cache\CacheItemPoolInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use RuntimeException;
+use function is_null;
+use function strlen;
 
 /**
  * @implements ArrayAccess<string, Key>
@@ -19,69 +21,70 @@ class CachedKeySet implements ArrayAccess
     /**
      * @var string
      */
-    private $jwksUri;
+    private string $jwksUri;
     /**
      * @var ClientInterface
      */
-    private $httpClient;
+    private ClientInterface $httpClient;
     /**
      * @var RequestFactoryInterface
      */
-    private $httpFactory;
+    private RequestFactoryInterface $httpFactory;
     /**
      * @var CacheItemPoolInterface
      */
-    private $cache;
+    private CacheItemPoolInterface $cache;
     /**
      * @var ?int
      */
-    private $expiresAfter;
+    private ?int $expiresAfter;
     /**
      * @var ?CacheItemInterface
      */
-    private $cacheItem;
+    private ?CacheItemInterface $cacheItem;
     /**
      * @var array<string, Key>
      */
-    private $keySet;
+    private array $keySet;
     /**
      * @var string
      */
-    private $cacheKey;
+    private string $cacheKey;
     /**
      * @var string
      */
-    private $cacheKeyPrefix = 'jwks';
+    private string $cacheKeyPrefix = 'jwks';
     /**
      * @var int
      */
-    private $maxKeyLength = 64;
+    private int $maxKeyLength = 64;
     /**
      * @var bool
      */
-    private $rateLimit;
+    private bool $rateLimit;
     /**
      * @var string
      */
-    private $rateLimitCacheKey;
+    private string $rateLimitCacheKey;
     /**
      * @var int
      */
-    private $maxCallsPerMinute = 10;
+    private int $maxCallsPerMinute = 10;
     /**
      * @var string|null
      */
-    private $defaultAlg;
+    private ?string $defaultAlg;
 
     public function __construct(
-        string $jwksUri,
-        ClientInterface $httpClient,
+        string                  $jwksUri,
+        ClientInterface         $httpClient,
         RequestFactoryInterface $httpFactory,
-        CacheItemPoolInterface $cache,
-        int $expiresAfter = null,
-        bool $rateLimit = false,
-        string $defaultAlg = null
-    ) {
+        CacheItemPoolInterface  $cache,
+        int                     $expiresAfter = null,
+        bool                    $rateLimit = false,
+        string                  $defaultAlg = null
+    )
+    {
         $this->jwksUri = $jwksUri;
         $this->httpClient = $httpClient;
         $this->httpFactory = $httpFactory;
@@ -95,6 +98,8 @@ class CachedKeySet implements ArrayAccess
     /**
      * @param string $keyId
      * @return Key
+     * @throws \Psr\Cache\InvalidArgumentException
+     * @throws \Psr\Http\Client\ClientExceptionInterface
      */
     public function offsetGet($keyId): Key
     {
@@ -107,6 +112,8 @@ class CachedKeySet implements ArrayAccess
     /**
      * @param string $keyId
      * @return bool
+     * @throws \Psr\Cache\InvalidArgumentException
+     * @throws \Psr\Http\Client\ClientExceptionInterface
      */
     public function offsetExists($keyId): bool
     {
@@ -130,6 +137,10 @@ class CachedKeySet implements ArrayAccess
         throw new LogicException('Метод не реализован');
     }
 
+    /**
+     * @throws \Psr\Http\Client\ClientExceptionInterface
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
     private function keyIdExists(string $keyId): bool
     {
         if (null === $this->keySet) {
@@ -146,7 +157,7 @@ class CachedKeySet implements ArrayAccess
             }
             $request = $this->httpFactory->createRequest('GET', $this->jwksUri);
             $jwksResponse = $this->httpClient->sendRequest($request);
-            $jwks = (string) $jwksResponse->getBody();
+            $jwks = (string)$jwksResponse->getBody();
             $this->keySet = JWK::parseKeySet(json_decode($jwks, true), $this->defaultAlg);
 
             if (!isset($this->keySet[$keyId])) {
@@ -164,6 +175,9 @@ class CachedKeySet implements ArrayAccess
         return true;
     }
 
+    /**
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
     private function rateLimitExceeded(): bool
     {
         if (!$this->rateLimit) {
@@ -175,7 +189,7 @@ class CachedKeySet implements ArrayAccess
             $cacheItem->expiresAfter(1);
         }
 
-        $callsPerMinute = (int) $cacheItem->get();
+        $callsPerMinute = (int)$cacheItem->get();
         if (++$callsPerMinute > $this->maxCallsPerMinute) {
             return true;
         }
@@ -184,9 +198,12 @@ class CachedKeySet implements ArrayAccess
         return false;
     }
 
+    /**
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
     private function getCacheItem(): CacheItemInterface
     {
-        if (\is_null($this->cacheItem)) {
+        if (is_null($this->cacheItem)) {
             $this->cacheItem = $this->cache->getItem($this->cacheKey);
         }
 
@@ -199,11 +216,11 @@ class CachedKeySet implements ArrayAccess
             throw new RuntimeException('JWKS URI пуст');
         }
 
-        $key = preg_replace('|[^a-zA-Z0-9_\.!]|', '', $this->jwksUri);
+        $key = preg_replace('|[^a-zA-Z0-9_.!]|', '', $this->jwksUri);
 
         $key = $this->cacheKeyPrefix . $key;
 
-        if (\strlen($key) > $this->maxKeyLength) {
+        if (strlen($key) > $this->maxKeyLength) {
             $key = substr(hash('sha256', $key), 0, $this->maxKeyLength);
         }
 
@@ -212,7 +229,7 @@ class CachedKeySet implements ArrayAccess
         if ($this->rateLimit) {
             $rateLimitKey = $this->cacheKeyPrefix . 'ratelimit' . $key;
 
-            if (\strlen($rateLimitKey) > $this->maxKeyLength) {
+            if (strlen($rateLimitKey) > $this->maxKeyLength) {
                 $rateLimitKey = substr(hash('sha256', $rateLimitKey), 0, $this->maxKeyLength);
             }
 

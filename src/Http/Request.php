@@ -3,21 +3,21 @@
 /**
  * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
- * 
+ *
  * @author      Ivan Zorin <creator@localzet.com>
  * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.gnu.org/licenses/agpl AGPL-3.0 license
- * 
+ *
  *              This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU Affero General Public License as
  *              published by the Free Software Foundation, either version 3 of the
  *              License, or (at your option) any later version.
- *              
+ *
  *              This program is distributed in the hope that it will be useful,
  *              but WITHOUT ANY WARRANTY; without even the implied warranty of
  *              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *              GNU Affero General Public License for more details.
- *              
+ *
  *              You should have received a copy of the GNU Affero General Public License
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -29,7 +29,6 @@ use function current;
 use function filter_var;
 use function ip2long;
 use function is_array;
-use function strpos;
 use const FILTER_FLAG_IPV4;
 use const FILTER_FLAG_NO_PRIV_RANGE;
 use const FILTER_FLAG_NO_RES_RANGE;
@@ -41,44 +40,44 @@ use const FILTER_VALIDATE_IP;
 class Request extends \localzet\Server\Protocols\Http\Request
 {
     /**
-     * @var string
+     * @var string|null
      */
-    public $plugin = null;
+    public ?string $plugin = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    public $app = null;
+    public ?string $app = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    public $controller = null;
+    public ?string $controller = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    public $action = null;
+    public ?string $action = null;
 
     /**
-     * @var Route
+     * @var Route|null
      */
-    public $route = null;
+    public ?Route $route = null;
 
     /**
      * @return mixed|null
      */
-    public function all()
+    public function all(): mixed
     {
         return $this->post() + $this->get();
     }
 
     /**
      * @param string $name
-     * @param mixed $default
+     * @param mixed|null $default
      * @return mixed|null
      */
-    public function input(string $name, $default = null)
+    public function input(string $name, mixed $default = null): mixed
     {
         $post = $this->post();
         if (isset($post[$name])) {
@@ -108,7 +107,7 @@ class Request extends \localzet\Server\Protocols\Http\Request
      * @param array $keys
      * @return mixed|null
      */
-    public function except(array $keys)
+    public function except(array $keys): mixed
     {
         $all = $this->all();
         foreach ($keys as $key) {
@@ -121,7 +120,7 @@ class Request extends \localzet\Server\Protocols\Http\Request
      * @param string|null $name
      * @return null|UploadFile[]|UploadFile
      */
-    public function file($name = null)
+    public function file($name = null): array|UploadFile|null
     {
         $files = parent::file($name);
         if (null === $files) {
@@ -269,7 +268,7 @@ class Request extends \localzet\Server\Protocols\Http\Request
      */
     public function acceptJson(): bool
     {
-        return false !== strpos($this->header('accept', ''), 'json');
+        return str_contains($this->header('accept', ''), 'json');
     }
 
     /**
@@ -286,7 +285,7 @@ class Request extends \localzet\Server\Protocols\Http\Request
         if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
             return true;
         }
-        // Ручная проверка IPv4 .
+        // Ручная проверка IPv4.
         if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
             return false;
         }

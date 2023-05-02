@@ -74,7 +74,8 @@ class GuzzleHttpClient implements HttpClientInterface
         array $headers = [],
         array $options = [],
         $isAsyncRequest = false
-    ) {
+    )
+    {
         $body = $options['body'] ?? null;
         $options = $this->getOptions($headers, $body, $options, $isAsyncRequest);
 
@@ -92,7 +93,7 @@ class GuzzleHttpClient implements HttpClientInterface
                 $response = $e->getResponse();
             }
 
-            if (! $response instanceof ResponseInterface) {
+            if (!$response instanceof ResponseInterface) {
                 throw new TelegramSDKException($e->getMessage(), $e->getCode(), $e);
             }
         }
@@ -106,23 +107,24 @@ class GuzzleHttpClient implements HttpClientInterface
      * @param array $headers
      * @param       $body
      * @param array $options
-     * @param bool  $isAsyncRequest
+     * @param bool $isAsyncRequest
      *
      * @return array
      */
     private function getOptions(
         array $headers,
-        $body,
-        $options,
-        $isAsyncRequest = false,
-        $proxy = null
-    ): array {
+              $body,
+              $options,
+              $isAsyncRequest = false,
+              $proxy = null
+    ): array
+    {
         $default_options = [
-            RequestOptions::HEADERS         => $headers,
-            RequestOptions::BODY            => $body,
-            RequestOptions::TIMEOUT         => $this->getTimeOut(),
+            RequestOptions::HEADERS => $headers,
+            RequestOptions::BODY => $body,
+            RequestOptions::TIMEOUT => $this->getTimeOut(),
             RequestOptions::CONNECT_TIMEOUT => $this->getConnectTimeOut(),
-            RequestOptions::SYNCHRONOUS     => ! $isAsyncRequest,
+            RequestOptions::SYNCHRONOUS => !$isAsyncRequest,
         ];
 
         if ($proxy !== null) {

@@ -2,6 +2,8 @@
 
 namespace support\jwt\Exception;
 
-class SignatureInvalidException extends \UnexpectedValueException
+use UnexpectedValueException;
+
+class SignatureInvalidException extends UnexpectedValueException
 {
 }

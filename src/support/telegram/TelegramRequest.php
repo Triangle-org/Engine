@@ -3,21 +3,21 @@
 /**
  * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
- * 
+ *
  * @author      Ivan Zorin <creator@localzet.com>
  * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.gnu.org/licenses/agpl AGPL-3.0 license
- * 
+ *
  *              This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU Affero General Public License as
  *              published by the Free Software Foundation, either version 3 of the
  *              License, or (at your option) any later version.
- *              
+ *
  *              This program is distributed in the hope that it will be useful,
  *              but WITHOUT ANY WARRANTY; without even the implied warranty of
  *              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *              GNU Affero General Public License for more details.
- *              
+ *
  *              You should have received a copy of the GNU Affero General Public License
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -66,8 +66,8 @@ class TelegramRequest
      * @param string|null $accessToken
      * @param string|null $method
      * @param string|null $endpoint
-     * @param array|null  $params
-     * @param bool        $isAsyncRequest
+     * @param array|null $params
+     * @param bool $isAsyncRequest
      */
     public function __construct(
         $accessToken = null,
@@ -75,7 +75,8 @@ class TelegramRequest
         $endpoint = null,
         array $params = [],
         $isAsyncRequest = false
-    ) {
+    )
+    {
         $this->setAccessToken($accessToken);
         $this->setMethod($method);
         $this->setEndpoint($endpoint);
@@ -140,11 +141,11 @@ class TelegramRequest
      */
     public function validateMethod()
     {
-        if (! $this->method) {
+        if (!$this->method) {
             throw new TelegramSDKException('HTTP method not specified.');
         }
 
-        if (! in_array($this->method, ['GET', 'POST'])) {
+        if (!in_array($this->method, ['GET', 'POST'])) {
             throw new TelegramSDKException('Invalid HTTP method specified. Must be GET or POST');
         }
     }

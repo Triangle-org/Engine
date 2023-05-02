@@ -3,27 +3,31 @@
 /**
  * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
- * 
+ *
  * @author      Ivan Zorin <creator@localzet.com>
  * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.gnu.org/licenses/agpl AGPL-3.0 license
- * 
+ *
  *              This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU Affero General Public License as
  *              published by the Free Software Foundation, either version 3 of the
  *              License, or (at your option) any later version.
- *              
+ *
  *              This program is distributed in the hope that it will be useful,
  *              but WITHOUT ANY WARRANTY; without even the implied warranty of
  *              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *              GNU Affero General Public License for more details.
- *              
+ *
  *              You should have received a copy of the GNU Affero General Public License
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 namespace support\console\Command;
 
+use Closure;
+use ReflectionClass;
+use ReflectionFunction;
+use ReflectionProperty;
 use support\console\Application;
 use support\console\Attribute\AsCommand;
 use support\console\Completion\CompletionInput;
@@ -37,6 +41,10 @@ use support\console\Input\InputDefinition;
 use support\console\Input\InputInterface;
 use support\console\Input\InputOption;
 use support\console\Output\OutputInterface;
+use function function_exists;
+use function is_array;
+use const PHP_OS;
+use const PHP_VERSION_ID;
 
 /**
  * Base class for all commands.
@@ -53,53 +61,57 @@ class Command
     /**
      * @var string|null The default command name
      */
-    protected static $defaultName;
+    protected static ?string $defaultName;
 
     /**
      * @var string|null The default command description
      */
-    protected static $defaultDescription;
+    protected static ?string $defaultDescription;
 
-    private $application;
-    private $name;
+    private ?Application $application;
+    private ?string $name;
     private $processTitle;
-    private $aliases = [];
-    private $definition;
-    private $hidden = false;
-    private $help = '';
-    private $description = '';
+    private array $aliases = [];
+    private InputDefinition $definition;
+    private bool $hidden = false;
+    private string $help = '';
+    private string $description = '';
     private $fullDefinition;
-    private $ignoreValidationErrors = false;
+    private bool $ignoreValidationErrors = false;
     private $code;
-    private $synopsis = [];
-    private $usages = [];
-    private $helperSet;
+    private array $synopsis = [];
+    private array $usages = [];
+    private ?HelperSet $helperSet;
 
     /**
      * @return string|null
+     * @throws \ReflectionException
      */
-    public static function getDefaultName()
+    public static function getDefaultName(): ?string
     {
         $class = static::class;
 
-        if (\PHP_VERSION_ID >= 80000 && $attribute = (new \ReflectionClass($class))->getAttributes(AsCommand::class)) {
+        if (PHP_VERSION_ID >= 80000 && $attribute = (new ReflectionClass($class))->getAttributes(AsCommand::class)) {
             return $attribute[0]->newInstance()->name;
         }
 
-        $r = new \ReflectionProperty($class, 'defaultName');
+        $r = new ReflectionProperty($class, 'defaultName');
 
         return $class === $r->class ? static::$defaultName : null;
     }
 
+    /**
+     * @throws \ReflectionException
+     */
     public static function getDefaultDescription(): ?string
     {
         $class = static::class;
 
-        if (\PHP_VERSION_ID >= 80000 && $attribute = (new \ReflectionClass($class))->getAttributes(AsCommand::class)) {
+        if (PHP_VERSION_ID >= 80000 && $attribute = (new ReflectionClass($class))->getAttributes(AsCommand::class)) {
             return $attribute[0]->newInstance()->description;
         }
 
-        $r = new \ReflectionProperty($class, 'defaultDescription');
+        $r = new ReflectionProperty($class, 'defaultDescription');
 
         return $class === $r->class ? static::$defaultDescription : null;
     }
@@ -108,6 +120,7 @@ class Command
      * @param string|null $name The name of the command; passing null means it must be set in configure()
      *
      * @throws LogicException When the command name is empty
+     * @throws \ReflectionException
      */
     public function __construct(string $name = null)
     {
@@ -140,12 +153,12 @@ class Command
      *
      * This is mainly useful for the help command.
      */
-    public function ignoreValidationErrors()
+    public function ignoreValidationErrors(): void
     {
         $this->ignoreValidationErrors = true;
     }
 
-    public function setApplication(Application $application = null)
+    public function setApplication(Application $application = null): void
     {
         $this->application = $application;
         if ($application) {
@@ -157,7 +170,7 @@ class Command
         $this->fullDefinition = null;
     }
 
-    public function setHelperSet(HelperSet $helperSet)
+    public function setHelperSet(HelperSet $helperSet): void
     {
         $this->helperSet = $helperSet;
     }
@@ -167,7 +180,7 @@ class Command
      *
      * @return HelperSet|null
      */
-    public function getHelperSet()
+    public function getHelperSet(): ?HelperSet
     {
         return $this->helperSet;
     }
@@ -177,7 +190,7 @@ class Command
      *
      * @return Application|null
      */
-    public function getApplication()
+    public function getApplication(): ?Application
     {
         return $this->application;
     }
@@ -190,7 +203,7 @@ class Command
      *
      * @return bool
      */
-    public function isEnabled()
+    public function isEnabled(): bool
     {
         return true;
     }
@@ -216,7 +229,7 @@ class Command
      *
      * @see setCode()
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         throw new LogicException('You must override the execute() method in the concrete command class.');
     }
@@ -260,7 +273,7 @@ class Command
      * @see setCode()
      * @see execute()
      */
-    public function run(InputInterface $input, OutputInterface $output)
+    public function run(InputInterface $input, OutputInterface $output): int
     {
         // add the application arguments and options
         $this->mergeApplicationDefinition();
@@ -277,15 +290,15 @@ class Command
         $this->initialize($input, $output);
 
         if (null !== $this->processTitle) {
-            if (\function_exists('cli_set_process_title')) {
+            if (function_exists('cli_set_process_title')) {
                 if (!@cli_set_process_title($this->processTitle)) {
-                    if ('Darwin' === \PHP_OS) {
+                    if ('Darwin' === PHP_OS) {
                         $output->writeln('<comment>Запуск «cli_set_process_title» от имени непривилегированного пользователя не поддерживается в MacOS..</comment>', OutputInterface::VERBOSITY_VERY_VERBOSE);
                     } else {
                         cli_set_process_title($this->processTitle);
                     }
                 }
-            } elseif (\function_exists('setproctitle')) {
+            } elseif (function_exists('setproctitle')) {
                 setproctitle($this->processTitle);
             } elseif (OutputInterface::VERBOSITY_VERY_VERBOSE === $output->getVerbosity()) {
                 $output->writeln('<comment>Установите proctitle PECL, чтобы иметь возможность изменить название процесса.</comment>');
@@ -310,12 +323,9 @@ class Command
         } else {
             $statusCode = $this->execute($input, $output);
 
-            if (!\is_int($statusCode)) {
-                throw new \TypeError(sprintf('Return value of "%s::execute()" must be of the type int, "%s" returned.', static::class, get_debug_type($statusCode)));
-            }
         }
 
-        return is_numeric($statusCode) ? (int) $statusCode : 0;
+        return is_numeric($statusCode) ? (int)$statusCode : 0;
     }
 
     /**
@@ -335,18 +345,18 @@ class Command
      *
      * @return $this
      *
-     * @throws InvalidArgumentException
-     *
+     * @throws \ReflectionException
      * @see execute()
      */
     public function setCode(callable $code)
     {
-        if ($code instanceof \Closure) {
-            $r = new \ReflectionFunction($code);
+        if ($code instanceof Closure) {
+            $r = new ReflectionFunction($code);
             if (null === $r->getClosureThis()) {
-                set_error_handler(static function () {});
+                set_error_handler(static function () {
+                });
                 try {
-                    if ($c = \Closure::bind($code, $this)) {
+                    if ($c = Closure::bind($code, $this)) {
                         $code = $c;
                     }
                 } finally {
@@ -439,19 +449,17 @@ class Command
     /**
      * Adds an argument.
      *
-     * @param int|null $mode    The argument mode: InputArgument::REQUIRED or InputArgument::OPTIONAL
-     * @param mixed    $default The default value (for InputArgument::OPTIONAL mode only)
-     *
-     * @throws InvalidArgumentException When argument mode is not valid
+     * @param int|null $mode The argument mode: InputArgument::REQUIRED or InputArgument::OPTIONAL
+     * @param mixed $default The default value (for InputArgument::OPTIONAL mode only)
      *
      * @return $this
+     * @throws InvalidArgumentException When argument mode is not valid
+     *
      */
     public function addArgument(string $name, int $mode = null, string $description = '', $default = null)
     {
         $this->definition->addArgument(new InputArgument($name, $mode, $description, $default));
-        if (null !== $this->fullDefinition) {
-            $this->fullDefinition->addArgument(new InputArgument($name, $mode, $description, $default));
-        }
+        $this->fullDefinition?->addArgument(new InputArgument($name, $mode, $description, $default));
 
         return $this;
     }
@@ -460,19 +468,17 @@ class Command
      * Adds an option.
      *
      * @param string|array|null $shortcut The shortcuts, can be null, a string of shortcuts delimited by | or an array of shortcuts
-     * @param int|null          $mode     The option mode: One of the InputOption::VALUE_* constants
-     * @param mixed             $default  The default value (must be null for InputOption::VALUE_NONE)
-     *
-     * @throws InvalidArgumentException If option mode is invalid or incompatible
+     * @param int|null $mode The option mode: One of the InputOption::VALUE_* constants
+     * @param mixed $default The default value (must be null for InputOption::VALUE_NONE)
      *
      * @return $this
+     * @throws InvalidArgumentException If option mode is invalid or incompatible
+     *
      */
     public function addOption(string $name, $shortcut = null, int $mode = null, string $description = '', $default = null)
     {
         $this->definition->addOption(new InputOption($name, $shortcut, $mode, $description, $default));
-        if (null !== $this->fullDefinition) {
-            $this->fullDefinition->addOption(new InputOption($name, $shortcut, $mode, $description, $default));
-        }
+        $this->fullDefinition?->addOption(new InputOption($name, $shortcut, $mode, $description, $default));
 
         return $this;
     }
@@ -607,7 +613,7 @@ class Command
         ];
         $replacements = [
             $name,
-            $isSingleCommand ? $_SERVER['PHP_SELF'] : $_SERVER['PHP_SELF'].' '.$name,
+            $isSingleCommand ? $_SERVER['PHP_SELF'] : $_SERVER['PHP_SELF'] . ' ' . $name,
         ];
 
         return str_replace($placeholders, $replacements, $this->getHelp() ?: $this->getDescription());
@@ -631,7 +637,7 @@ class Command
             $list[] = $alias;
         }
 
-        $this->aliases = \is_array($aliases) ? $aliases : $list;
+        $this->aliases = is_array($aliases) ? $aliases : $list;
 
         return $this;
     }
@@ -716,7 +722,7 @@ class Command
      */
     private function validateName(string $name)
     {
-        if (!preg_match('/^[^\:]++(\:[^\:]++)*$/', $name)) {
+        if (!preg_match('/^[^:]++(\:[^\:]++)*$/', $name)) {
             throw new InvalidArgumentException(sprintf('Command name "%s" is invalid.', $name));
         }
     }

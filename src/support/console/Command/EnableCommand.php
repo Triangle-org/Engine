@@ -4,12 +4,11 @@ namespace support\console\Command;
 
 use support\console\Input\InputInterface;
 use support\console\Output\OutputInterface;
-use Throwable;
 
 class EnableCommand extends Command
 {
-    protected static $defaultName = 'supervisor:enable|enable';
-    protected static $defaultDescription = 'Добавить проект в автозагрузку';
+    protected static ?string $defaultName = 'supervisor:enable|enable';
+    protected static ?string $defaultDescription = 'Добавить проект в автозагрузку';
 
     /**
      * @return void
@@ -62,7 +61,7 @@ class EnableCommand extends Command
 
         exec("service supervisor restart");
         $output->writeln("<info>Supervisor перезапущен</>");
-        
+
         return self::SUCCESS;
     }
 }

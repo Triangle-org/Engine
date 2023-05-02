@@ -16,6 +16,19 @@ use support\telegram\Traits\Http;
 trait Chat
 {
     /**
+     * @param array $params [
+     *
+     * @return bool
+     * @throws TelegramSDKException
+     *
+     * @var int|string $chat_id Required. Unique identifier for the target group or username of the target supergroup (in the format @supergroupusername)
+     * @var int $user_id Required. Unique identifier of the target user.
+     * @var int $until_date (Optional). Unique identifier of the target user.
+     *
+     * ]
+     *
+     * @link https://core.telegram.org/bots/api#kickchatmember
+     *
      * @deprecated Method will be removed in v4, please use banChatMember() instead.
      *
      * Kick a user from a group or a supergroup.
@@ -36,19 +49,6 @@ trait Chat
      * ];
      * </code>
      *
-     * @link https://core.telegram.org/bots/api#kickchatmember
-     *
-     * @param array    $params     [
-     *
-     * @var int|string $chat_id    Required. Unique identifier for the target group or username of the target supergroup (in the format @supergroupusername)
-     * @var int        $user_id    Required. Unique identifier of the target user.
-     * @var int        $until_date (Optional). Unique identifier of the target user.
-     *
-     * ]
-     *
-     * @throws TelegramSDKException
-     *
-     * @return bool
      */
     public function kickChatMember(array $params): bool
     {
@@ -118,7 +118,7 @@ trait Chat
      * <code>
      * $params = [
      *      'chat_id'               => '',  // string|int - Required. Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-     *      'name'                  => '',  // string     - (Optional).	Invite link name; 0-32 characters
+     *      'name'                  => '',  // string     - (Optional).    Invite link name; 0-32 characters
      *      'expire_date'           => '',  // int        - (Optional). Point in time (Unix timestamp) when the link will expire
      *      'member_limit'          => '',  // int        - (Optional). Maximum number of users that can be members of the chat simultaneously after joining the chat via this invite link; 1-99999
      *      'creates_join_request'  => '',  // bool       - (Optional). True, if users joining the chat via the link need to be approved by chat administrators. If True, member_limit can't be specified
@@ -146,7 +146,7 @@ trait Chat
      * $params = [
      *      'chat_id'               => '',  // string|int - Required. Unique identifier for the target chat or username of the target channel (in the format @channelusername)
      *      'invite_link'           => '',  // string     - Required. The invite link to edit
-     *      'name'                  => '',  // string     - (Optional).	Invite link name; 0-32 characters
+     *      'name'                  => '',  // string     - (Optional).    Invite link name; 0-32 characters
      *      'expire_date'           => '',  // int        - (Optional). Point in time (Unix timestamp) when the link will expire
      *      'member_limit'          => '',  // int        - (Optional). Maximum number of users that can be members of the chat simultaneously after joining the chat via this invite link; 1-99999
      *      'creates_join_request'  => '',  // bool       - (Optional). True, if users joining the chat via the link need to be approved by chat administrators. If True, member_limit can't be specified
@@ -419,7 +419,7 @@ trait Chat
      *
      * @link https://core.telegram.org/bots/api#leavechat
      *
-     * @param  array  $params
+     * @param array $params
      * @return bool
      *
      * @throws TelegramSDKException
@@ -446,7 +446,7 @@ trait Chat
      *
      * @link https://core.telegram.org/bots/api#unbanchatmember
      *
-     * @param  array  $params
+     * @param array $params
      * @return bool
      *
      * @throws TelegramSDKException
@@ -474,7 +474,7 @@ trait Chat
      *
      * @link https://core.telegram.org/bots/api#restrictchatmember
      *
-     * @param  array  $params
+     * @param array $params
      * @return bool
      *
      * @throws TelegramSDKException
@@ -511,7 +511,7 @@ trait Chat
      *
      * @link https://core.telegram.org/bots/api#restrictchatmember
      *
-     * @param  array  $params
+     * @param array $params
      * @return bool
      *
      * @throws TelegramSDKException
@@ -536,7 +536,7 @@ trait Chat
      *
      * @link https://core.telegram.org/bots/api#setchatadministratorcustomtitle
      *
-     * @param  array  $params
+     * @param array $params
      * @return bool
      *
      * @throws TelegramSDKException
@@ -561,7 +561,7 @@ trait Chat
      *
      * @link https://core.telegram.org/bots/api#banchatsenderchat
      *
-     * @param  array  $params
+     * @param array $params
      * @return bool
      *
      * @throws TelegramSDKException
@@ -587,7 +587,7 @@ trait Chat
      *
      * @link https://core.telegram.org/bots/api#unbanchatsenderchat
      *
-     * @param  array  $params
+     * @param array $params
      * @return bool
      *
      * @throws TelegramSDKException
@@ -611,7 +611,7 @@ trait Chat
      *
      * @link https://core.telegram.org/bots/api#setchatpermissions
      *
-     * @param  array  $params
+     * @param array $params
      * @return bool
      *
      * @throws TelegramSDKException
@@ -633,7 +633,7 @@ trait Chat
      *
      * @link https://core.telegram.org/bots/api#getchat
      *
-     * @param  array  $params
+     * @param array $params
      * @return ChatObject
      *
      * @throws TelegramSDKException
@@ -656,7 +656,7 @@ trait Chat
      *
      * @link https://core.telegram.org/bots/api#getchatadministrators
      *
-     * @param  array  $params
+     * @param array $params
      * @return ChatMember[]
      *
      * @throws TelegramSDKException
@@ -681,7 +681,7 @@ trait Chat
      *
      * @link https://core.telegram.org/bots/api#getchatmembercount
      *
-     * @param  array  $params
+     * @param array $params
      * @return int
      *
      * @throws TelegramSDKException
@@ -703,7 +703,7 @@ trait Chat
      *
      * @link https://core.telegram.org/bots/api#getchatmember
      *
-     * @param  array  $params
+     * @param array $params
      * @return ChatMember
      *
      * @throws TelegramSDKException
@@ -729,7 +729,7 @@ trait Chat
      *
      * @link https://core.telegram.org/bots/api#setchatstickerset
      *
-     * @param  array  $params
+     * @param array $params
      * @return bool
      *
      * @throws TelegramSDKException
@@ -752,7 +752,7 @@ trait Chat
      *
      * @link https://core.telegram.org/bots/api#deletechatstickerset
      *
-     * @param  array  $params
+     * @param array $params
      * @return bool
      *
      * @throws TelegramSDKException

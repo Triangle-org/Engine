@@ -3,21 +3,21 @@
 /**
  * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
- * 
+ *
  * @author      Ivan Zorin <creator@localzet.com>
  * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.gnu.org/licenses/agpl AGPL-3.0 license
- * 
+ *
  *              This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU Affero General Public License as
  *              published by the Free Software Foundation, either version 3 of the
  *              License, or (at your option) any later version.
- *              
+ *
  *              This program is distributed in the hope that it will be useful,
  *              but WITHOUT ANY WARRANTY; without even the implied warranty of
  *              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *              GNU Affero General Public License for more details.
- *              
+ *
  *              You should have received a copy of the GNU Affero General Public License
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -69,7 +69,7 @@ trait Http
     /**
      * Set Http Client Handler.
      *
-     * @param  HttpClientInterface  $httpClientHandler
+     * @param HttpClientInterface $httpClientHandler
      * @return $this
      */
     public function setHttpClientHandler(HttpClientInterface $httpClientHandler)
@@ -82,7 +82,7 @@ trait Http
     /**
      * Set Http Client Handler.
      *
-     * @param  string  $baseBotUrl
+     * @param string $baseBotUrl
      * @return $this
      */
     public function setBaseBotUrl(string $baseBotUrl)
@@ -119,17 +119,17 @@ trait Http
     /**
      * Download a file from Telegram server by file ID.
      *
-     * @param File|BaseObject|string $file     Telegram File Instance / File Response Object or File ID.
-     * @param string                 $filename Absolute path to dir or filename to save as.
-     *
-     * @throws TelegramSDKException
+     * @param File|BaseObject|string $file Telegram File Instance / File Response Object or File ID.
+     * @param string $filename Absolute path to dir or filename to save as.
      *
      * @return string
+     * @throws TelegramSDKException
+     *
      */
     public function downloadFile($file, string $filename): string
     {
         $originalFilename = null;
-        if (! $file instanceof File) {
+        if (!$file instanceof File) {
             if ($file instanceof BaseObject) {
                 $originalFilename = $file->get('file_name');
 
@@ -137,7 +137,7 @@ trait Http
                 $file = $file->get('file_id');
             }
 
-            if (! is_string($file)) {
+            if (!is_string($file)) {
                 throw new InvalidArgumentException(
                     'Invalid $file param provided. Please provide one of file_id, File or Response object containing file_id'
                 );
@@ -247,11 +247,11 @@ trait Http
      * Sends a GET request to Telegram Bot API and returns the result.
      *
      * @param string $endpoint
-     * @param array  $params
-     *
-     * @throws TelegramSDKException
+     * @param array $params
      *
      * @return TelegramResponse
+     * @throws TelegramSDKException
+     *
      */
     protected function get(string $endpoint, array $params = []): TelegramResponse
     {
@@ -264,11 +264,11 @@ trait Http
      * Sends a POST request to Telegram Bot API and returns the result.
      *
      * @param string $endpoint
-     * @param array  $params
-     * @param bool   $fileUpload Set true if a file is being uploaded.
+     * @param array $params
+     * @param bool $fileUpload Set true if a file is being uploaded.
      *
-     * @throws TelegramSDKException
      * @return TelegramResponse
+     * @throws TelegramSDKException
      */
     protected function post(string $endpoint, array $params = [], $fileUpload = false): TelegramResponse
     {
@@ -287,7 +287,7 @@ trait Http
     protected function replyMarkupToString(array $params): array
     {
         if (isset($params['reply_markup'])) {
-            $params['reply_markup'] = (string) $params['reply_markup'];
+            $params['reply_markup'] = (string)$params['reply_markup'];
         }
 
         return $params;
@@ -298,17 +298,17 @@ trait Http
      * Used primarily for file uploads.
      *
      * @param string $endpoint
-     * @param array  $params
+     * @param array $params
      * @param string $inputFileField
      *
+     * @return TelegramResponse
      * @throws CouldNotUploadInputFile
      *
-     * @return TelegramResponse
      */
     protected function uploadFile(string $endpoint, array $params, $inputFileField): TelegramResponse
     {
         //Check if the field in the $params array (that is being used to send the relative file), is a file id.
-        if (! isset($params[$inputFileField])) {
+        if (!isset($params[$inputFileField])) {
             throw CouldNotUploadInputFile::missingParam($inputFileField);
         }
 
@@ -323,12 +323,12 @@ trait Http
     /**
      * Prepare Multipart Params for File Upload.
      *
-     * @param array  $params
+     * @param array $params
      * @param string $inputFileField
      *
+     * @return array
      * @throws CouldNotUploadInputFile
      *
-     * @return array
      */
     protected function prepareMultipartParams(array $params, $inputFileField): array
     {
@@ -349,14 +349,14 @@ trait Http
     /**
      * Generates the multipart data required when sending files to telegram.
      *
-     * @param mixed  $contents
+     * @param mixed $contents
      * @param string $name
      *
      * @return array
      */
     protected function generateMultipartData($contents, $name): array
     {
-        if (! $this->isInputFile($contents)) {
+        if (!$this->isInputFile($contents)) {
             return compact('name', 'contents');
         }
 
@@ -371,11 +371,11 @@ trait Http
      *
      * @param string $method
      * @param string $endpoint
-     * @param array  $params
-     *
-     * @throws TelegramSDKException
+     * @param array $params
      *
      * @return TelegramResponse
+     * @throws TelegramSDKException
+     *
      */
     protected function sendRequest($method, $endpoint, array $params = []): TelegramResponse
     {
@@ -389,7 +389,7 @@ trait Http
      *
      * @param string $method
      * @param string $endpoint
-     * @param array  $params
+     * @param array $params
      *
      * @return TelegramRequest
      */
@@ -414,12 +414,12 @@ trait Http
      */
     protected function validateInputFileField(array $params, $inputFileField): void
     {
-        if (! isset($params[$inputFileField])) {
+        if (!isset($params[$inputFileField])) {
             throw CouldNotUploadInputFile::missingParam($inputFileField);
         }
 
         // All file-paths, urls, or file resources should be provided by using the InputFile object
-        if ((! $params[$inputFileField] instanceof InputFile) && (is_string($params[$inputFileField]) && ! $this->is_json($params[$inputFileField]))) {
+        if ((!$params[$inputFileField] instanceof InputFile) && (is_string($params[$inputFileField]) && !$this->is_json($params[$inputFileField]))) {
             throw CouldNotUploadInputFile::inputFileParameterShouldBeInputFileEntity($inputFileField);
         }
     }

@@ -3,21 +3,21 @@
 /**
  * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
- * 
+ *
  * @author      Ivan Zorin <creator@localzet.com>
  * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.gnu.org/licenses/agpl AGPL-3.0 license
- * 
+ *
  *              This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU Affero General Public License as
  *              published by the Free Software Foundation, either version 3 of the
  *              License, or (at your option) any later version.
- *              
+ *
  *              This program is distributed in the hope that it will be useful,
  *              but WITHOUT ANY WARRANTY; without even the implied warranty of
  *              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *              GNU Affero General Public License for more details.
- *              
+ *
  *              You should have received a copy of the GNU Affero General Public License
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -25,12 +25,12 @@
 namespace support;
 
 use Dotenv\Dotenv;
-use RuntimeException;
-use support\http\Curl;
-use Triangle\Engine\Config;
-use Triangle\Engine\Util;
 use localzet\Server\Connection\TcpConnection;
 use localzet\Server\Server;
+use RuntimeException;
+use Throwable;
+use Triangle\Engine\Config;
+use Triangle\Engine\Util;
 use function base_path;
 use function call_user_func;
 use function is_dir;
@@ -42,8 +42,9 @@ class App
 {
     /**
      * @return void
+     * @throws Throwable
      */
-    public static function run()
+    public static function run(): void
     {
         ini_set('display_errors', 'on');
 
@@ -123,9 +124,9 @@ class App
 
             $server->onServerStart = function ($server) {
                 require_once base_path() . '/support/bootstrap.php';
-                $app = new \Triangle\Engine\App(config('app.request_class', Request::class), Log::channel('default'), app_path(), public_path());
+                $app = new \Triangle\Engine\App(config('app.request_class', Request::class), Log::channel(), app_path(), public_path());
                 $server->onMessage = [$app, 'onMessage'];
-                \call_user_func([$app, 'onServerStart'], $server);
+                call_user_func([$app, 'onServerStart'], $server);
             };
         }
 
@@ -158,7 +159,7 @@ class App
      * @param array $excludes
      * @return void
      */
-    public static function loadAllConfig(array $excludes = [])
+    public static function loadAllConfig(array $excludes = []): void
     {
         Config::load(config_path(), $excludes);
         $directory = base_path() . '/plugin';

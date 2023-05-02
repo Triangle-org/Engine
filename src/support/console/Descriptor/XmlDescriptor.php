@@ -3,21 +3,21 @@
 /**
  * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
- * 
+ *
  * @author      Ivan Zorin <creator@localzet.com>
  * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.gnu.org/licenses/agpl AGPL-3.0 license
- * 
+ *
  *              This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU Affero General Public License as
  *              published by the Free Software Foundation, either version 3 of the
  *              License, or (at your option) any later version.
- *              
+ *
  *              This program is distributed in the hope that it will be useful,
  *              but WITHOUT ANY WARRANTY; without even the implied warranty of
  *              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *              GNU Affero General Public License for more details.
- *              
+ *
  *              You should have received a copy of the GNU Affero General Public License
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -218,13 +218,13 @@ class XmlDescriptor extends Descriptor
         $dom = new \DOMDocument('1.0', 'UTF-8');
 
         $dom->appendChild($objectXML = $dom->createElement('option'));
-        $objectXML->setAttribute('name', '--'.$option->getName());
+        $objectXML->setAttribute('name', '--' . $option->getName());
         $pos = strpos($option->getShortcut() ?? '', '|');
         if (false !== $pos) {
-            $objectXML->setAttribute('shortcut', '-'.substr($option->getShortcut(), 0, $pos));
-            $objectXML->setAttribute('shortcuts', '-'.str_replace('|', '|-', $option->getShortcut()));
+            $objectXML->setAttribute('shortcut', '-' . substr($option->getShortcut(), 0, $pos));
+            $objectXML->setAttribute('shortcuts', '-' . str_replace('|', '|-', $option->getShortcut()));
         } else {
-            $objectXML->setAttribute('shortcut', $option->getShortcut() ? '-'.$option->getShortcut() : '');
+            $objectXML->setAttribute('shortcut', $option->getShortcut() ? '-' . $option->getShortcut() : '');
         }
         $objectXML->setAttribute('accept_value', $option->acceptValue() ? 1 : 0);
         $objectXML->setAttribute('is_value_required', $option->isValueRequired() ? 1 : 0);
@@ -246,13 +246,13 @@ class XmlDescriptor extends Descriptor
 
         if ($option->isNegatable()) {
             $dom->appendChild($objectXML = $dom->createElement('option'));
-            $objectXML->setAttribute('name', '--no-'.$option->getName());
+            $objectXML->setAttribute('name', '--no-' . $option->getName());
             $objectXML->setAttribute('shortcut', '');
             $objectXML->setAttribute('accept_value', 0);
             $objectXML->setAttribute('is_value_required', 0);
             $objectXML->setAttribute('is_multiple', 0);
             $objectXML->appendChild($descriptionXML = $dom->createElement('description'));
-            $descriptionXML->appendChild($dom->createTextNode('Negate the "--'.$option->getName().'" option'));
+            $descriptionXML->appendChild($dom->createTextNode('Negate the "--' . $option->getName() . '" option'));
         }
 
         return $dom;

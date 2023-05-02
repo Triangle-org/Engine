@@ -1,79 +1,80 @@
 {
-    "name": "triangle/engine",
-    "description": "Triangle Engine - Next generation low-level HTTP engine",
-    "type": "library",
-    "keywords": [
-        "localzet",
-        "Triangle"
-    ],
-    "license": "AGPL-3.0-or-later",
-    "authors": [
-        {
-            "name": "Ivan Zorin",
-            "email": "creator@localzet.com",
-            "homepage": "https://www.localzet.ru",
-            "role": "Developer"
-        }
-    ],
-    "support": {
-        "email": "support@localzet.com",
-        "source": "https://github.com/Triangle-org/Engine"
-    },
-    "funding": [
-        {
-            "type": "other",
-            "url": "https://www.tinkoff.ru/cf/Ad5MBNhodod"
-        }
-    ],
-    "suggest": {
-        "ext-curl": "For HttpClient",
-        "ext-json": "For support JSON",
-        "ext-event": "For better performance",
-        "ext-mysqli": "For support MySQL",
-        "ext-mongodb": "For support MongoDB"
-    },
-    "require": {
-        "php": ">=8.1",
-        "ext-curl": "*",
-        "ext-json": "*",
-
-        "nikic/fast-route": "^1.3",
-        "psr/container": "^1.1.1",
-
-        "localzet/server": ">=2.2.6",
-
-        "doctrine/inflector": "^2.0",
-        
-        "symfony/deprecation-contracts": "^2.1|^3",
-        "symfony/polyfill-mbstring": "~1.0",
-        "symfony/service-contracts": "^1.1|^2|^3",
-        "symfony/string": "^5.4|^6.0",
-
-        "illuminate/support": "^8.0",
-        "illuminate/container": "^8.0",
-        "illuminate/database": "^8.0",
-        "illuminate/events": "^8.0",
-        "mongodb/mongodb": "^1.6",
-        
-        "php-di/php-di": "^6.4",
-        "doctrine/annotations": "^1.13",
-        "monolog/monolog": "^2.0",
-        "vlucas/phpdotenv": "^5.5",
-        "guzzlehttp/guzzle": "^6.5.8 || ^7.4.5",
-        "league/event": "^2.1"
-    },
-    "autoload": {
-        "psr-4": {
-            "Triangle\\Engine\\": "src/",
-            "support\\": "src/support/"
-        }
-    },
-    "extra": {
-        "laravel": {
-            "providers": [
-                "support\\mongodb\\MongodbServiceProvider",
-                "support\\mongodb\\MongodbQueueServiceProvider"
-            ]
-        }
+  "name": "triangle/engine",
+  "description": "Triangle Engine - Next generation low-level HTTP engine",
+  "type": "library",
+  "keywords": [
+    "localzet",
+    "Triangle"
+  ],
+  "license": "AGPL-3.0-or-later",
+  "authors": [
+    {
+      "name": "Ivan Zorin",
+      "email": "creator@localzet.com",
+      "homepage": "https://www.localzet.ru",
+      "role": "Developer"
     }
+  ],
+  "support": {
+    "email": "support@localzet.com",
+    "source": "https://github.com/Triangle-org/Engine"
+  },
+  "funding": [
+    {
+      "type": "other",
+      "url": "https://www.tinkoff.ru/cf/Ad5MBNhodod"
+    }
+  ],
+  "suggest": {
+    "ext-curl": "For HttpClient",
+    "ext-json": "For support JSON",
+    "ext-event": "For better performance",
+    "ext-mysqli": "For support MySQL",
+    "ext-mongodb": "For support MongoDB",
+    "ext-simplexml": "For XML",
+    "ext-libxml": "For XML",
+    "ext-openssl": "For JWT",
+    "ext-redis": "For Redis"
+  },
+  "require": {
+    "php": ">=8.2",
+    "ext-curl": "*",
+    "ext-intl": "*",
+    "ext-mbstring": "*",
+    "ext-zend-opcache": "*",
+    "nikic/fast-route": "^1.3",
+    "psr/container": "^1.1.1",
+    "localzet/server": ">=2.2.6",
+    "doctrine/inflector": "^2.0",
+    "symfony/deprecation-contracts": "^2.1|^3",
+    "symfony/polyfill-mbstring": "~1.0",
+    "symfony/service-contracts": "^1.1|^2|^3",
+    "symfony/string": "^5.4|^6.0",
+    "illuminate/support": "^8.0",
+    "illuminate/container": "^8.0",
+    "illuminate/database": "^8.0",
+    "illuminate/events": "^8.0",
+    "mongodb/mongodb": "^1.6",
+    "php-di/php-di": "^6.4",
+    "doctrine/annotations": "^1.13",
+    "monolog/monolog": "^2.0",
+    "vlucas/phpdotenv": "^5.5",
+    "guzzlehttp/guzzle": "^6.5.8 || ^7.4.5",
+    "league/event": "^2.1",
+    "jenssegers/mongodb": "^3.8.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Triangle\\Engine\\": "src/",
+      "support\\": "src/support/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "support\\mongodb\\MongodbServiceProvider",
+        "support\\mongodb\\MongodbQueueServiceProvider"
+      ]
+    }
+  }
 }

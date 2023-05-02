@@ -54,8 +54,8 @@ class CommandBus extends AnswerBus
      *
      * @param list<CommandInterface|class-string<CommandInterface>> $commands
      *
-     * @throws TelegramSDKException
      * @return CommandBus
+     * @throws TelegramSDKException
      */
     public function addCommands(array $commands): self
     {
@@ -71,9 +71,9 @@ class CommandBus extends AnswerBus
      *
      * @param CommandInterface|class-string<CommandInterface> $command Either an object or fully qualified class name (FQCN) of the command class.
      *
+     * @return CommandBus
      * @throws TelegramSDKException
      *
-     * @return CommandBus
      */
     public function addCommand($command): self
     {
@@ -247,7 +247,7 @@ class CommandBus extends AnswerBus
      */
     private function resolveCommand($command): CommandInterface
     {
-        if (! is_a($command, CommandInterface::class, true)) {
+        if (!is_a($command, CommandInterface::class, true)) {
             throw new TelegramSDKException(
                 sprintf(
                     'Command class "%s" should be an instance of "%s"',

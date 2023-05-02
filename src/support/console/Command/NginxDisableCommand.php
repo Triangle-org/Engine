@@ -7,8 +7,8 @@ use support\console\Output\OutputInterface;
 
 class NginxDisableCommand extends Command
 {
-    protected static $defaultName = 'nginx:disable';
-    protected static $defaultDescription = 'Удалить сайт из Nginx';
+    protected static ?string $defaultName = 'nginx:disable';
+    protected static ?string $defaultDescription = 'Удалить сайт из Nginx';
 
     /**
      * @return void

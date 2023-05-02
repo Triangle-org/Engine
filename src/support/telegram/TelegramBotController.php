@@ -3,34 +3,33 @@
 /**
  * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
- * 
+ *
  * @author      Ivan Zorin <creator@localzet.com>
  * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.gnu.org/licenses/agpl AGPL-3.0 license
- * 
+ *
  *              This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU Affero General Public License as
  *              published by the Free Software Foundation, either version 3 of the
  *              License, or (at your option) any later version.
- *              
+ *
  *              This program is distributed in the hope that it will be useful,
  *              but WITHOUT ANY WARRANTY; without even the implied warranty of
  *              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *              GNU Affero General Public License for more details.
- *              
+ *
  *              You should have received a copy of the GNU Affero General Public License
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 namespace support\telegram;
 
-use support\telegram\Api;
-use support\telegram\Objects\Update;
 use support\telegram\Objects\Chat;
+use support\telegram\Objects\Update;
 
 /**
  * Абстрактный контроллер Telegram-бота
- * 
+ *
  * **Использование:**
  *      1. !!! controller_reuse => false !!!
  *      2. Задай $accessToken и $async
@@ -40,14 +39,14 @@ abstract class TelegramBotController
 {
     /**
      * Telegram Bot API
-     * 
+     *
      * @var null|\support\telegram\Api $api
      */
     public ?Api $api;
 
     /**
      * Новое событие
-     * 
+     *
      * @var null|\support\telegram\Objects\Update $update
      * @see https://core.telegram.org/bots/api#update
      */
@@ -55,7 +54,7 @@ abstract class TelegramBotController
 
     /**
      * Текущий чат
-     * 
+     *
      * @var null|\support\telegram\Objects\Chat $chat
      * @see https://core.telegram.org/bots/api#chat
      */
@@ -63,21 +62,21 @@ abstract class TelegramBotController
 
     /**
      * Тип пришедшего события
-     * 
+     *
      * @var string $type
      */
     public string $type;
 
     /**
      * Токен бота
-     * 
+     *
      * @var string $accessToken
      */
     public string $accessToken;
 
     /**
      * Выполнять запрросы асинхронно?
-     * 
+     *
      * @var bool $async
      */
     public bool $async = true;
@@ -93,7 +92,7 @@ abstract class TelegramBotController
 
     /**
      * Отправить сообщение
-     * 
+     *
      * <code>
      * $options = [
      *       'parse_mode'                  => '',  // string     - (Optional). Send Markdown or HTML, if you want Telegram apps to show bold, italic, fixed-width text or inline URLs in your bot's message.
@@ -106,9 +105,9 @@ abstract class TelegramBotController
      *       'reply_markup'                => '',  // object     - (Optional). One of either InlineKeyboardMarkup|ReplyKeyboardMarkup|ReplyKeyboardRemove|ForceReply for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user.
      * ]
      * </code>
-     * 
+     *
      * @link https://core.telegram.org/bots/api#sendmessage
-     * 
+     *
      * @param string $text
      * @param int $chat_id
      * @param array $options
@@ -116,7 +115,6 @@ abstract class TelegramBotController
      * @throws TelegramSDKException
      *
      * @return MessageObject
-
      */
     public function send($text, $chat_id = null, array $options = [])
     {

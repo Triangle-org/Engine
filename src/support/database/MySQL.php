@@ -3,11 +3,11 @@
 /**
  * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
- * 
+ *
  * @author      Ivan Zorin <creator@localzet.com>
  * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.localzet.com/license GNU GPLv3 License
- * 
+ *
  * @see         https://github.com/ThingEngineer/PHP-MySQLi-Database-Class
  */
 
@@ -290,8 +290,8 @@ class MySQL
      *
      * @param null|string $connectionName
      *
-     * @throws \Exception
      * @return void
+     * @throws \Exception
      */
     public function connect($connectionName = 'default')
     {
@@ -372,7 +372,7 @@ class MySQL
      * Create & store at _mysqli new mysqli instance
      *
      * @param string $name
-     * @param array  $params
+     * @param array $params
      *
      * @return $this
      */
@@ -413,9 +413,9 @@ class MySQL
      * instantiated object from within another class.
      * Inheriting this class would require reloading connection info.
      *
+     * @return MysqliDb Returns the current instance.
      * @uses $db = MySQL::getInstance();
      *
-     * @return MysqliDb Returns the current instance.
      */
     public static function getInstance()
     {
@@ -509,12 +509,12 @@ class MySQL
      * WARNING: Use with caution.
      * This method does not escape strings by default so make sure you'll never use it in production.
      *
-     * @author Jonas Barascu
-     *
      * @param  [[Type]] $query [[Description]]
      *
      * @return bool|mysqli_result
      * @throws \Exception
+     * @author Jonas Barascu
+     *
      */
     private function queryUnprepared($query)
     {
@@ -537,8 +537,8 @@ class MySQL
     /**
      * Execute raw SQL query.
      *
-     * @param string $query      User-provided query to execute.
-     * @param array  $bindParams Variables array to bind to the SQL statement.
+     * @param string $query User-provided query to execute.
+     * @param array $bindParams Variables array to bind to the SQL statement.
      *
      * @return array Contains the returned rows from the query.
      * @throws \Exception
@@ -574,8 +574,8 @@ class MySQL
      * Note that function do not add 'limit 1' to the query by itself
      * Same idea as getOne()
      *
-     * @param string $query      User-provided query to execute.
-     * @param array  $bindParams Variables array to bind to the SQL statement.
+     * @param string $query User-provided query to execute.
+     * @param array $bindParams Variables array to bind to the SQL statement.
      *
      * @return array|null Contains the returned row from the query.
      * @throws \Exception
@@ -595,8 +595,8 @@ class MySQL
      * If 'limit 1' will be found, then string will be returned instead of array
      * Same idea as getValue()
      *
-     * @param string $query      User-provided query to execute.
-     * @param array  $bindParams Variables array to bind to the SQL statement.
+     * @param string $query User-provided query to execute.
+     * @param array $bindParams Variables array to bind to the SQL statement.
      *
      * @return mixed Contains the returned rows from the query.
      * @throws \Exception
@@ -624,7 +624,7 @@ class MySQL
     /**
      * A method to perform select query
      *
-     * @param string    $query   Contains a user-provided select query.
+     * @param string $query Contains a user-provided select query.
      * @param int|array $numRows Array to define SQL limit in format Array ($offset, $count)
      *
      * @return array Contains the returned rows from the query.
@@ -646,12 +646,12 @@ class MySQL
     /**
      * This method allows you to specify multiple (method chaining optional) options for SQL queries.
      *
-     * @uses $MySQL->setQueryOption('name');
-     *
      * @param string|array $options The options name of the query.
      *
-     * @throws \Exception
      * @return MysqliDb
+     * @throws \Exception
+     * @uses $MySQL->setQueryOption('name');
+     *
      */
     public function setQueryOption($options)
     {
@@ -700,10 +700,10 @@ class MySQL
     /**
      * A convenient SELECT * function.
      *
-     * @param string    $tableName   The name of the database table to work with.
-     * @param int|array $numRows     Array to define SQL limit in format Array ($offset, $count)
+     * @param string $tableName The name of the database table to work with.
+     * @param int|array $numRows Array to define SQL limit in format Array ($offset, $count)
      *                               or only $count
-     * @param string    $columns     Desired columns
+     * @param string $columns Desired columns
      *
      * @return array|MysqliDb Contains the returned rows from the select query.
      * @throws \Exception
@@ -743,7 +743,7 @@ class MySQL
      * A convenient SELECT * function to get one record.
      *
      * @param string $tableName The name of the database table to work with.
-     * @param string $columns   Desired columns
+     * @param string $columns Desired columns
      *
      * @return array Contains the returned rows from the select query.
      * @throws \Exception
@@ -767,8 +767,8 @@ class MySQL
      * A convenient SELECT COLUMN function to get a single column value from one row
      *
      * @param string $tableName The name of the database table to work with.
-     * @param string $column    The desired column
-     * @param int    $limit     Limit of rows to select. Use null for unlimited..1 by default
+     * @param string $column The desired column
+     * @param int $limit Limit of rows to select. Use null for unlimited..1 by default
      *
      * @return mixed Contains the value of a returned column / array of values
      * @throws \Exception
@@ -798,8 +798,8 @@ class MySQL
     /**
      * Insert method to add new row
      *
-     * @param string $tableName  The name of the table.
-     * @param array  $insertData Data containing information for inserting into the DB.
+     * @param string $tableName The name of the table.
+     * @param array $insertData Data containing information for inserting into the DB.
      *
      * @return bool Boolean indicating whether the insert query was completed successfully.
      * @throws \Exception
@@ -812,9 +812,9 @@ class MySQL
     /**
      * Insert method to add several rows at once
      *
-     * @param string $tableName       The name of the table.
-     * @param array  $multiInsertData Two-dimensional Data-array containing information for inserting into the DB.
-     * @param array  $dataKeys        Optional Table Key names, if not set in insertDataSet.
+     * @param string $tableName The name of the table.
+     * @param array $multiInsertData Two-dimensional Data-array containing information for inserting into the DB.
+     * @param array $dataKeys Optional Table Key names, if not set in insertDataSet.
      *
      * @return bool|array Boolean indicating the insertion failed (false), else return id-array ([int])
      * @throws \Exception
@@ -855,8 +855,8 @@ class MySQL
     /**
      * Replace method to add new row
      *
-     * @param string $tableName  The name of the table.
-     * @param array  $insertData Data containing information for inserting into the DB.
+     * @param string $tableName The name of the table.
+     * @param array $insertData Data containing information for inserting into the DB.
      *
      * @return bool Boolean indicating whether the insert query was completed successfully.
      * @throws \Exception
@@ -885,8 +885,8 @@ class MySQL
      * Update query. Be sure to first call the "where" method.
      *
      * @param string $tableName The name of the database table to work with.
-     * @param array  $tableData Array of data to update the desired row.
-     * @param int    $numRows   Limit on the number of rows that can be updated.
+     * @param array $tableData Array of data to update the desired row.
+     * @param int $numRows Limit on the number of rows that can be updated.
      *
      * @return bool
      * @throws \Exception
@@ -912,8 +912,8 @@ class MySQL
     /**
      * Delete query. Call the "where" method first.
      *
-     * @param string    $tableName   The name of the database table to work with.
-     * @param int|array $numRows     Array to define SQL limit in format Array ($offset, $count)
+     * @param string $tableName The name of the database table to work with.
+     * @param int|array $numRows Array to define SQL limit in format Array ($offset, $count)
      *                               or only $count
      *
      * @return bool Indicates success. 0 or 1.
@@ -946,14 +946,14 @@ class MySQL
     /**
      * This method allows you to specify multiple (method chaining optional) AND WHERE statements for SQL queries.
      *
-     * @uses $MySQL->where('id', 7)->where('title', 'MyTitle');
-     *
-     * @param string $whereProp  The name of the database field.
-     * @param mixed  $whereValue The value of the database field.
-     * @param string $operator   Comparison operator. Default is =
-     * @param string $cond       Condition of where statement (OR, AND)
+     * @param string $whereProp The name of the database field.
+     * @param mixed $whereValue The value of the database field.
+     * @param string $operator Comparison operator. Default is =
+     * @param string $cond Condition of where statement (OR, AND)
      *
      * @return MysqliDb
+     * @uses $MySQL->where('id', 7)->where('title', 'MyTitle');
+     *
      */
     public function where($whereProp, $whereValue = 'DBNULL', $operator = '=', $cond = 'AND')
     {
@@ -969,8 +969,8 @@ class MySQL
      * This function store update column's name and column name of the
      * autoincrement column
      *
-     * @param array  $updateColumns Variable with values
-     * @param string $lastInsertId  Variable value
+     * @param array $updateColumns Variable with values
+     * @param string $lastInsertId Variable value
      *
      * @return MysqliDb
      */
@@ -984,13 +984,13 @@ class MySQL
     /**
      * This method allows you to specify multiple (method chaining optional) OR WHERE statements for SQL queries.
      *
-     * @uses $MySQL->orWhere('id', 7)->orWhere('title', 'MyTitle');
-     *
-     * @param string $whereProp  The name of the database field.
-     * @param mixed  $whereValue The value of the database field.
-     * @param string $operator   Comparison operator. Default is =
+     * @param string $whereProp The name of the database field.
+     * @param mixed $whereValue The value of the database field.
+     * @param string $operator Comparison operator. Default is =
      *
      * @return MysqliDb
+     * @uses $MySQL->orWhere('id', 7)->orWhere('title', 'MyTitle');
+     *
      */
     public function orWhere($whereProp, $whereValue = 'DBNULL', $operator = '=')
     {
@@ -1000,15 +1000,15 @@ class MySQL
     /**
      * This method allows you to specify multiple (method chaining optional) AND HAVING statements for SQL queries.
      *
-     * @uses $MySQL->having('SUM(tags) > 10')
-     *
-     * @param string $havingProp  The name of the database field.
-     * @param mixed  $havingValue The value of the database field.
-     * @param string $operator    Comparison operator. Default is =
+     * @param string $havingProp The name of the database field.
+     * @param mixed $havingValue The value of the database field.
+     * @param string $operator Comparison operator. Default is =
      *
      * @param string $cond
      *
      * @return MysqliDb
+     * @uses $MySQL->having('SUM(tags) > 10')
+     *
      */
 
     public function having($havingProp, $havingValue = 'DBNULL', $operator = '=', $cond = 'AND')
@@ -1030,13 +1030,13 @@ class MySQL
     /**
      * This method allows you to specify multiple (method chaining optional) OR HAVING statements for SQL queries.
      *
-     * @uses $MySQL->orHaving('SUM(tags) > 10')
-     *
-     * @param string $havingProp  The name of the database field.
-     * @param mixed  $havingValue The value of the database field.
-     * @param string $operator    Comparison operator. Default is =
+     * @param string $havingProp The name of the database field.
+     * @param mixed $havingValue The value of the database field.
+     * @param string $operator Comparison operator. Default is =
      *
      * @return MysqliDb
+     * @uses $MySQL->orHaving('SUM(tags) > 10')
+     *
      */
     public function orHaving($havingProp, $havingValue = null, $operator = null)
     {
@@ -1046,14 +1046,14 @@ class MySQL
     /**
      * This method allows you to concatenate joins for the final SQL statement.
      *
+     * @param string $joinTable The name of the table.
+     * @param string $joinCondition the condition.
+     * @param string $joinType 'LEFT', 'INNER' etc.
+     *
+     * @return MysqliDb
+     * @throws \Exception
      * @uses $MySQL->join('table1', 'field1 <> field2', 'LEFT')
      *
-     * @param string $joinTable     The name of the table.
-     * @param string $joinCondition the condition.
-     * @param string $joinType      'LEFT', 'INNER' etc.
-     *
-     * @throws \Exception
-     * @return MysqliDb
      */
     public function join($joinTable, $joinCondition, $joinType = '')
     {
@@ -1078,14 +1078,14 @@ class MySQL
      * This is a basic method which allows you to import raw .CSV data into a table
      * Please check out http://dev.mysql.com/doc/refman/5.7/en/load-data.html for a valid .csv file.
      *
-     * @author Jonas Barascu (Noneatme)
-     *
-     * @param string $importTable    The database table where the data will be imported into.
-     * @param string $importFile     The file to be imported. Please use double backslashes \\ and make sure you
+     * @param string $importTable The database table where the data will be imported into.
+     * @param string $importFile The file to be imported. Please use double backslashes \\ and make sure you
      * @param string $importSettings An Array defining the import settings as described in the README.md
      *
      * @return boolean
      * @throws \Exception
+     * @author Jonas Barascu (Noneatme)
+     *
      */
     public function loadData($importTable, $importFile, $importSettings = null)
     {
@@ -1142,21 +1142,21 @@ class MySQL
 
         // Are there rows modified?
         // Let the user know if the import failed / succeeded
-        return (bool) $result;
+        return (bool)$result;
     }
 
     /**
      * This method is useful for importing XML files into a specific table.
      * Check out the LOAD XML syntax for your MySQL server.
      *
-     * @author Jonas Barascu
-     *
-     * @param  string $importTable    The table in which the data will be imported to.
-     * @param  string $importFile     The file which contains the .XML data.
-     * @param  string $importSettings An Array defining the import settings as described in the README.md
+     * @param string $importTable The table in which the data will be imported to.
+     * @param string $importFile The file which contains the .XML data.
+     * @param string $importSettings An Array defining the import settings as described in the README.md
      *
      * @return boolean Returns true if the import succeeded, false if it failed.
      * @throws \Exception
+     * @author Jonas Barascu
+     *
      */
     public function loadXml($importTable, $importFile, $importSettings = null)
     {
@@ -1168,7 +1168,7 @@ class MySQL
         }
 
         // Create default values
-        $settings             = array("linesToIgnore" => 0);
+        $settings = array("linesToIgnore" => 0);
 
         // Check the import settings
         if (gettype($importSettings) == "array") {
@@ -1201,26 +1201,26 @@ class MySQL
 
         // Are there rows modified?
         // Let the user know if the import failed / succeeded
-        return (bool) $result;
+        return (bool)$result;
     }
 
     /**
      * This method allows you to specify multiple (method chaining optional) ORDER BY statements for SQL queries.
      *
-     * @uses $MySQL->orderBy('id', 'desc')->orderBy('name', 'desc', '^[a-z]')->orderBy('name', 'desc');
-     *
-     * @param string $orderByField         The name of the database field.
+     * @param string $orderByField The name of the database field.
      * @param string $orderbyDirection
-     * @param mixed  $customFieldsOrRegExp Array with fieldset for ORDER BY FIELD() ordering or string with regular expression for ORDER BY REGEXP ordering
+     * @param mixed $customFieldsOrRegExp Array with fieldset for ORDER BY FIELD() ordering or string with regular expression for ORDER BY REGEXP ordering
      *
      * @return MysqliDb
      * @throws \Exception
+     * @uses $MySQL->orderBy('id', 'desc')->orderBy('name', 'desc', '^[a-z]')->orderBy('name', 'desc');
+     *
      */
     public function orderBy($orderByField, $orderbyDirection = "DESC", $customFieldsOrRegExp = null)
     {
         $allowedDirection = array("ASC", "DESC");
         $orderbyDirection = strtoupper(trim($orderbyDirection));
-        $orderByField = preg_replace("/[^ -a-z0-9\.\(\),_`\*\'\"]+/i", '', $orderByField);
+        $orderByField = preg_replace("/[^ -a-z0-9.\(\),_`\*\'\"]+/i", '', $orderByField);
 
         // Add table prefix to orderByField if needed.
         //FIXME: We are adding prefix only if table is enclosed into `` to distinguish aliases
@@ -1250,11 +1250,11 @@ class MySQL
     /**
      * This method allows you to specify multiple (method chaining optional) GROUP BY statements for SQL queries.
      *
-     * @uses $MySQL->groupBy('name');
-     *
      * @param string $groupByField The name of the database field.
      *
      * @return MysqliDb
+     * @uses $MySQL->groupBy('name');
+     *
      */
     public function groupBy($groupByField)
     {
@@ -1268,18 +1268,18 @@ class MySQL
     /**
      * This method sets the current table lock method.
      *
+     * @param string $method The table lock method. Can be READ or WRITE.
+     *
+     * @return MysqliDb
+     * @throws \Exception
      * @author Jonas Barascu
      *
-     * @param  string $method The table lock method. Can be READ or WRITE.
-     *
-     * @throws \Exception
-     * @return MysqliDb
      */
     public function setLockMethod($method)
     {
         // Switch the uppercase string
         switch (strtoupper($method)) {
-                // Is it READ or WRITE?
+            // Is it READ or WRITE?
             case "READ" || "WRITE":
                 // Succeed
                 $this->_tableLockMethod = $method;
@@ -1295,12 +1295,12 @@ class MySQL
     /**
      * Locks a table for R/W action.
      *
-     * @author Jonas Barascu
-     *
      * @param string|array $table The table to be locked. Can be a table or a view.
      *
      * @return bool if succeeded;
      * @throws \Exception
+     * @author Jonas Barascu
+     *
      */
     public function lock($table)
     {
@@ -1328,7 +1328,7 @@ class MySQL
 
         // Execute the query unprepared because LOCK only works with unprepared statements.
         $result = $this->queryUnprepared($this->_query);
-        $errno  = $this->mysqli()->errno;
+        $errno = $this->mysqli()->errno;
 
         // Reset the query
         $this->reset();
@@ -1338,8 +1338,7 @@ class MySQL
             // Return true
             // We can't return ourself because if one table gets locked, all other ones get unlocked!
             return true;
-        }
-        // Something went wrong
+        } // Something went wrong
         else {
             throw new \Exception("Locking of table " . $table . " failed", $errno);
         }
@@ -1352,9 +1351,9 @@ class MySQL
      * Unlocks all tables in a database.
      * Also commits transactions.
      *
-     * @author Jonas Barascu
      * @return MysqliDb
      * @throws \Exception
+     * @author Jonas Barascu
      */
     public function unlock()
     {
@@ -1363,7 +1362,7 @@ class MySQL
 
         // Execute the query unprepared because UNLOCK and LOCK only works with unprepared statements.
         $result = $this->queryUnprepared($this->_query);
-        $errno  = $this->mysqli()->errno;
+        $errno = $this->mysqli()->errno;
 
         // Reset the query
         $this->reset();
@@ -1372,8 +1371,7 @@ class MySQL
         if ($result) {
             // return self
             return $this;
-        }
-        // Something went wrong
+        } // Something went wrong
         else {
             throw new \Exception("Unlocking of tables failed", $errno);
         }
@@ -1485,7 +1483,7 @@ class MySQL
      * ' $operator ($subquery) ' formats
      *
      * @param string $operator
-     * @param mixed  $value Variable with values
+     * @param mixed $value Variable with values
      *
      * @return string
      */
@@ -1505,9 +1503,9 @@ class MySQL
     /**
      * Internal function to build and execute INSERT/REPLACE calls
      *
-     * @param string $tableName  The name of the table.
-     * @param array  $insertData Data containing information for inserting into the DB.
-     * @param string $operation  Type of operation (INSERT, REPLACE)
+     * @param string $tableName The name of the table.
+     * @param array $insertData Data containing information for inserting into the DB.
+     * @param string $operation Type of operation (INSERT, REPLACE)
      *
      * @return bool Boolean indicating whether the insert query was completed successfully.
      * @throws \Exception
@@ -1548,9 +1546,9 @@ class MySQL
      * any passed update data, and the desired rows.
      * It then builds the SQL query.
      *
-     * @param int|array $numRows     Array to define SQL limit in format Array ($offset, $count)
+     * @param int|array $numRows Array to define SQL limit in format Array ($offset, $count)
      *                               or only $count
-     * @param array     $tableData   Should contain an array of data for updating the database.
+     * @param array $tableData Should contain an array of data for updating the database.
      *
      * @return \mysqli_stmt|bool Returns the $stmt object.
      * @throws \Exception
@@ -1734,7 +1732,7 @@ class MySQL
      *
      * @param array $tableData
      * @param array $tableColumns
-     * @param bool  $isInsert INSERT operation flag
+     * @param bool $isInsert INSERT operation flag
      *
      * @throws \Exception
      */
@@ -1853,7 +1851,7 @@ class MySQL
      * Abstraction method that will build the part of the WHERE conditions
      *
      * @param string $operator
-     * @param array  $conditions
+     * @param array $conditions
      */
     protected function _buildCondition($operator, &$conditions)
     {
@@ -1949,7 +1947,7 @@ class MySQL
     /**
      * Abstraction method that will build the LIMIT part of the WHERE statement
      *
-     * @param int|array $numRows     Array to define SQL limit in format Array ($offset, $count)
+     * @param int|array $numRows Array to define SQL limit in format Array ($offset, $count)
      *                               or only $count
      *
      * @return void
@@ -1961,9 +1959,9 @@ class MySQL
         }
 
         if (is_array($numRows)) {
-            $this->_query .= ' LIMIT ' . (int) $numRows[0] . ', ' . (int) $numRows[1];
+            $this->_query .= ' LIMIT ' . (int)$numRows[0] . ', ' . (int)$numRows[1];
         } else {
-            $this->_query .= ' LIMIT ' . (int) $numRows;
+            $this->_query .= ' LIMIT ' . (int)$numRows;
         }
     }
 
@@ -2023,7 +2021,7 @@ class MySQL
      * Function to replace ? with variables from bind variable
      *
      * @param string $str
-     * @param array  $vals
+     * @param array $vals
      *
      * @return string
      */
@@ -2172,8 +2170,8 @@ class MySQL
      *
      * @param int $num increment by int or float. 1 by default
      *
-     * @throws \Exception
      * @return array
+     * @throws \Exception
      */
     public function inc($num = 1)
     {
@@ -2215,7 +2213,7 @@ class MySQL
      * Method generates user defined function call
      *
      * @param string $expr user function body
-     * @param array  $bindParams
+     * @param array $bindParams
      *
      * @return array
      */
@@ -2251,9 +2249,9 @@ class MySQL
     /**
      * Begin a transaction
      *
-     * @uses mysqli->autocommit(false)
-     * @uses register_shutdown_function(array($this, "_transaction_shutdown_check"))
      * @throws \Exception
+     * @uses register_shutdown_function(array($this, "_transaction_shutdown_check"))
+     * @uses mysqli->autocommit(false)
      */
     public function startTransaction()
     {
@@ -2265,9 +2263,9 @@ class MySQL
     /**
      * Transaction commit
      *
-     * @uses mysqli->commit();
-     * @uses mysqli->autocommit(true);
      * @throws \Exception
+     * @uses mysqli->autocommit(true);
+     * @uses mysqli->commit();
      */
     public function commit()
     {
@@ -2280,9 +2278,9 @@ class MySQL
     /**
      * Transaction rollback function
      *
-     * @uses mysqli->rollback();
-     * @uses mysqli->autocommit(true);
      * @throws \Exception
+     * @uses mysqli->autocommit(true);
+     * @uses mysqli->rollback();
      */
     public function rollback()
     {
@@ -2296,8 +2294,8 @@ class MySQL
      * Shutdown handler to rollback uncommited operations in order to keep
      * atomic operations sane.
      *
-     * @uses mysqli->rollback();
      * @throws \Exception
+     * @uses mysqli->rollback();
      */
     public function _transaction_status_check()
     {
@@ -2310,7 +2308,7 @@ class MySQL
     /**
      * Query execution time tracking switch
      *
-     * @param bool   $enabled     Enable execution time tracking
+     * @param bool $enabled Enable execution time tracking
      * @param string $stripPrefix Prefix to strip from the path in exec log
      *
      * @return MysqliDb
@@ -2384,8 +2382,8 @@ class MySQL
      *
      * @access public
      *
-     * @param string       $table  The name of the database table to work with
-     * @param int          $page   Page number
+     * @param string $table The name of the database table to work with
+     * @param int $page Page number
      * @param array|string $fields Array or coma separated list of fields to fetch
      *
      * @return array
@@ -2402,16 +2400,16 @@ class MySQL
     /**
      * This method allows you to specify multiple (method chaining optional) AND WHERE statements for the join table on part of the SQL query.
      *
-     * @uses $dbWrapper->joinWhere('user u', 'u.id', 7)->where('user u', 'u.title', 'MyTitle');
-     *
-     * @param string $whereJoin  The name of the table followed by its prefix.
-     * @param string $whereProp  The name of the database field.
-     * @param mixed  $whereValue The value of the database field.
+     * @param string $whereJoin The name of the table followed by its prefix.
+     * @param string $whereProp The name of the database field.
+     * @param mixed $whereValue The value of the database field.
      *
      * @param string $operator
      * @param string $cond
      *
      * @return $this
+     * @uses $dbWrapper->joinWhere('user u', 'u.id', 7)->where('user u', 'u.title', 'MyTitle');
+     *
      */
     public function joinWhere($whereJoin, $whereProp, $whereValue = 'DBNULL', $operator = '=', $cond = 'AND')
     {
@@ -2422,14 +2420,14 @@ class MySQL
     /**
      * This method allows you to specify multiple (method chaining optional) OR WHERE statements for the join table on part of the SQL query.
      *
-     * @uses $dbWrapper->joinWhere('user u', 'u.id', 7)->where('user u', 'u.title', 'MyTitle');
-     *
-     * @param string $whereJoin  The name of the table followed by its prefix.
-     * @param string $whereProp  The name of the database field.
-     * @param mixed  $whereValue The value of the database field.
+     * @param string $whereJoin The name of the table followed by its prefix.
+     * @param string $whereProp The name of the database field.
+     * @param mixed $whereValue The value of the database field.
      * @param string $operator
      *
      * @return $this
+     * @uses $dbWrapper->joinWhere('user u', 'u.id', 7)->where('user u', 'u.title', 'MyTitle');
+     *
      */
     public function joinOrWhere($whereJoin, $whereProp, $whereValue = 'DBNULL', $operator = '=', $cond = 'AND')
     {
@@ -2445,7 +2443,7 @@ class MySQL
             return;
 
         foreach ($this->_join as $data) {
-            list($joinType,  $joinTable, $joinCondition) = $data;
+            list($joinType, $joinTable, $joinCondition) = $data;
 
             if (is_object($joinTable))
                 $joinStr = $this->_buildPair("", $joinTable);
@@ -2470,8 +2468,8 @@ class MySQL
     /**
      * Convert a condition and value into the sql string
      *
-     * @param  String       $operator The where constraint operator
-     * @param  String|array $val      The where constraint value
+     * @param String $operator The where constraint operator
+     * @param String|array $val The where constraint value
      */
     private function conditionToSql($operator, $val)
     {

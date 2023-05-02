@@ -3,21 +3,21 @@
 /**
  * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
- * 
+ *
  * @author      Ivan Zorin <creator@localzet.com>
  * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.gnu.org/licenses/agpl AGPL-3.0 license
- * 
+ *
  *              This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU Affero General Public License as
  *              published by the Free Software Foundation, either version 3 of the
  *              License, or (at your option) any later version.
- *              
+ *
  *              This program is distributed in the hope that it will be useful,
  *              but WITHOUT ANY WARRANTY; without even the implied warranty of
  *              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *              GNU Affero General Public License for more details.
- *              
+ *
  *              You should have received a copy of the GNU Affero General Public License
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -72,7 +72,7 @@ class BotsManager
     /**
      * Get the configuration for a bot.
      *
-     * @param  string|null  $name
+     * @param string|null $name
      * @return array
      *
      * @throws InvalidArgumentException
@@ -83,7 +83,7 @@ class BotsManager
 
         $bots = collect($this->getConfig('bots'));
 
-        if (! $config = $bots->get($name, null)) {
+        if (!$config = $bots->get($name, null)) {
             throw new InvalidArgumentException("Bot [$name] not configured.");
         }
 
@@ -95,7 +95,7 @@ class BotsManager
     /**
      * Get a bot instance.
      *
-     * @param  string|null  $name
+     * @param string|null $name
      * @return Api
      *
      * @throws TelegramSDKException
@@ -104,7 +104,7 @@ class BotsManager
     {
         $name = $name ?? $this->getDefaultBotName();
 
-        if (! isset($this->bots[$name])) {
+        if (!isset($this->bots[$name])) {
             $this->bots[$name] = $this->makeBot($name);
         }
 
@@ -114,7 +114,7 @@ class BotsManager
     /**
      * Reconnect to the given bot.
      *
-     * @param  string|null  $name
+     * @param string|null $name
      * @return Api
      *
      * @throws TelegramSDKException
@@ -130,7 +130,7 @@ class BotsManager
     /**
      * Disconnect from the given bot.
      *
-     * @param  string|null  $name
+     * @param string|null $name
      * @return BotsManager
      */
     public function disconnect($name = null): self
@@ -144,8 +144,8 @@ class BotsManager
     /**
      * Get the specified configuration value for Telegram.
      *
-     * @param  string  $key
-     * @param  mixed  $default
+     * @param string $key
+     * @param mixed $default
      * @return mixed
      */
     public function getConfig($key, $default = null)
@@ -166,7 +166,7 @@ class BotsManager
     /**
      * Set the default bot name.
      *
-     * @param  string  $name
+     * @param string $name
      * @return BotsManager
      */
     public function setDefaultBot($name): self
@@ -189,7 +189,7 @@ class BotsManager
     /**
      * De-duplicate an array.
      *
-     * @param  array  $array
+     * @param array $array
      * @return array
      */
     protected function deduplicateArray(array $array): array
@@ -200,7 +200,7 @@ class BotsManager
     /**
      * Make the bot instance.
      *
-     * @param  string  $name
+     * @param string $name
      * @return Api
      *
      * @throws TelegramSDKException
@@ -233,13 +233,13 @@ class BotsManager
     }
 
     /**
+     * @param list<string|class-string<\support\telegram\Commands\CommandInterface>> $commands A list of command names or FQCNs of CommandInterface instances.
+     *
+     * @return array An array of commands which includes global and bot specific commands.
      * @deprecated Will be removed in SDK v4
      * @internal
      * Builds the list of commands for the given commands array.
      *
-     * @param list<string|class-string<\support\telegram\Commands\CommandInterface>> $commands A list of command names or FQCNs of CommandInterface instances.
-     *
-     * @return array An array of commands which includes global and bot specific commands.
      */
     public function parseBotCommands(array $commands): array
     {
@@ -281,7 +281,7 @@ class BotsManager
                 $command = $sharedCommands[$command];
             }
 
-            if (! in_array($command, $results)) {
+            if (!in_array($command, $results)) {
                 $results[] = $command;
             }
         }
@@ -292,8 +292,8 @@ class BotsManager
     /**
      * Magically pass methods to the default bot.
      *
-     * @param  string  $method
-     * @param  array  $parameters
+     * @param string $method
+     * @param array $parameters
      * @return mixed
      *
      * @throws TelegramSDKException

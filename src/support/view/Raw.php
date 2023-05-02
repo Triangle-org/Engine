@@ -3,21 +3,21 @@
 /**
  * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
- * 
+ *
  * @author      Ivan Zorin <creator@localzet.com>
  * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.gnu.org/licenses/agpl AGPL-3.0 license
- * 
+ *
  *              This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU Affero General Public License as
  *              published by the Free Software Foundation, either version 3 of the
  *              License, or (at your option) any later version.
- *              
+ *
  *              This program is distributed in the hope that it will be useful,
  *              but WITHOUT ANY WARRANTY; without even the implied warranty of
  *              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *              GNU Affero General Public License for more details.
- *              
+ *
  *              You should have received a copy of the GNU Affero General Public License
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -45,18 +45,18 @@ class Raw implements View
     /**
      * @var array
      */
-    protected static $vars = [];
+    protected static array $vars = [];
 
     /**
-     * @param string|array $name
-     * @param mixed $value
+     * @param array|string $name
+     * @param mixed|null $value
      */
-    public static function assign($name, $value = null)
+    public static function assign(array|string $name, mixed $value = null): void
     {
         static::$vars = array_merge(static::$vars, is_array($name) ? $name : [$name => $value]);
     }
 
-    public static function vars()
+    public static function vars(): array
     {
         return static::$vars;
     }
@@ -66,7 +66,7 @@ class Raw implements View
      * @param array $vars
      * @param string|null $app
      * @param string|null $plugin
-     * @return false|string
+     * @return string
      */
     public static function render(string $template, array $vars, string $app = null, string $plugin = null): string
     {
@@ -80,8 +80,8 @@ class Raw implements View
         $app = $app === null ? $request->app : $app;
         $baseViewPath = $plugin ? base_path() . "/plugin/$plugin/app" : app_path();
         $__template_body__ = $app === '' ? "$baseViewPath/view/$template.$viewSuffix" : "$baseViewPath/$app/view/$template.$viewSuffix";
-        $__template_head__ = ($view_global == true ? \app_path() : $baseViewPath) . ($app === '' ? "/view/$view_head.$viewSuffix" : "/$app/view/$view_head.$viewSuffix");
-        $__template_foot__ = ($view_global == true ? \app_path() : $baseViewPath) . ($app === '' ? "/view/$view_footer.$viewSuffix" : "/$app/view/$view_footer.$viewSuffix");
+        $__template_head__ = ($view_global ? app_path() : $baseViewPath) . ($app === '' ? "/view/$view_head.$viewSuffix" : "/$app/view/$view_head.$viewSuffix");
+        $__template_foot__ = ($view_global ? app_path() : $baseViewPath) . ($app === '' ? "/view/$view_footer.$viewSuffix" : "/$app/view/$view_footer.$viewSuffix");
 
         $name = config('app.name', 'Triangle App');
         $description = config('app.description', 'Simple web application on Triangle Engine');
@@ -150,12 +150,12 @@ class Raw implements View
      * @param array $vars
      * @return false|string
      */
-    public static function renderSys(string $template, array $vars)
+    public static function renderSys(string $template, array $vars): false|string
     {
         $request = request();
         $plugin = $request->plugin ?? '';
         $config_prefix = $plugin ? "plugin.$plugin." : '';
-        $view = \config("{$config_prefix}view.system.$template", \app_path() . "/view/response/$template.phtml");
+        $view = config("{$config_prefix}view.system.$template", app_path() . "/view/response/$template.phtml");
 
         $name = config('app.name', 'Triangle App');
         $description = config('app.description', 'Simple web application on Triangle Engine');

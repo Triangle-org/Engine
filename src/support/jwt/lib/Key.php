@@ -6,27 +6,30 @@ use InvalidArgumentException;
 use OpenSSLAsymmetricKey;
 use OpenSSLCertificate;
 use TypeError;
+use function is_resource;
+use function is_string;
 
 class Key
 {
     /** @var string|resource|OpenSSLAsymmetricKey|OpenSSLCertificate */
     private $keyMaterial;
     /** @var string */
-    private $algorithm;
+    private string $algorithm;
 
     /**
-     * @param string|resource|OpenSSLAsymmetricKey|OpenSSLCertificate $keyMaterial
+     * @param OpenSSLAsymmetricKey|string|OpenSSLCertificate $keyMaterial
      * @param string $algorithm
      */
     public function __construct(
-        $keyMaterial,
-        string $algorithm
-    ) {
+        OpenSSLAsymmetricKey|string|OpenSSLCertificate $keyMaterial,
+        string                                         $algorithm
+    )
+    {
         if (
-            !\is_string($keyMaterial)
+            !is_string($keyMaterial)
             && !$keyMaterial instanceof OpenSSLAsymmetricKey
             && !$keyMaterial instanceof OpenSSLCertificate
-            && !\is_resource($keyMaterial)
+            && !is_resource($keyMaterial)
         ) {
             throw new TypeError('Ключ должен быть строкой, ресурсом или OpenSSLAsymmetricKey');
         }
@@ -53,7 +56,7 @@ class Key
     }
 
     /** Ключ
-     * 
+     *
      * @return string|resource|OpenSSLAsymmetricKey|OpenSSLCertificate
      */
     public function getKeyMaterial()

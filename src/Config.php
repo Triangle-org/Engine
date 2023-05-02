@@ -3,21 +3,21 @@
 /**
  * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
- * 
+ *
  * @author      Ivan Zorin <creator@localzet.com>
  * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.gnu.org/licenses/agpl AGPL-3.0 license
- * 
+ *
  *              This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU Affero General Public License as
  *              published by the Free Software Foundation, either version 3 of the
  *              License, or (at your option) any later version.
- *              
+ *
  *              This program is distributed in the hope that it will be useful,
  *              but WITHOUT ANY WARRANTY; without even the implied warranty of
  *              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *              GNU Affero General Public License for more details.
- *              
+ *
  *              You should have received a copy of the GNU Affero General Public License
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -44,17 +44,17 @@ class Config
     /**
      * @var array
      */
-    protected static $config = [];
+    protected static array $config = [];
 
     /**
      * @var string
      */
-    protected static $configPath = '';
+    protected static string $configPath = '';
 
     /**
      * @var bool
      */
-    protected static $loaded = false;
+    protected static bool $loaded = false;
 
     /**
      * Загрузи
@@ -63,7 +63,7 @@ class Config
      * @param string|null $key
      * @return void
      */
-    public static function load(string $configPath, array $excludeFile = [], string $key = null)
+    public static function load(string $configPath, array $excludeFile = [], string $key = null): void
     {
         static::$configPath = $configPath;
         if (!$configPath) {
@@ -89,7 +89,7 @@ class Config
      * Очистить
      * @return void
      */
-    public static function clear()
+    public static function clear(): void
     {
         static::$config = [];
     }
@@ -98,7 +98,7 @@ class Config
      * Форматировать
      * @return void
      */
-    protected static function formatConfig()
+    protected static function formatConfig(): void
     {
         $config = static::$config;
         // Merge log config
@@ -216,10 +216,10 @@ class Config
     /**
      * Получить
      * @param string|null $key
-     * @param mixed $default
+     * @param mixed|null $default
      * @return array|mixed|void|null
      */
-    public static function get(string $key = null, $default = null)
+    public static function get(string $key = null, mixed $default = null)
     {
         if ($key === null) {
             return static::$config;
@@ -246,10 +246,10 @@ class Config
     /**
      * Считать
      * @param string $key
-     * @param mixed $default
+     * @param mixed|null $default
      * @return array|mixed|null
      */
-    protected static function read(string $key, $default = null)
+    protected static function read(string $key, mixed $default = null): mixed
     {
         $path = static::$configPath;
         if ($path === '') {
@@ -276,7 +276,7 @@ class Config
      * @param mixed $default
      * @return array|mixed
      */
-    protected static function find(array $keyArray, $stack, $default)
+    protected static function find(array $keyArray, mixed $stack, mixed $default): mixed
     {
         if (!is_array($stack)) {
             return $default;
@@ -294,7 +294,7 @@ class Config
     /**
      * @param array $config
      */
-    public static function set($config)
+    public static function set(array $config): void
     {
         static::$config = array_replace_recursive(static::$config, $config);
     }

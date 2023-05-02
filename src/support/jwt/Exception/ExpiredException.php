@@ -2,6 +2,8 @@
 
 namespace support\jwt\Exception;
 
-class ExpiredException extends \UnexpectedValueException
+use UnexpectedValueException;
+
+class ExpiredException extends UnexpectedValueException
 {
 }

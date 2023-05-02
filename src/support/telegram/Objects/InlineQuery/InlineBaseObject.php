@@ -34,7 +34,7 @@ abstract class InlineBaseObject extends Collection
      */
     public function __call($name, $arguments)
     {
-        if (! Str::startsWith($name, 'set')) {
+        if (!Str::startsWith($name, 'set')) {
             throw new \BadMethodCallException("Method {$name} does not exist.");
         }
         $property = Str::snake(substr($name, 3));

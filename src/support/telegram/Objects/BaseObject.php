@@ -52,7 +52,7 @@ abstract class BaseObject extends Collection
     protected function getPropertyValue($property, $default = null)
     {
         $property = Str::snake($property);
-        if (! $this->offsetExists($property)) {
+        if (!$this->offsetExists($property)) {
             return value($default);
         }
 
@@ -79,7 +79,7 @@ abstract class BaseObject extends Collection
 
     /**
      * @param string $relationName
-     * @param array  $relationRawData
+     * @param array $relationRawData
      * @return array|\Illuminate\Support\Enumerable|\Illuminate\Support\Traits\EnumeratesValues|\support\telegram\Objects\BaseObject
      */
     protected function getRelationValue(string $relationName, iterable $relationRawData)
@@ -88,7 +88,7 @@ abstract class BaseObject extends Collection
         $relation = $this->relations()[$relationName];
 
         if (is_string($relation)) {
-            if (! class_exists($relation)) {
+            if (!class_exists($relation)) {
                 throw new \InvalidArgumentException("Could not load “{$relationName}” relation: class “{$relation}” not found.");
             }
             return $relation::make($relationRawData);
@@ -209,7 +209,7 @@ abstract class BaseObject extends Collection
      */
     public function __call($name, $arguments)
     {
-        if (! Str::startsWith($name, 'get')) {
+        if (!Str::startsWith($name, 'get')) {
             return false;
         }
         $property = substr($name, 3);

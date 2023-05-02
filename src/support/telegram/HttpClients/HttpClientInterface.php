@@ -10,10 +10,10 @@ interface HttpClientInterface
     /**
      * Send HTTP request.
      *
-     * @param string     $url
-     * @param string     $method
-     * @param array      $headers
-     * @param array      $options
+     * @param string $url
+     * @param string $method
+     * @param array $headers
+     * @param array $options
      * @param bool|false $isAsyncRequest
      *
      * @return mixed

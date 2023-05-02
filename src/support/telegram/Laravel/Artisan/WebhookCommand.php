@@ -4,11 +4,11 @@ namespace support\telegram\Laravel\Artisan;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
-use Symfony\Component\Console\Helper\TableCell;
 use support\telegram\Api;
 use support\telegram\BotsManager;
 use support\telegram\Exceptions\TelegramSDKException;
 use support\telegram\Objects\WebhookInfo;
+use Symfony\Component\Console\Helper\TableCell;
 
 class WebhookCommand extends Command
 {
@@ -124,7 +124,7 @@ class WebhookCommand extends Command
     {
         $this->alert('Webhook Info');
 
-        if ($this->hasArgument('bot') && ! $this->option('all')) {
+        if ($this->hasArgument('bot') && !$this->option('all')) {
             $response = $this->telegram->getWebhookInfo();
             $this->makeWebhookInfoResponse($response, $this->argument('bot'));
 
@@ -144,7 +144,7 @@ class WebhookCommand extends Command
      * Make WebhookInfo Response for console.
      *
      * @param WebhookInfo $response
-     * @param string      $bot
+     * @param string $bot
      */
     protected function makeWebhookInfoResponse(WebhookInfo $response, string $bot)
     {

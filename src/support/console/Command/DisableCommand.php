@@ -7,8 +7,8 @@ use support\console\Output\OutputInterface;
 
 class DisableCommand extends Command
 {
-    protected static $defaultName = 'supervisor:disable|disable';
-    protected static $defaultDescription = 'Удалить проект из автозагрузки';
+    protected static ?string $defaultName = 'supervisor:disable|disable';
+    protected static ?string $defaultDescription = 'Удалить проект из автозагрузки';
 
     /**
      * @return void
@@ -35,7 +35,7 @@ class DisableCommand extends Command
             return self::FAILURE;
         }
         $file = "/etc/supervisor/conf.d/$domain.conf";
-        
+
         if (is_file($file)) {
             @unlink($file);
             $output->writeln("<info>Ссылка удалена</>");
@@ -45,7 +45,6 @@ class DisableCommand extends Command
         } else {
             $output->writeln("<error>Файл не существует</>");
         }
-
 
 
         return self::SUCCESS;

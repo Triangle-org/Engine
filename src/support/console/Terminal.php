@@ -3,21 +3,21 @@
 /**
  * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
- * 
+ *
  * @author      Ivan Zorin <creator@localzet.com>
  * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.gnu.org/licenses/agpl AGPL-3.0 license
- * 
+ *
  *              This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU Affero General Public License as
  *              published by the Free Software Foundation, either version 3 of the
  *              License, or (at your option) any later version.
- *              
+ *
  *              This program is distributed in the hope that it will be useful,
  *              but WITHOUT ANY WARRANTY; without even the implied warranty of
  *              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *              GNU Affero General Public License for more details.
- *              
+ *
  *              You should have received a copy of the GNU Affero General Public License
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -39,7 +39,7 @@ class Terminal
     {
         $width = getenv('COLUMNS');
         if (false !== $width) {
-            return (int) trim($width);
+            return (int)trim($width);
         }
 
         if (null === self::$width) {
@@ -58,7 +58,7 @@ class Terminal
     {
         $height = getenv('LINES');
         if (false !== $height) {
-            return (int) trim($height);
+            return (int)trim($height);
         }
 
         if (null === self::$height) {
@@ -93,16 +93,16 @@ class Terminal
             if (preg_match('/^(\d+)x(\d+)(?: \((\d+)x(\d+)\))?$/', trim(getenv('ANSICON')), $matches)) {
                 // extract [w, H] from "wxh (WxH)"
                 // or [w, h] from "wxh"
-                self::$width = (int) $matches[1];
-                self::$height = isset($matches[4]) ? (int) $matches[4] : (int) $matches[2];
+                self::$width = (int)$matches[1];
+                self::$height = isset($matches[4]) ? (int)$matches[4] : (int)$matches[2];
             } elseif (!self::hasVt100Support() && self::hasSttyAvailable()) {
                 // only use stty on Windows if the terminal does not support vt100 (e.g. Windows 7 + git-bash)
                 // testing for stty in a Windows 10 vt100-enabled console will implicitly disable vt100 support on STDOUT
                 self::initDimensionsUsingStty();
             } elseif (null !== $dimensions = self::getConsoleMode()) {
                 // extract [w, h] from "wxh"
-                self::$width = (int) $dimensions[0];
-                self::$height = (int) $dimensions[1];
+                self::$width = (int)$dimensions[0];
+                self::$height = (int)$dimensions[1];
             }
         } else {
             self::initDimensionsUsingStty();
@@ -125,12 +125,12 @@ class Terminal
         if ($sttyString = self::getSttyColumns()) {
             if (preg_match('/rows.(\d+);.columns.(\d+);/i', $sttyString, $matches)) {
                 // extract [w, h] from "rows h; columns w;"
-                self::$width = (int) $matches[2];
-                self::$height = (int) $matches[1];
+                self::$width = (int)$matches[2];
+                self::$height = (int)$matches[1];
             } elseif (preg_match('/;.(\d+).rows;.(\d+).columns/i', $sttyString, $matches)) {
                 // extract [w, h] from "; h rows; w columns"
-                self::$width = (int) $matches[2];
-                self::$height = (int) $matches[1];
+                self::$width = (int)$matches[2];
+                self::$height = (int)$matches[1];
             }
         }
     }
@@ -148,7 +148,7 @@ class Terminal
             return null;
         }
 
-        return [(int) $matches[2], (int) $matches[1]];
+        return [(int)$matches[2], (int)$matches[1]];
     }
 
     /**

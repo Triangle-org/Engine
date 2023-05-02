@@ -3,26 +3,28 @@
 /**
  * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
- * 
+ *
  * @author      Ivan Zorin <creator@localzet.com>
  * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.gnu.org/licenses/agpl AGPL-3.0 license
- * 
+ *
  *              This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU Affero General Public License as
  *              published by the Free Software Foundation, either version 3 of the
  *              License, or (at your option) any later version.
- *              
+ *
  *              This program is distributed in the hope that it will be useful,
  *              but WITHOUT ANY WARRANTY; without even the implied warranty of
  *              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *              GNU Affero General Public License for more details.
- *              
+ *
  *              You should have received a copy of the GNU Affero General Public License
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 namespace support;
+
+use stdClass;
 
 /**
  * Простой сборщик данных
@@ -34,14 +36,14 @@ final class Collection
      *
      * @var mixed
      */
-    protected $collection = null;
+    protected mixed $collection = null;
 
     /**
-     * @param mixed $data
+     * @param mixed|null $data
      */
-    public function __construct($data = null)
+    public function __construct(mixed $data = null)
     {
-        $this->collection = new \stdClass();
+        $this->collection = new stdClass();
 
         if (is_object($data)) {
             $this->collection = $data;
@@ -53,9 +55,9 @@ final class Collection
     /**
      * Извлекает всю коллекцию в виде массива
      *
-     * @return mixed
+     * @return array
      */
-    public function toArray()
+    public function toArray(): array
     {
         return (array)$this->collection;
     }
@@ -67,7 +69,7 @@ final class Collection
      *
      * @return mixed
      */
-    public function get($property)
+    public function get($property): mixed
     {
         if ($this->exists($property)) {
             return $this->collection->$property;
@@ -82,7 +84,7 @@ final class Collection
      * @param $property
      * @param mixed $value
      */
-    public function set($property, $value)
+    public function set($property, mixed $value): void
     {
         if ($property) {
             $this->collection->$property = $value;
@@ -94,7 +96,7 @@ final class Collection
      *
      * @return Collection
      */
-    public function filter($property)
+    public function filter($property): Collection
     {
         if ($this->exists($property)) {
             $data = $this->get($property);
@@ -116,7 +118,7 @@ final class Collection
      *
      * @return bool
      */
-    public function exists($property)
+    public function exists($property): bool
     {
         return property_exists($this->collection, $property);
     }
@@ -126,9 +128,9 @@ final class Collection
      *
      * @return bool
      */
-    public function isEmpty()
+    public function isEmpty(): bool
     {
-        return !(bool)$this->count();
+        return !$this->count();
     }
 
     /**
@@ -136,7 +138,7 @@ final class Collection
      *
      * @return int
      */
-    public function count()
+    public function count(): int
     {
         return count($this->properties());
     }
@@ -146,7 +148,7 @@ final class Collection
      *
      * @return array
      */
-    public function properties()
+    public function properties(): array
     {
         $properties = [];
 
@@ -162,7 +164,7 @@ final class Collection
      *
      * @return array
      */
-    public function values()
+    public function values(): array
     {
         $values = [];
 

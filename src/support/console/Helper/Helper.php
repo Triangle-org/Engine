@@ -3,21 +3,21 @@
 /**
  * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
- * 
+ *
  * @author      Ivan Zorin <creator@localzet.com>
  * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.gnu.org/licenses/agpl AGPL-3.0 license
- * 
+ *
  *              This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU Affero General Public License as
  *              published by the Free Software Foundation, either version 3 of the
  *              License, or (at your option) any later version.
- *              
+ *
  *              This program is distributed in the hope that it will be useful,
  *              but WITHOUT ANY WARRANTY; without even the implied warranty of
  *              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *              GNU Affero General Public License for more details.
- *              
+ *
  *              You should have received a copy of the GNU Affero General Public License
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -55,9 +55,9 @@ abstract class Helper implements HelperInterface
     /**
      * Returns the length of a string, using mb_strwidth if it is available.
      *
+     * @return int
      * @deprecated since Symfony 5.3
      *
-     * @return int
      */
     public static function strlen(?string $string)
     {
@@ -72,7 +72,7 @@ abstract class Helper implements HelperInterface
      */
     public static function width(?string $string): int
     {
-        $string ?? $string = '';
+            $string ?? $string = '';
 
         if (preg_match('//u', $string)) {
             return (new UnicodeString($string))->width(false);
@@ -91,7 +91,7 @@ abstract class Helper implements HelperInterface
      */
     public static function length(?string $string): int
     {
-        $string ?? $string = '';
+            $string ?? $string = '';
 
         if (preg_match('//u', $string)) {
             return (new UnicodeString($string))->length();
@@ -111,7 +111,7 @@ abstract class Helper implements HelperInterface
      */
     public static function substr(?string $string, int $from, int $length = null)
     {
-        $string ?? $string = '';
+            $string ?? $string = '';
 
         if (false === $encoding = mb_detect_encoding($string, null, true)) {
             return substr($string, $from, $length);
@@ -143,7 +143,7 @@ abstract class Helper implements HelperInterface
                         return $format[1];
                     }
 
-                    return floor($secs / $format[2]).' '.$format[1];
+                    return floor($secs / $format[2]) . ' ' . $format[1];
                 }
             }
         }

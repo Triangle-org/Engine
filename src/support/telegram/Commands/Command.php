@@ -357,10 +357,10 @@ abstract class Command implements CommandInterface
         return !$message->hasCommand() ?
             collect() :
             $message
-            ->get('entities', collect())
-            ->filter(function (MessageEntity $entity) {
-                return $entity->type === 'bot_command';
-            })
-            ->pluck('offset');
+                ->get('entities', collect())
+                ->filter(function (MessageEntity $entity) {
+                    return $entity->type === 'bot_command';
+                })
+                ->pluck('offset');
     }
 }

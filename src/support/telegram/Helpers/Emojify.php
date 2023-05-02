@@ -135,7 +135,7 @@ class Emojify
      *
      * @param        $line
      * @param        $replace
-     * @param bool   $toWord
+     * @param bool $toWord
      * @param string $delimiter
      *
      * @return mixed
@@ -189,17 +189,17 @@ class Emojify
     /**
      * Get Emoji Map Array.
      *
+     * @return array
      * @throws TelegramEmojiMapFileNotFoundException
      *
-     * @return array
      */
     protected function getEmojiMap()
     {
-        if (! isset($this->emojiMapFile)) {
+        if (!isset($this->emojiMapFile)) {
             $this->emojiMapFile = realpath(__DIR__ . self::DEFAULT_EMOJI_MAP_FILE);
         }
 
-        if (! file_exists($this->emojiMapFile)) {
+        if (!file_exists($this->emojiMapFile)) {
             throw new TelegramEmojiMapFileNotFoundException();
         }
 

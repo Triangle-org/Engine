@@ -3,7 +3,7 @@
 /**
  * @package     Triangle Web
  * @link        https://github.com/Triangle-org/Web
- * 
+ *
  * @author      Ivan Zorin <creator@localzet.com>
  * @copyright   2018-2023 Localzet Group
  * @license     https://mit-license.org MIT
@@ -20,7 +20,9 @@ use Triangle\Engine\Util;
 $server = $server ?? null;
 
 // Обработчик ошибок
-set_error_handler(function ($level, $message, $file = '', $line = 0) {
+set_error_handler(/**
+ * @throws ErrorException
+ */ function ($level, $message, $file = '', $line = 0) {
     if (error_reporting() & $level) {
         throw new ErrorException($message, 0, $level, $file, $line);
     }
@@ -57,11 +59,11 @@ foreach (config('autoload.files', []) as $file) {
     include_once $file;
 }
 
-foreach (glob(\base_path() . '/autoload/*.php') as $file) {
+foreach (glob(base_path() . '/autoload/*.php') as $file) {
     include_once($file);
 }
 
-foreach (glob(\base_path() . '/autoload/*/*/*.php') as $file) {
+foreach (glob(base_path() . '/autoload/*/*/*.php') as $file) {
     include_once($file);
 }
 
@@ -79,47 +81,6 @@ foreach (config('plugin', []) as $firm => $projects) {
         include_once $file;
     }
 }
-// ['plugin' => [
-//     'firm' => [
-//         'name' => [
-//             // Конфигурация
-//             'middleware' => [
-//                 'app1' => [
-//                     'Class1',
-//                     'Class2',
-//                     'Class3'
-//                 ],
-//                 'app2' => [
-//                     'Class1',
-//                     'Class2',
-//                     'Class3'
-//                 ]
-//             ],
-//             'process' => [
-//                 'process_name' => [
-//                     'listen',
-//                     'context',
-//                     'count',
-//                     'user',
-//                     'group',
-//                     'reloadable',
-//                     'reusePort',
-//                     'transport',
-//                     'protocol',
-//                     'handler',
-//                     'constructor'
-//                 ]
-//             ],
-//             'autoload' => [
-//                 'files' => [
-//                     'file1',
-//                     'file2',
-//                     'file3'
-//                 ]
-//             ]
-//         ]
-//     ]
-// ]];
 
 Middleware::load(config('middleware', []));
 
@@ -160,8 +121,8 @@ foreach (config('plugin', []) as $firm => $projects) {
             continue;
         }
         foreach ($project['bootstrap'] ?? [] as $className) {
-            if (!class_exists($className)) {
-                $log = "Warning: Class $className setting in config/plugin/$firm/$name/bootstrap.php not found\r\n";
+            if (!class_exists($className::class)) {
+                $log = "Warning: Class " . $className::class . " setting in config/plugin/$firm/$name/bootstrap.php not found\r\n";
                 echo $log;
                 Log::error($log);
                 continue;
@@ -171,9 +132,8 @@ foreach (config('plugin', []) as $firm => $projects) {
         }
     }
     foreach ($projects['bootstrap'] ?? [] as $className) {
-        /** @var string $className */
-        if (!class_exists($className)) {
-            $log = "Warning: Class $className setting in plugin/$firm/config/bootstrap.php not found\r\n";
+        if (!class_exists($className::class)) {
+            $log = "Warning: Class " . $className::class . " setting in plugin/$firm/config/bootstrap.php not found\r\n";
             echo $log;
             Log::error($log);
             continue;

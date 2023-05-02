@@ -17,7 +17,7 @@ class Entities
     /**
      * Entities constructor.
      *
-     * @param  string  $text
+     * @param string $text
      */
     public function __construct(string $text)
     {
@@ -25,7 +25,7 @@ class Entities
     }
 
     /**
-     * @param  string  $text
+     * @param string $text
      *
      * @return static
      */
@@ -35,7 +35,7 @@ class Entities
     }
 
     /**
-     * @param  array  $entities
+     * @param array $entities
      *
      * @return $this
      */
@@ -110,12 +110,12 @@ class Entities
         // 'url', 'bot_command', 'hashtag', 'cashtag', 'email', 'phone_number', 'mention'
 
         return [
-            'bold'         => ['*%s*', '<strong>%s</strong>'],
-            'italic'       => ['_%s_', '<i>%s</i>'],
-            'code'         => ['`%s`', '<code>%s</code>'],
-            'pre'          => ["```\n%s```", '<pre>%s</pre>'],
+            'bold' => ['*%s*', '<strong>%s</strong>'],
+            'italic' => ['_%s_', '<i>%s</i>'],
+            'code' => ['`%s`', '<code>%s</code>'],
+            'pre' => ["```\n%s```", '<pre>%s</pre>'],
             'text_mention' => ['[%1$s](tg://user?id=%1$s)', '<a href="tg://user?id=%1$s">%1$s</a>'],
-            'text_link'    => ['[%s](%s)', '<a href="%2$s">%1$s</a>'],
+            'text_link' => ['[%s](%s)', '<a href="%2$s">%1$s</a>'],
         ];
     }
 }

@@ -2,8 +2,8 @@
 
 namespace support\telegram\FileUpload;
 
-use localzet\Server\Psr7\LazyOpenStream;
 use InvalidArgumentException;
+use localzet\Server\Psr7\LazyOpenStream;
 use Psr\Http\Message\StreamInterface;
 use support\telegram\Exceptions\CouldNotUploadInputFile;
 
@@ -25,7 +25,7 @@ class InputFile
      * Create a new InputFile entity.
      *
      * @param string|resource|StreamInterface|null $file
-     * @param string|null                          $filename
+     * @param string|null $filename
      *
      * @return InputFile
      */
@@ -51,7 +51,7 @@ class InputFile
      * Creates a new InputFile entity.
      *
      * @param string|resource|StreamInterface|null $file
-     * @param string|null                          $filename
+     * @param string|null $filename
      */
     public function __construct($file = null, $filename = null)
     {
@@ -86,13 +86,13 @@ class InputFile
     /**
      * Return the name of the file.
      *
+     * @return string
      * @throws CouldNotUploadInputFile
      *
-     * @return string
      */
     public function getFilename(): string
     {
-        if ($this->isFileResourceOrStream() && ! isset($this->filename)) {
+        if ($this->isFileResourceOrStream() && !isset($this->filename)) {
             return $this->filename = $this->attemptFileNameDetection();
         }
 
@@ -103,9 +103,9 @@ class InputFile
      * Attempts to access the meta data in the stream or resource to determine what
      * the filename should be if the user did not supply one.
      *
+     * @return string
      * @throws CouldNotUploadInputFile
      *
-     * @return string
      */
     protected function attemptFileNameDetection()
     {
@@ -136,9 +136,9 @@ class InputFile
      *
      * @param $filename
      *
+     * @return InputFile
      * @throws InvalidArgumentException
      *
-     * @return InputFile
      */
     public function setFilename($filename): self
     {
@@ -181,9 +181,9 @@ class InputFile
     /**
      * Opens remote & local file.
      *
+     * @return StreamInterface|resource|string
      * @throws CouldNotUploadInputFile
      *
-     * @return StreamInterface|resource|string
      */
     protected function open()
     {
@@ -230,15 +230,15 @@ class InputFile
     /**
      * Determine if it's a local file and exists.
      *
-     * @throws CouldNotUploadInputFile
-     *
      * @return bool true if the file exists and readable, false if it's not a
      *              local file. Throws exception if the file doesn't exist or
      *              is not readable otherwise.
+     * @throws CouldNotUploadInputFile
+     *
      */
     protected function isFileLocalAndExists(): bool
     {
-        if (! is_string($this->file)) {
+        if (!is_string($this->file)) {
             return false;
         }
 

@@ -4,34 +4,36 @@ declare(strict_types=1);
 /**
  * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
- * 
+ *
  * @author      Ivan Zorin <creator@localzet.com>
  * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.gnu.org/licenses/agpl AGPL-3.0 license
- * 
+ *
  *              This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU Affero General Public License as
  *              published by the Free Software Foundation, either version 3 of the
  *              License, or (at your option) any later version.
- *              
+ *
  *              This program is distributed in the hope that it will be useful,
  *              but WITHOUT ANY WARRANTY; without even the implied warranty of
  *              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *              GNU Affero General Public License for more details.
- *              
+ *
  *              You should have received a copy of the GNU Affero General Public License
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace resources;
+namespace Triangle\Engine\support\log;
 
+use InvalidArgumentException;
+use MongoDB\Client;
+use MongoDB\Collection;
 use MongoDB\Driver\BulkWrite;
 use MongoDB\Driver\Manager;
-use MongoDB\Client;
-use Monolog\Logger;
 use Monolog\Formatter\FormatterInterface;
 use Monolog\Formatter\MongoDBFormatter;
 use Monolog\Handler\AbstractProcessingHandler;
+use Monolog\Logger;
 
 /**
  * Logs to a MongoDB database.
@@ -45,30 +47,30 @@ use Monolog\Handler\AbstractProcessingHandler;
  *
  * The above examples uses the MongoDB PHP library's client class; however, the
  * MongoDB\Driver\Manager class from ext-mongodb is also supported.
- * 
+ *
  * @author      Ivan Zorin <creator@localzet.com>
  * @author      Jordi Boggiano <j.boggiano@seld.be>
  */
 class MongoDBHandler extends AbstractProcessingHandler
 {
     /** @var \MongoDB\Collection */
-    private $collection;
+    private Collection $collection;
     /** @var Client|Manager */
-    private $manager;
+    private Manager|Client $manager;
     /** @var string */
-    private $namespace;
+    private string $namespace;
 
     /**
      * Constructor.
      *
-     * @param Client|Manager $mongodb    MongoDB library or driver client
-     * @param string         $database   Database name
-     * @param string         $collection Collection name
+     * @param Client|Manager $mongodb MongoDB library or driver client
+     * @param string $database Database name
+     * @param string $collection Collection name
      */
     public function __construct($mongodb, string $database, string $collection, $level = Logger::DEBUG, bool $bubble = true)
     {
         if (!($mongodb instanceof Client || $mongodb instanceof Manager)) {
-            throw new \InvalidArgumentException('MongoDB\Client or MongoDB\Driver\Manager instance required');
+            throw new InvalidArgumentException('MongoDB\Client or MongoDB\Driver\Manager instance required');
         }
 
         if ($mongodb instanceof Client) {
@@ -84,8 +86,7 @@ class MongoDBHandler extends AbstractProcessingHandler
     protected function write(array $record): void
     {
         if (isset($this->collection)) {
-            $res = $this->collection->insertOne($record['formatted']);
-            request()->exception_id = (string) $res->getInsertedId();
+            $this->collection->insertOne($record['formatted']);
         }
 
         if (isset($this->manager, $this->namespace)) {

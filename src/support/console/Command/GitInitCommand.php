@@ -4,12 +4,11 @@ namespace support\console\Command;
 
 use support\console\Input\InputInterface;
 use support\console\Output\OutputInterface;
-use Throwable;
 
 class GitInitCommand extends Command
 {
-    protected static $defaultName = 'git:connect|git-connect';
-    protected static $defaultDescription = 'Добавить удалённый репозиторий Git';
+    protected static ?string $defaultName = 'git:connect|git-connect';
+    protected static ?string $defaultDescription = 'Добавить удалённый репозиторий Git';
 
     /**
      * @return void

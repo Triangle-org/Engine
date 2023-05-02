@@ -18,9 +18,9 @@ trait EmitsEvents
      *
      * @param EventInterface|string $event
      *
+     * @return bool true if emitted, false otherwise.
      * @throws \InvalidArgumentException
      *
-     * @return bool true if emitted, false otherwise.
      */
     protected function emitEvent($event): bool
     {
@@ -40,9 +40,9 @@ trait EmitsEvents
      *
      * @param EventInterface[]|string[] $events
      *
+     * @return bool true if all emitted, false otherwise
      * @throws \InvalidArgumentException
      *
-     * @return bool true if all emitted, false otherwise
      */
     private function emitBatchOfEvents(array $events): bool
     {
@@ -90,7 +90,7 @@ trait EmitsEvents
      */
     private function validateEvent($event)
     {
-        if (! is_string($event) && ! $event instanceof EventInterface) {
+        if (!is_string($event) && !$event instanceof EventInterface) {
             throw new \InvalidArgumentException('Event must be either be of type "string" or instance of League\Event\EventInterface');
         }
     }

@@ -7,8 +7,8 @@ use support\console\Output\OutputInterface;
 
 class NginxEnableCommand extends Command
 {
-    protected static $defaultName = 'nginx:enable';
-    protected static $defaultDescription = 'Добавить сайт в Nginx';
+    protected static ?string $defaultName = 'nginx:enable';
+    protected static ?string $defaultDescription = 'Добавить сайт в Nginx';
 
     /**
      * @return void

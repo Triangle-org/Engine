@@ -3,21 +3,21 @@
 /**
  * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
- * 
+ *
  * @author      Ivan Zorin <creator@localzet.com>
  * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.gnu.org/licenses/agpl AGPL-3.0 license
- * 
+ *
  *              This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU Affero General Public License as
  *              published by the Free Software Foundation, either version 3 of the
  *              License, or (at your option) any later version.
- *              
+ *
  *              This program is distributed in the hope that it will be useful,
  *              but WITHOUT ANY WARRANTY; without even the implied warranty of
  *              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *              GNU Affero General Public License for more details.
- *              
+ *
  *              You should have received a copy of the GNU Affero General Public License
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -32,6 +32,7 @@ use support\console\Input\InputOption;
 use support\console\Output\ConsoleOutputInterface;
 use support\console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
+use const PATHINFO_EXTENSION;
 
 /**
  * Dumps the completion script for the current shell.
@@ -40,8 +41,8 @@ use Symfony\Component\Process\Process;
  */
 final class DumpCompletionCommand extends Command
 {
-    protected static $defaultName = 'completion';
-    protected static $defaultDescription = 'Dump the shell completion script';
+    protected static ?string $defaultName = 'completion';
+    protected static ?string $defaultDescription = 'Dump the shell completion script';
 
     public function complete(CompletionInput $input, CompletionSuggestions $suggestions): void
     {
@@ -50,7 +51,7 @@ final class DumpCompletionCommand extends Command
         }
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $fullCommand = $_SERVER['PHP_SELF'];
         $commandName = basename($fullCommand);
@@ -66,7 +67,7 @@ to use shell autocompletion (currently only bash completion is supported).
 
 Dump the script to a global completion file and restart your shell:
 
-    <info>%command.full_name% bash | sudo tee /etc/bash_completion.d/{$commandName}</>
+    <info>%command.full_name% bash | sudo tee /etc/bash_completion.d/$commandName</>
 
 Or dump the script to a local file and source it:
 
@@ -83,12 +84,11 @@ Or dump the script to a local file and source it:
 
 Add this to the end of your shell configuration file (e.g. <info>"~/.bashrc"</>):
 
-    <info>eval "$({$fullCommand} completion bash)"</>
+    <info>eval "$($fullCommand completion bash)"</>
 EOH
             )
             ->addArgument('shell', InputArgument::OPTIONAL, 'The shell type (e.g. "bash"), the value of the "$SHELL" env var will be used if this is not given')
-            ->addOption('debug', null, InputOption::VALUE_NONE, 'Tail the completion debug log')
-        ;
+            ->addOption('debug', null, InputOption::VALUE_NONE, 'Tail the completion debug log');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -102,7 +102,7 @@ EOH
         }
 
         $shell = $input->getArgument('shell') ?? self::guessShell();
-        $completionFile = __DIR__.'/../Resources/completion.'.$shell;
+        $completionFile = __DIR__ . '/../Resources/completion.' . $shell;
         if (!file_exists($completionFile)) {
             $supportedShells = $this->getSupportedShells();
 
@@ -130,7 +130,7 @@ EOH
 
     private function tailDebugLog(string $commandName, OutputInterface $output): void
     {
-        $debugFile = sys_get_temp_dir().'/sf_'.$commandName.'.log';
+        $debugFile = sys_get_temp_dir() . '/sf_' . $commandName . '.log';
         if (!file_exists($debugFile)) {
             touch($debugFile);
         }
@@ -146,7 +146,7 @@ EOH
     private function getSupportedShells(): array
     {
         return array_map(function ($f) {
-            return pathinfo($f, \PATHINFO_EXTENSION);
-        }, glob(__DIR__.'/../Resources/completion.*'));
+            return pathinfo($f, PATHINFO_EXTENSION);
+        }, glob(__DIR__ . '/../Resources/completion.*'));
     }
 }

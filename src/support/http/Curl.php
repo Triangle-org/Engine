@@ -3,27 +3,28 @@
 /**
  * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
- * 
+ *
  * @author      Ivan Zorin <creator@localzet.com>
  * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.gnu.org/licenses/agpl AGPL-3.0 license
- * 
+ *
  *              This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU Affero General Public License as
  *              published by the Free Software Foundation, either version 3 of the
  *              License, or (at your option) any later version.
- *              
+ *
  *              This program is distributed in the hope that it will be useful,
  *              but WITHOUT ANY WARRANTY; without even the implied warranty of
  *              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *              GNU Affero General Public License for more details.
- *              
+ *
  *              You should have received a copy of the GNU Affero General Public License
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 namespace support\http;
 
+use Monolog\Logger;
 use support\Log;
 
 /**
@@ -40,7 +41,7 @@ class Curl implements HttpClientInterface
      *
      * @var array
      */
-    protected $curlOptions = [
+    protected array $curlOptions = [
         CURLOPT_TIMEOUT => 30,
         CURLOPT_CONNECTTIMEOUT => 30,
         CURLOPT_SSL_VERIFYPEER => false,
@@ -61,14 +62,14 @@ class Curl implements HttpClientInterface
      *
      * @var array
      */
-    protected $requestArguments = [];
+    protected array $requestArguments = [];
 
     /**
      * Default request headers
      *
      * @var array
      */
-    protected $requestHeader = [
+    protected array $requestHeader = [
         'Accept' => '*/*',
         'Content-Type' => 'application/json',
         'Cache-Control' => 'max-age=0',
@@ -82,42 +83,42 @@ class Curl implements HttpClientInterface
      *
      * @var string
      */
-    protected $responseBody = '';
+    protected string $responseBody = '';
 
     /**
      * Headers returned in the response
      *
      * @var array
      */
-    protected $responseHeader = [];
+    protected array $responseHeader = [];
 
     /**
      * Response HTTP status code
      *
      * @var int
      */
-    protected $responseHttpCode = 0;
+    protected int $responseHttpCode = 0;
 
     /**
      * Last curl error number
      *
      * @var mixed
      */
-    protected $responseClientError = null;
+    protected mixed $responseClientError = null;
 
     /**
      * Information about the last transfer
      *
      * @var mixed
      */
-    protected $responseClientInfo = [];
+    protected mixed $responseClientInfo = [];
 
     /**
      * logger instance
      *
-     * @var Log|null
+     * @var \Monolog\Logger|Log|null
      */
-    protected $logger = null;
+    protected null|Logger|Log $logger = null;
 
     function __construct()
     {
@@ -129,9 +130,9 @@ class Curl implements HttpClientInterface
     /**
      * {@inheritdoc}
      */
-    public function request($uri, $method = 'GET', $parameters = [], $headers = [], $multipart = false)
+    public function request(string $uri, string $method = 'GET', array $parameters = [], array $headers = [], bool $multipart = false): string|bool
     {
-        $this->requestHeader = array_replace($this->requestHeader, (array)$headers);
+        $this->requestHeader = array_replace($this->requestHeader, $headers);
 
         $this->requestArguments = [
             'uri' => $uri,
@@ -164,11 +165,9 @@ class Curl implements HttpClientInterface
                     $body_content = json_encode($parameters);
                 }
 
+                $this->curlOptions[CURLOPT_CUSTOMREQUEST] = $method;
                 if ($method === 'POST') {
-                    $this->curlOptions[CURLOPT_CUSTOMREQUEST] = $method;
                     $this->curlOptions[CURLOPT_POST] = true;
-                } else {
-                    $this->curlOptions[CURLOPT_CUSTOMREQUEST] = $method;
                 }
                 $this->curlOptions[CURLOPT_POSTFIELDS] = $body_content;
                 break;
@@ -209,7 +208,7 @@ class Curl implements HttpClientInterface
      *
      * @return array Map structure of details
      */
-    public function getResponse()
+    public function getResponse(): array
     {
         $curlOptions = $this->curlOptions;
 
@@ -235,7 +234,7 @@ class Curl implements HttpClientInterface
      *
      * @param array $curlOptions
      */
-    public function setCurlOptions($curlOptions)
+    public function setCurlOptions(array $curlOptions): void
     {
         foreach ($curlOptions as $opt => $value) {
             $this->curlOptions[$opt] = $value;
@@ -245,7 +244,7 @@ class Curl implements HttpClientInterface
     /**
      * {@inheritdoc}
      */
-    public function getResponseBody()
+    public function getResponseBody(): string
     {
         return $this->responseBody;
     }
@@ -253,7 +252,7 @@ class Curl implements HttpClientInterface
     /**
      * {@inheritdoc}
      */
-    public function getResponseHeader()
+    public function getResponseHeader(): array
     {
         return $this->responseHeader;
     }
@@ -261,7 +260,7 @@ class Curl implements HttpClientInterface
     /**
      * {@inheritdoc}
      */
-    public function getResponseHttpCode()
+    public function getResponseHttpCode(): int
     {
         return $this->responseHttpCode;
     }
@@ -269,7 +268,7 @@ class Curl implements HttpClientInterface
     /**
      * {@inheritdoc}
      */
-    public function getResponseClientError()
+    public function getResponseClientError(): mixed
     {
         return $this->responseClientError;
     }
@@ -277,7 +276,7 @@ class Curl implements HttpClientInterface
     /**
      * @return array
      */
-    protected function getResponseClientInfo()
+    protected function getResponseClientInfo(): array
     {
         return $this->responseClientInfo;
     }
@@ -289,7 +288,7 @@ class Curl implements HttpClientInterface
      *
      * @return array
      */
-    protected function getRequestArguments()
+    protected function getRequestArguments(): array
     {
         return $this->requestArguments;
     }
@@ -302,7 +301,7 @@ class Curl implements HttpClientInterface
      *
      * @return int
      */
-    protected function fetchResponseHeader($curl, $header)
+    protected function fetchResponseHeader(mixed $curl, string $header): int
     {
         $pos = strpos($header, ':');
 
@@ -322,7 +321,7 @@ class Curl implements HttpClientInterface
      *
      * @return array
      */
-    protected function prepareRequestHeaders()
+    protected function prepareRequestHeaders(): array
     {
         $headers = [];
 

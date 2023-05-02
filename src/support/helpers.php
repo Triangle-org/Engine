@@ -3,39 +3,42 @@
 /**
  * @package     Triangle Web
  * @link        https://github.com/Triangle-org/Web
- * 
+ *
  * @author      Ivan Zorin <creator@localzet.com>
  * @copyright   2018-2023 Localzet Group
  * @license     https://mit-license.org MIT
  */
 
+use Jenssegers\Mongodb\Connection;
+use Jenssegers\Mongodb\Query\Builder;
+use localzet\Server\Server;
+use support\Container;
+use support\database\MySQL;
 use support\Db;
 use support\Request;
 use support\Response;
-use support\Container;
 use support\Translation;
-use support\database\MySQL;
 use support\view\Blade;
 use support\view\Raw;
 use support\view\ThinkPHP;
 use support\view\Twig;
-use Twig\Error\LoaderError;
-use Twig\Error\RuntimeError;
-use Twig\Error\SyntaxError;
 use Triangle\Engine\App;
 use Triangle\Engine\Config;
 use Triangle\Engine\Route;
-use localzet\Server\Server;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 
 
 define('BASE_PATH', dirname(__DIR__));
 
-/** 
+/**
  * @param string|null $connection
  * @param string|null $collection
- * @return \support\mongodb\Connection|\support\mongodb\Query\Builder
+ * @return \Jenssegers\Mongodb\Connection|\Jenssegers\Mongodb\Query\Builder
+ * @throws Exception
  */
-function MongoDB(string $connection = NULL, string $collection = NULL)
+function MongoDB(string $connection = NULL, string $collection = NULL): Builder|Connection
 {
     if (empty($connection)) {
         $connection = config('database.default', 'default');
@@ -45,16 +48,17 @@ function MongoDB(string $connection = NULL, string $collection = NULL)
         throw new Exception("MongoDB соединения не существует в конфигурации");
     }
 
-    /** @var \support\mongodb\Connection $db */
+    /** @var \Jenssegers\Mongodb\Connection $db */
     $db = Db::connection($connection);
     return empty($collection) ? $db : $db->collection($collection);
 }
 
-/** 
+/**
  * @param string|null $connection
  * @return \support\database\MySQL
+ * @throws \Exception
  */
-function MySQL(string $connection = NULL)
+function MySQL(string $connection = NULL): MySQL
 {
     if (empty($connection)) {
         $connection = config('database.default', 'default');
@@ -83,10 +87,10 @@ function run_path(string $path = ''): string
 }
 
 /**
- * @param string|false $path
+ * @param false|string $path
  * @return string
  */
-function base_path($path = ''): string
+function base_path(false|string $path = ''): string
 {
     if (false === $path) {
         return run_path();
@@ -150,14 +154,16 @@ function path_combine(string $front, string $back): string
 }
 
 /**
+ * @param mixed $body
  * @param int $status
  * @param array $headers
- * @param string $body
+ * @param bool $http_status
+ * @param bool $onlyJson
  * @return Response
+ * @throws \Throwable
  */
-function response($body = '', int $status = 200, array $headers = [], $http_status = false, $onlyJson = false): Response
+function response(mixed $body = '', int $status = 200, array $headers = [], bool $http_status = false, bool $onlyJson = false): Response
 {
-    $headers = $headers;
     $body = [
         'debug' => config('app.debug'),
         'status' => $status,
@@ -174,9 +180,10 @@ function response($body = '', int $status = 200, array $headers = [], $http_stat
 
 /**
  * @param string $blob
+ * @param string $type
  * @return Response
  */
-function responseBlob($blob, $type = 'image/png')
+function responseBlob(string $blob, string $type = 'image/png'): Response
 {
     return new Response(
         200,
@@ -195,7 +202,7 @@ function responseBlob($blob, $type = 'image/png')
  * @param int $options
  * @return Response
  */
-function responseJson($data, $status = 200, $headers = [], $options = JSON_NUMERIC_CHECK | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR)
+function responseJson($data, int $status = 200, array $headers = [], int $options = JSON_NUMERIC_CHECK | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR): Response
 {
     $headers = ['Content-Type' => 'application/json'] + $headers;
     $body = json($data, $options);
@@ -204,12 +211,13 @@ function responseJson($data, $status = 200, $headers = [], $options = JSON_NUMER
 }
 
 /**
- * @param $data
- * @param int $status
+ * @param array $data
+ * @param null $status
  * @param array $headers
  * @return Response
+ * @throws \Throwable
  */
-function responseView(array $data, $status = null, $headers = [])
+function responseView(array $data, $status = null, array $headers = []): Response
 {
     if (($status == 200 || $status == 500) && (!empty($data['status']) && is_numeric($data['status']))) {
         $status = ($data['status'] >= 300) ? $data['status'] : $status + $data['status'];
@@ -224,7 +232,7 @@ function responseView(array $data, $status = null, $headers = [])
  * @param int $flags
  * @return string|false
  */
-function json($value, int $flags = JSON_NUMERIC_CHECK | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR)
+function json($value, int $flags = JSON_NUMERIC_CHECK | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR): false|string
 {
     return json_encode($value, $flags);
 }
@@ -336,7 +344,7 @@ function twig_view(string $template, array $vars = [], string $app = null): Resp
 /**
  * @return \Triangle\Engine\Http\Request|Request|null
  */
-function request()
+function request(): \Triangle\Engine\Http\Request|Request|null
 {
     return App::request();
 }
@@ -346,7 +354,7 @@ function request()
  * @param $default
  * @return array|mixed|null
  */
-function config(string $key = null, $default = null)
+function config(string $key = null, $default = null): mixed
 {
     return Config::get($key, $default);
 }
@@ -375,11 +383,12 @@ function route(string $name, ...$parameters): string
 }
 
 /**
- * @param mixed $key
- * @param mixed $default
+ * @param mixed|null $key
+ * @param mixed|null $default
  * @return mixed
+ * @throws \Exception
  */
-function session($key = null, $default = null)
+function session(mixed $key = null, mixed $default = null): mixed
 {
     $session = \request()->session();
     if (null === $key) {
@@ -435,6 +444,7 @@ function locale(string $locale = null): string
  * 404 not found
  *
  * @return Response
+ * @throws \Throwable
  */
 function not_found(): Response
 {
@@ -448,7 +458,7 @@ function not_found(): Response
  * @param bool $overwrite
  * @return void
  */
-function copy_dir(string $source, string $dest, bool $overwrite = false)
+function copy_dir(string $source, string $dest, bool $overwrite = false): void
 {
     if (is_dir($source)) {
         if (!is_dir($dest)) {
@@ -486,7 +496,7 @@ function remove_dir(string $dir): bool
  * @param $server
  * @param $class
  */
-function server_bind($server, $class)
+function server_bind($server, $class): void
 {
     $callbackMap = [
         'onConnect',
@@ -514,7 +524,7 @@ function server_bind($server, $class)
  * @param $config
  * @return void
  */
-function server_start($processName, $config)
+function server_start($processName, $config): void
 {
     $server = new Server($config['listen'] ?? null, $config['context'] ?? []);
     $propertyMap = [
@@ -569,7 +579,7 @@ function server_start($processName, $config)
  */
 function get_realpath(string $filePath): string
 {
-    if (strpos($filePath, 'phar://') === 0) {
+    if (str_starts_with($filePath, 'phar://')) {
         return $filePath;
     } else {
         return realpath($filePath);
@@ -607,9 +617,9 @@ function cpu_count(): int
 /**
  * Получение IP-адреса
  *
- * @return string IP-адрес
+ * @return string|null IP-адрес
  */
-function getRequestIp()
+function getRequestIp(): ?string
 {
     if (!empty(request()->header('x-real-ip')) && validate_ip(request()->header('x-real-ip'))) {
         $ip = request()->header('x-real-ip');
@@ -633,7 +643,7 @@ function getRequestIp()
  *
  * @return boolean
  */
-function validate_ip(string $ip)
+function validate_ip(string $ip): bool
 {
     if (strtolower($ip) === 'unknown')
         return false;
@@ -670,14 +680,13 @@ function validate_ip(string $ip)
  *      'platform'
  *  )
  */
-function getBrowser()
+function getBrowser(): array
 {
     $u_agent = request()->header('user-agent');
     // echo $u_agent;
     $bname = 'Неизвестно';
     $ub = "Неизвестно";
     $platform = 'Неизвестно';
-    $version = "";
 
     if (preg_match('/macintosh|mac os x/i', $u_agent)) {
         $platform = 'mac';
@@ -737,9 +746,9 @@ function getBrowser()
     }
     return array(
         'userAgent' => $u_agent,
-        'name'      => $bname,
-        'version'   => $version,
-        'platform'  => $platform
+        'name' => $bname,
+        'version' => $version,
+        'platform' => $platform
     );
 }
 
@@ -750,7 +759,7 @@ function getBrowser()
  *
  * @return string
  */
-function generateId()
+function generateId(): string
 {
     return sprintf(
         '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
@@ -775,25 +784,15 @@ function generateId()
  *
  * @return string
  */
-function getNumEnding(int $num, string $nominative, string $genitive_singular, string $genitive_plural)
+function getNumEnding(int $num, string $nominative, string $genitive_singular, string $genitive_plural): string
 {
     if ($num > 10 && (floor(($num % 100) / 10)) == 1) {
         return $genitive_plural;
     } else {
-        switch ($num % 10) {
-            case 1:
-                return $nominative; // 1 день
-            case 2:
-            case 3:
-            case 4:
-                return $genitive_singular; // 2, 3, 4 дня
-            case 5:
-            case 6:
-            case 7:
-            case 8:
-            case 9:
-            case 0:
-                return $genitive_plural; // 5, 6, 7, 8, 9, 0 дней
-        }
+        return match ($num % 10) {
+            1 => $nominative,
+            2, 3, 4 => $genitive_singular,
+            default => $genitive_plural,
+        };
     }
 }

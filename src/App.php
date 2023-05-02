@@ -3,21 +3,21 @@
 /**
  * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
- * 
+ *
  * @author      Ivan Zorin <creator@localzet.com>
  * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.gnu.org/licenses/agpl AGPL-3.0 license
- * 
+ *
  *              This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU Affero General Public License as
  *              published by the Free Software Foundation, either version 3 of the
  *              License, or (at your option) any later version.
- *              
+ *
  *              This program is distributed in the hope that it will be useful,
  *              but WITHOUT ANY WARRANTY; without even the implied warranty of
  *              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *              GNU Affero General Public License for more details.
- *              
+ *
  *              You should have received a copy of the GNU Affero General Public License
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -28,6 +28,9 @@ use Closure;
 use Exception;
 use FastRoute\Dispatcher;
 use InvalidArgumentException;
+use localzet\Server\Connection\TcpConnection;
+use localzet\Server\Protocols\Http;
+use localzet\Server\Server;
 use Monolog\Logger;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
@@ -43,10 +46,6 @@ use Triangle\Engine\Exception\ExceptionHandlerInterface;
 use Triangle\Engine\Http\Request;
 use Triangle\Engine\Http\Response;
 use Triangle\Engine\Route\Route as RouteObject;
-use localzet\Server\Connection\TcpConnection;
-use localzet\Server\Protocols\Http;
-use localzet\Server\Server;
-
 use function array_merge;
 use function array_pop;
 use function array_reduce;
@@ -76,7 +75,6 @@ use function ob_start;
 use function pathinfo;
 use function scandir;
 use function str_replace;
-use function strpos;
 use function strtolower;
 use function substr;
 use function trim;
@@ -89,32 +87,32 @@ class App
     /**
      * @var callable[]
      */
-    protected static $callbacks = [];
+    protected static array $callbacks = [];
 
     /**
-     * @var Server
+     * @var Server|null
      */
-    protected static $server = null;
+    protected static ?Server $server = null;
 
     /**
-     * @var Logger
+     * @var Logger|null
      */
-    protected static $logger = null;
-
-    /**
-     * @var string
-     */
-    protected static $appPath = '';
+    protected static ?Logger $logger = null;
 
     /**
      * @var string
      */
-    protected static $publicPath = '';
+    protected static string $appPath = '';
 
     /**
      * @var string
      */
-    protected static $requestClass = '';
+    protected static string $publicPath = '';
+
+    /**
+     * @var string
+     */
+    protected static string $requestClass = '';
 
     /**
      * @param string $requestClass
@@ -134,8 +132,9 @@ class App
      * @param TcpConnection|mixed $connection
      * @param Request|mixed $request
      * @return null
+     * @throws Throwable
      */
-    public function onMessage($connection, $request)
+    public function onMessage(mixed $connection, mixed $request): null
     {
         try {
             Context::set(TcpConnection::class, $connection);
@@ -182,7 +181,7 @@ class App
      * @param $server
      * @return void
      */
-    public function onServerStart($server)
+    public function onServerStart($server): void
     {
         static::$server = $server;
         Http::requestClass(static::$requestClass);
@@ -193,7 +192,7 @@ class App
      * @param array $data
      * @return void
      */
-    protected static function collectCallbacks(string $key, array $data)
+    protected static function collectCallbacks(string $key, array $data): void
     {
         static::$callbacks[$key] = $data;
         if (count(static::$callbacks) >= 1024) {
@@ -206,14 +205,15 @@ class App
      * @param string $path
      * @param $request
      * @return bool
+     * @throws Throwable
      */
     protected static function unsafeUri(TcpConnection $connection, string $path, $request): bool
     {
         if (
             !$path ||
-            strpos($path, '..') !== false ||
-            strpos($path, "\\") !== false ||
-            strpos($path, "\0") !== false
+            str_contains($path, '..') ||
+            str_contains($path, "\\") ||
+            str_contains($path, "\0")
         ) {
             $callback = static::getFallback();
             $request->plugin = $request->app = $request->controller = $request->action = '';
@@ -272,12 +272,12 @@ class App
      * @param array|null $args
      * @param bool $withGlobalMiddleware
      * @param RouteObject|null $route
-     * @return callable
+     * @return callable|Closure
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      * @throws ReflectionException
      */
-    protected static function getCallback(string $plugin, string $app, $call, array $args = null, bool $withGlobalMiddleware = true, RouteObject $route = null)
+    protected static function getCallback(string $plugin, string $app, $call, array $args = null, bool $withGlobalMiddleware = true, RouteObject $route = null): callable|Closure
     {
         $args = $args === null ? null : array_values($args);
         $middlewares = [];
@@ -374,7 +374,7 @@ class App
      * @return Closure
      * @see Dependency injection through reflection information
      */
-    protected static function resolveInject(string $plugin, $call): Closure
+    protected static function resolveInject(string $plugin, array|Closure $call): Closure
     {
         return function (Request $request, ...$args) use ($plugin, $call) {
             $reflector = static::getReflector($call);
@@ -426,7 +426,7 @@ class App
      * @return ReflectionFunction|ReflectionMethod
      * @throws ReflectionException
      */
-    protected static function getReflector($call)
+    protected static function getReflector($call): ReflectionMethod|ReflectionFunction
     {
         if ($call instanceof Closure || is_string($call)) {
             return new ReflectionFunction($call);
@@ -492,9 +492,9 @@ class App
 
     /**
      * @param string $plugin
-     * @return ContainerInterface
+     * @return ContainerInterface|array|null
      */
-    public static function container(string $plugin = '')
+    public static function container(string $plugin = ''): ContainerInterface|array|null
     {
         return static::config($plugin, 'container');
     }
@@ -502,7 +502,7 @@ class App
     /**
      * @return TcpConnection
      */
-    public static function connection()
+    public static function connection(): TcpConnection
     {
         return Context::get(TcpConnection::class);
     }
@@ -510,13 +510,13 @@ class App
     /**
      * @return Request|\support\Request
      */
-    public static function request()
+    public static function request(): \support\Request|Request
     {
         return Context::get(Request::class);
     }
 
     /**
-     * @return Server
+     * @return Server|null
      */
     public static function server(): ?Server
     {
@@ -532,8 +532,9 @@ class App
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      * @throws ReflectionException
+     * @throws Throwable
      */
-    protected static function findRoute(TcpConnection $connection, string $path, string $key, $request): bool
+    protected static function findRoute(TcpConnection $connection, string $path, string $key, mixed $request): bool
     {
         $routeInfo = Route::dispatch($request->method(), $path);
         if ($routeInfo[0] === Dispatcher::FOUND) {
@@ -571,8 +572,9 @@ class App
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      * @throws ReflectionException
+     * @throws Throwable
      */
-    protected static function findFile(TcpConnection $connection, string $path, string $key, $request): bool
+    protected static function findFile(TcpConnection $connection, string $path, string $key, mixed $request): bool
     {
         if (preg_match('/%[0-9a-f]{2}/i', $path)) {
             $path = urldecode($path);
@@ -629,8 +631,9 @@ class App
      * @param mixed $response
      * @param Request|mixed $request
      * @return void
+     * @throws Throwable
      */
-    protected static function send($connection, $response, $request)
+    protected static function send(mixed $connection, mixed $response, mixed $request): void
     {
         if ($response === null) {
             return;
@@ -651,7 +654,7 @@ class App
      * @return array|false
      * @throws ReflectionException
      */
-    protected static function parseControllerAction(string $path)
+    protected static function parseControllerAction(string $path): false|array
     {
         $path = str_replace('-', '', $path);
         $pathExplode = explode('/', trim($path, '/'));
@@ -683,7 +686,7 @@ class App
      * @return array|false
      * @throws ReflectionException
      */
-    protected static function guessControllerAction($pathExplode, $action, $suffix, $classPrefix)
+    protected static function guessControllerAction($pathExplode, $action, $suffix, $classPrefix): false|array
     {
         $map[] = trim("$classPrefix\\app\\controller\\" . implode('\\', $pathExplode), '\\');
         foreach ($pathExplode as $index => $section) {
@@ -697,7 +700,7 @@ class App
 
         foreach ($map as $controllerClass) {
             // Remove xx\xx\controller
-            if (substr($controllerClass, -11) === '\\controller') {
+            if (str_ends_with($controllerClass, '\\controller')) {
                 continue;
             }
             $controllerClass .= $suffix;
@@ -714,10 +717,10 @@ class App
      * @return array|false
      * @throws ReflectionException
      */
-    protected static function getControllerAction(string $controllerClass, string $action)
+    protected static function getControllerAction(string $controllerClass, string $action): false|array
     {
         // Disable calling magic methods
-        if (strpos($action, '__') === 0) {
+        if (str_starts_with($action, '__')) {
             return false;
         }
 
@@ -737,7 +740,7 @@ class App
      * @return string|false
      * @throws ReflectionException
      */
-    protected static function getController(string $controllerClass)
+    protected static function getController(string $controllerClass): false|string
     {
         if (class_exists($controllerClass)) {
             return (new ReflectionClass($controllerClass))->name;
@@ -785,7 +788,7 @@ class App
      * @param string $action
      * @return string|false
      */
-    protected static function getAction(string $controllerClass, string $action)
+    protected static function getAction(string $controllerClass, string $action): false|string
     {
         $methods = get_class_methods($controllerClass);
         $action = strtolower($action);
@@ -816,9 +819,9 @@ class App
 
     /**
      * @param string $controllerClass
-     * @return mixed|string
+     * @return string
      */
-    public static function getPluginByClass(string $controllerClass)
+    public static function getPluginByClass(string $controllerClass): string
     {
         $controllerClass = trim($controllerClass, '\\');
         $tmp = explode('\\', $controllerClass, 3);
@@ -830,9 +833,9 @@ class App
 
     /**
      * @param string $path
-     * @return mixed|string
+     * @return string
      */
-    public static function getPluginByPath(string $path)
+    public static function getPluginByPath(string $path): string
     {
         $path = trim($path, '/');
         $tmp = explode('/', $path, 3);
@@ -846,7 +849,7 @@ class App
      * @param string $controllerClass
      * @return mixed|string
      */
-    protected static function getAppByController(string $controllerClass)
+    protected static function getAppByController(string $controllerClass): mixed
     {
         $controllerClass = trim($controllerClass, '\\');
         $tmp = explode('\\', $controllerClass, 5);
@@ -862,7 +865,7 @@ class App
      * @param string $file
      * @return false|string
      */
-    public static function execPhpFile(string $file)
+    public static function execPhpFile(string $file): false|string
     {
         ob_start();
         // Try to include php file.
@@ -899,7 +902,7 @@ class App
      * @param $default
      * @return array|mixed|null
      */
-    protected static function config(string $plugin, string $key, $default = null)
+    protected static function config(string $plugin, string $key, $default = null): mixed
     {
         return Config::get($plugin ? "plugin.$plugin.$key" : $key, $default);
     }
@@ -908,12 +911,12 @@ class App
      * @param mixed $data
      * @return string
      */
-    protected static function stringify($data): string
+    protected static function stringify(mixed $data): string
     {
         $type = gettype($data);
         switch ($type) {
             case 'boolean':
-                return  $data ? 'true' : 'false';
+                return $data ? 'true' : 'false';
             case 'NULL':
                 return 'NULL';
             case 'array':
@@ -922,8 +925,8 @@ class App
                 if (!method_exists($data, '__toString')) {
                     return 'Object';
                 }
-            default:
-                return (string)$data;
         }
+        return (string)$data;
+
     }
 }

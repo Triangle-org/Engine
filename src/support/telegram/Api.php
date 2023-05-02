@@ -3,21 +3,21 @@
 /**
  * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
- * 
+ *
  * @author      Ivan Zorin <creator@localzet.com>
  * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.gnu.org/licenses/agpl AGPL-3.0 license
- * 
+ *
  *              This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU Affero General Public License as
  *              published by the Free Software Foundation, either version 3 of the
  *              License, or (at your option) any later version.
- *              
+ *
  *              This program is distributed in the hope that it will be useful,
  *              but WITHOUT ANY WARRANTY; without even the implied warranty of
  *              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *              GNU Affero General Public License for more details.
- *              
+ *
  *              You should have received a copy of the GNU Affero General Public License
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -69,14 +69,14 @@ class Api
      * Instantiates a new Telegram super-class object.
      *
      *
-     * @param  string  $token             The Telegram Bot API Access Token.
-     * @param  bool  $async             (Optional) Indicates if the request to Telegram will be asynchronous (non-blocking).
-     * @param  HttpClientInterface|null  $httpClientHandler (Optional) Custom HTTP Client Handler.
-     * @param  string|null  $base_bot_url (Optional) Custom base bot url.
+     * @param string|null $token The Telegram Bot API Access Token.
+     * @param bool $async (Optional) Indicates if the request to Telegram will be asynchronous (non-blocking).
+     * @param HttpClientInterface|null $httpClientHandler (Optional) Custom HTTP Client Handler.
+     * @param string|null $base_bot_url (Optional) Custom base bot url.
      *
      * @throws TelegramSDKException
      */
-    public function __construct($token = null, $async = false, $httpClientHandler = null, $base_bot_url = null)
+    public function __construct(?string $token = null, bool $async = false, ?HttpClientInterface $httpClientHandler = null, ?string $base_bot_url = null)
     {
         $this->accessToken = $token ?? getenv(static::BOT_TOKEN_ENV_NAME);
         $this->validateAccessToken();
@@ -91,13 +91,13 @@ class Api
     }
 
     /**
+     * @param array $config
+     * @return BotsManager
      * @deprecated This method will be removed in SDK v4.
      * Invoke Bots Manager.
      *
-     * @param  array  $config
-     * @return BotsManager
      */
-    public static function manager($config): BotsManager
+    public static function manager(array $config): BotsManager
     {
         return new BotsManager($config);
     }
@@ -131,7 +131,7 @@ class Api
     /**
      * @throws TelegramSDKException
      */
-    private function validateAccessToken()
+    private function validateAccessToken(): void
     {
         if (!$this->accessToken || !is_string($this->accessToken)) {
             throw TelegramSDKException::tokenNotProvided(static::BOT_TOKEN_ENV_NAME);

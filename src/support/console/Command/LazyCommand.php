@@ -3,27 +3,28 @@
 /**
  * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
- * 
+ *
  * @author      Ivan Zorin <creator@localzet.com>
  * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.gnu.org/licenses/agpl AGPL-3.0 license
- * 
+ *
  *              This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU Affero General Public License as
  *              published by the Free Software Foundation, either version 3 of the
  *              License, or (at your option) any later version.
- *              
+ *
  *              This program is distributed in the hope that it will be useful,
  *              but WITHOUT ANY WARRANTY; without even the implied warranty of
  *              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *              GNU Affero General Public License for more details.
- *              
+ *
  *              You should have received a copy of the GNU Affero General Public License
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 namespace support\console\Command;
 
+use Closure;
 use support\console\Application;
 use support\console\Completion\CompletionInput;
 use support\console\Completion\CompletionSuggestions;
@@ -38,9 +39,9 @@ use support\console\Output\OutputInterface;
 final class LazyCommand extends Command
 {
     private $command;
-    private $isEnabled;
+    private ?bool $isEnabled;
 
-    public function __construct(string $name, array $aliases, string $description, bool $isHidden, \Closure $commandFactory, ?bool $isEnabled = true)
+    public function __construct(string $name, array $aliases, string $description, bool $isHidden, Closure $commandFactory, ?bool $isEnabled = true)
     {
         $this->setName($name)
             ->setAliases($aliases)
@@ -90,7 +91,9 @@ final class LazyCommand extends Command
     }
 
     /**
+     * @param callable $code
      * @return $this
+     * @throws \ReflectionException
      */
     public function setCode(callable $code): self
     {
@@ -198,16 +201,17 @@ final class LazyCommand extends Command
     }
 
     /**
+     * @param string $name
      * @return mixed
      */
-    public function getHelper(string $name)
+    public function getHelper(string $name): mixed
     {
         return $this->getCommand()->getHelper($name);
     }
 
     public function getCommand(): parent
     {
-        if (!$this->command instanceof \Closure) {
+        if (!$this->command instanceof Closure) {
             return $this->command;
         }
 

@@ -9,7 +9,7 @@ namespace support\telegram\Objects\Passport;
  *
  * @property string $source                          Error source, must be translation_files
  * @property string $type                            Type of element of the user's Telegram Passport which has the issue, one of “passport”, “driver_license”, “identity_card”, “internal_passport”, “utility_bill”, “bank_statement”, “rental_agreement”, “passport_registration”, “temporary_registration”
- * @property array  $fileHashes                      List of base64-encoded file hashes
+ * @property array $fileHashes                      List of base64-encoded file hashes
  * @property string $message                         Error message
  */
 class PassportElementErrorTranslationFiles extends PassportElementError

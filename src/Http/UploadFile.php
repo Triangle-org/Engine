@@ -3,21 +3,21 @@
 /**
  * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
- * 
+ *
  * @author      Ivan Zorin <creator@localzet.com>
  * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.gnu.org/licenses/agpl AGPL-3.0 license
- * 
+ *
  *              This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU Affero General Public License as
  *              published by the Free Software Foundation, either version 3 of the
  *              License, or (at your option) any later version.
- *              
+ *
  *              This program is distributed in the hope that it will be useful,
  *              but WITHOUT ANY WARRANTY; without even the implied warranty of
  *              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *              GNU Affero General Public License for more details.
- *              
+ *
  *              You should have received a copy of the GNU Affero General Public License
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -33,19 +33,19 @@ use function pathinfo;
 class UploadFile extends File
 {
     /**
-     * @var string
+     * @var string|null
      */
-    protected $uploadName = null;
+    protected ?string $uploadName = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    protected $uploadMimeType = null;
+    protected ?string $uploadMimeType = null;
 
     /**
-     * @var int
+     * @var int|null
      */
-    protected $uploadErrorCode = null;
+    protected ?int $uploadErrorCode = null;
 
     /**
      * UploadFile constructor.
@@ -64,7 +64,7 @@ class UploadFile extends File
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getUploadName(): ?string
     {
@@ -72,7 +72,7 @@ class UploadFile extends File
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getUploadMimeType(): ?string
     {
@@ -88,7 +88,7 @@ class UploadFile extends File
     }
 
     /**
-     * @return int
+     * @return int|null
      */
     public function getUploadErrorCode(): ?int
     {

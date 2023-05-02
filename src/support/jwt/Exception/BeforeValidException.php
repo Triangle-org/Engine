@@ -2,6 +2,8 @@
 
 namespace support\jwt\Exception;
 
-class BeforeValidException extends \UnexpectedValueException
+use UnexpectedValueException;
+
+class BeforeValidException extends UnexpectedValueException
 {
 }

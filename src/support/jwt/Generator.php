@@ -3,21 +3,21 @@
 /**
  * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
- * 
+ *
  * @author      Ivan Zorin <creator@localzet.com>
  * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.gnu.org/licenses/agpl AGPL-3.0 license
- * 
+ *
  *              This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU Affero General Public License as
  *              published by the Free Software Foundation, either version 3 of the
  *              License, or (at your option) any later version.
- *              
+ *
  *              This program is distributed in the hope that it will be useful,
  *              but WITHOUT ANY WARRANTY; without even the implied warranty of
  *              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *              GNU Affero General Public License for more details.
- *              
+ *
  *              You should have received a copy of the GNU Affero General Public License
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -27,17 +27,14 @@ declare(strict_types=1);
 namespace support\jwt;
 
 use app\exception\ResponseException;
-use support\jwt\lib\JWT;
-use support\jwt\lib\Key;
-
-use Exception;
 use DomainException;
 use InvalidArgumentException;
-use UnexpectedValueException;
-
 use support\jwt\Exception\BeforeValidException;
 use support\jwt\Exception\ExpiredException;
 use support\jwt\Exception\SignatureInvalidException;
+use support\jwt\lib\JWT;
+use support\jwt\lib\Key;
+use UnexpectedValueException;
 
 class Generator
 {
@@ -52,9 +49,7 @@ class Generator
     public static function refresh(string $token): array
     {
         $data = self::decode($token, self::REFRESH_TOKEN);
-        $result = self::encode($data);
-
-        return $result;
+        return self::encode($data);
     }
 
     /** Генерация токенов
@@ -64,22 +59,20 @@ class Generator
     public static function encode(array $data): array
     {
         $payload = self::payload($data);
-        $accessKey = self::key(self::ACCESS_TOKEN);
+        $accessKey = self::key();
         $refreshKey = self::key(self::REFRESH_TOKEN);
 
-        $result = [
+        return [
             'access' => JWT::encode($payload['access'], $accessKey['private'], config('jwt.algorithms')),
             'refresh' => JWT::encode($payload['refresh'], $refreshKey['private'], config('jwt.algorithms')),
         ];
-
-        return $result;
     }
 
     /** Расшифровка токена
      * @param string $token access_token | refresh_token
      * @param int $type self::ACCESS_TOKEN(1) | self::REFRESH_TOKEN(2)
      * @return array Данные токена
-     * 
+     *
      * @throws InvalidArgumentException     Ключ пуст или некорректен
      * @throws DomainException              JWT имеет неверный формат
      * @throws UnexpectedValueException     JWT некорректен
@@ -96,7 +89,7 @@ class Generator
 
             $decoded = JWT::decode($token, new Key($key['public'], config('jwt.algorithms')), $timeException);
             $result = json_decode(json_encode($decoded), true);
-        } catch (ExpiredException $expired) {
+        } catch (ExpiredException) {
             throw new ResponseException('jwt-exp');
         }
         return $result;

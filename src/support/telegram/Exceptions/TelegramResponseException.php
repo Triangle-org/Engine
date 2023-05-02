@@ -18,7 +18,7 @@ class TelegramResponseException extends TelegramSDKException
     /**
      * Creates a TelegramResponseException.
      *
-     * @param TelegramResponse     $response          The response that threw the exception.
+     * @param TelegramResponse $response The response that threw the exception.
      * @param TelegramSDKException $previousException The more detailed exception.
      */
     public function __construct(TelegramResponse $response, TelegramSDKException $previousException = null)
@@ -36,7 +36,7 @@ class TelegramResponseException extends TelegramSDKException
      * Checks isset and returns that or a default value.
      *
      * @param string $key
-     * @param mixed  $default
+     * @param mixed $default
      *
      * @return mixed
      */

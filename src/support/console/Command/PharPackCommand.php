@@ -3,37 +3,36 @@
 /**
  * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
- * 
+ *
  * @author      Ivan Zorin <creator@localzet.com>
  * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.gnu.org/licenses/agpl AGPL-3.0 license
- * 
+ *
  *              This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU Affero General Public License as
  *              published by the Free Software Foundation, either version 3 of the
  *              License, or (at your option) any later version.
- *              
+ *
  *              This program is distributed in the hope that it will be useful,
  *              but WITHOUT ANY WARRANTY; without even the implied warranty of
  *              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *              GNU Affero General Public License for more details.
- *              
+ *
  *              You should have received a copy of the GNU Affero General Public License
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 namespace support\console\Command;
 
-use support\console\Command\Command;
-use support\console\Input\InputInterface;
-use support\console\Output\OutputInterface;
 use Phar;
 use RuntimeException;
+use support\console\Input\InputInterface;
+use support\console\Output\OutputInterface;
 
 class PharPackCommand extends Command
 {
-    protected static $defaultName = 'phar:pack';
-    protected static $defaultDescription = 'Может быть стоит просто упаковать проект в файлы Phar. Легко распространять и использовать.';
+    protected static ?string $defaultName = 'phar:pack';
+    protected static ?string $defaultDescription = 'Может быть стоит просто упаковать проект в файлы Phar. Легко распространять и использовать.';
 
     /**
      * @param InputInterface $input
@@ -53,9 +52,6 @@ class PharPackCommand extends Command
         }
 
         $phar_filename = 'master.phar';
-        if (empty($phar_filename)) {
-            throw new RuntimeException('Пожалуйста, установите имя файла phar.');
-        }
 
         $phar_file = rtrim($phar_file_output_dir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $phar_filename;
         if (file_exists($phar_file)) {

@@ -2,21 +2,51 @@
 
 namespace support\jwt\lib;
 
-use DateTime;
-use stdClass;
 use ArrayAccess;
-
+use DateTimeInterface;
+use DomainException;
+use Exception;
+use InvalidArgumentException;
 use OpenSSLAsymmetricKey;
 use OpenSSLCertificate;
-
-use Exception;
-use DomainException;
-use InvalidArgumentException;
-use UnexpectedValueException;
-
+use stdClass;
 use support\jwt\Exception\BeforeValidException;
 use support\jwt\Exception\ExpiredException;
 use support\jwt\Exception\SignatureInvalidException;
+use UnexpectedValueException;
+use function array_merge;
+use function base64_decode;
+use function base64_encode;
+use function chr;
+use function count;
+use function date;
+use function explode;
+use function function_exists;
+use function hash_equals;
+use function hash_hmac;
+use function implode;
+use function is_array;
+use function is_null;
+use function is_string;
+use function json_decode;
+use function json_encode;
+use function json_last_error;
+use function ltrim;
+use function mb_strlen;
+use function min;
+use function openssl_error_string;
+use function openssl_sign;
+use function openssl_verify;
+use function ord;
+use function str_pad;
+use function str_repeat;
+use function str_replace;
+use function str_split;
+use function strlen;
+use function strtr;
+use function substr;
+use function time;
+use const JSON_UNESCAPED_SLASHES;
 
 /**
  * JSON Web Token
@@ -39,7 +69,7 @@ class JWT
      *
      * @var int
      */
-    public static $leeway = 0;
+    public static int $leeway = 0;
 
     /**
      * Разрешить указывать текущую временную метку.
@@ -48,12 +78,12 @@ class JWT
      *
      * @var ?int
      */
-    public static $timestamp = null;
+    public static ?int $timestamp = null;
 
     /**
      * @var array<string, string[]>
      */
-    public static $supported_algs = [
+    public static array $supported_algs = [
         'ES384' => ['openssl', 'SHA384'],
         'ES256' => ['openssl', 'SHA256'],
         'HS256' => ['hash_hmac', 'SHA256'],
@@ -67,13 +97,13 @@ class JWT
 
     /** Декодирует строку JWT в объект PHP.
      *
-     * @param string                 $jwt           JWT
-     * @param Key|array<string,Key>  $keyOrKeyArray  Ключ или ассоциативный массив идентификаторов ключей (kid) для объектов Key.
+     * @param string $jwt JWT
+     * @param Key|array<string,Key> $keyOrKeyArray Ключ или ассоциативный массив идентификаторов ключей (kid) для объектов Key.
      *                                               Если используемый алгоритм асимметричен, это открытый ключ
      *                                               Каждый объект Key содержит алгоритм и соответствующий ключ.
      *                                               Поддерживаемые алгоритмы: 'ES384','ES256', 'HS256', 'HS384',
      *                                               'HS512', 'RS256', 'RS384', and 'RS512'
-     * @param bool                   $timeException  Проверять ли на соотетствие временным ограничениям?
+     * @param bool $timeException Проверять ли на соотетствие временным ограничениям?
      *
      * @return stdClass Полезная нагрузка JWT как объект PHP
      *
@@ -89,18 +119,19 @@ class JWT
      * @uses urlsafeB64Decode
      */
     public static function decode(
-        string $jwt,
-        $keyOrKeyArray,
-        bool $timeException = true
-    ): stdClass {
+        string    $jwt,
+        Key|array $keyOrKeyArray,
+        bool      $timeException = true
+    ): stdClass
+    {
         // Валидация JWT
-        $timestamp = \is_null(static::$timestamp) ? \time() : static::$timestamp;
+        $timestamp = is_null(static::$timestamp) ? time() : static::$timestamp;
 
         if (empty($keyOrKeyArray)) {
             throw new InvalidArgumentException('Ключ не должен быть пустым');
         }
-        $tks = \explode('.', $jwt);
-        if (\count($tks) !== 3) {
+        $tks = explode('.', $jwt);
+        if (count($tks) !== 3) {
             throw new UnexpectedValueException('Неверное кол-во сегментов');
         }
         list($headb64, $bodyb64, $cryptob64) = $tks;
@@ -112,9 +143,9 @@ class JWT
         if (null === ($payload = static::jsonDecode($payloadRaw))) {
             throw new UnexpectedValueException('Ошибка шифрования параметров');
         }
-        if (\is_array($payload)) {
+        if (is_array($payload)) {
             // Предотвращает фатальную ошибку PHP в крайних случаях, когда полезная нагрузка представляет собой пустой массив
-            $payload = (object) $payload;
+            $payload = (object)$payload;
         }
         if (!$payload instanceof stdClass) {
             throw new UnexpectedValueException('Полезная нагрузка должна быть в формате JSON');
@@ -137,16 +168,16 @@ class JWT
             // OpenSSL ожидает последовательность DER ASN.1 для подписей ES256/ES384.
             $sig = self::signatureToDER($sig);
         }
-        if (!self::verify("{$headb64}.{$bodyb64}", $sig, $key->getKeyMaterial(), $header->alg)) {
+        if (!self::verify("$headb64.$bodyb64", $sig, $key->getKeyMaterial(), $header->alg)) {
             throw new SignatureInvalidException('Ошибка верификации сигнатуры');
         }
 
-        if (empty($timeException) || $timeException == true) {
+        if ($timeException) {
             // Проверьте nbf, если он определен. 
             // Это время, с которого токен можно использовать.
             if (isset($payload->nbf) && $payload->nbf > ($timestamp + static::$leeway)) {
                 throw new BeforeValidException(
-                    'Токен невозможно использовать до ' . \date(DateTime::ISO8601, $payload->nbf)
+                    'Токен невозможно использовать до ' . date(DateTimeInterface::ISO8601, $payload->nbf)
                 );
             }
 
@@ -156,7 +187,7 @@ class JWT
             // (и/или неправильно использовали утверждение nbf).
             if (isset($payload->iat) && $payload->iat > ($timestamp + static::$leeway)) {
                 throw new BeforeValidException(
-                    'Токен невозможно использовать до ' . \date(DateTime::ISO8601, $payload->iat)
+                    'Токен невозможно использовать до ' . date(DateTimeInterface::ISO8601, $payload->iat)
                 );
             }
 
@@ -171,12 +202,12 @@ class JWT
 
     /** Преобразует и подписывает массив PHP в строку JWT
      *
-     * @param array<mixed>          $payload массив PHP
-     * @param string|resource|OpenSSLAsymmetricKey|OpenSSLCertificate $key Секретный ключ
-     * @param string                $alg     Поддерживаемые алгоритмы: 'ES384','ES256', 'HS256', 'HS384',
+     * @param array $payload массив PHP
+     * @param OpenSSLAsymmetricKey|string|OpenSSLCertificate $key Секретный ключ
+     * @param string $alg Поддерживаемые алгоритмы: 'ES384','ES256', 'HS256', 'HS384',
      *                                       'HS512', 'RS256', 'RS384', and 'RS512'
-     * @param string                $keyId
-     * @param array<string, string> $head    Массив с элементами заголовка для прикрепления
+     * @param string|null $keyId
+     * @param array<string, string> $head Массив с элементами заголовка для прикрепления
      *
      * @return string Подписанный JWT
      *
@@ -184,35 +215,36 @@ class JWT
      * @uses urlsafeB64Encode
      */
     public static function encode(
-        array $payload,
-        $key,
-        string $alg,
-        string $keyId = null,
-        array $head = null
-    ): string {
+        array                                          $payload,
+        OpenSSLAsymmetricKey|string|OpenSSLCertificate $key,
+        string                                         $alg,
+        string                                         $keyId = null,
+        array                                          $head = null
+    ): string
+    {
         $header = ['typ' => 'JWT', 'alg' => $alg, 'gen' => 'LOCALZET'];
         if ($keyId !== null) {
             $header['kid'] = $keyId;
         }
-        if (isset($head) && \is_array($head)) {
-            $header = \array_merge($head, $header);
+        if (is_array($head)) {
+            $header = array_merge($head, $header);
         }
         $segments = [];
-        $segments[] = static::urlsafeB64Encode((string) static::jsonEncode($header));
-        $segments[] = static::urlsafeB64Encode((string) static::jsonEncode($payload));
-        $signing_input = \implode('.', $segments);
+        $segments[] = static::urlsafeB64Encode(static::jsonEncode($header));
+        $segments[] = static::urlsafeB64Encode(static::jsonEncode($payload));
+        $signing_input = implode('.', $segments);
 
         $signature = static::sign($signing_input, $key, $alg);
         $segments[] = static::urlsafeB64Encode($signature);
 
-        return \implode('.', $segments);
+        return implode('.', $segments);
     }
 
     /** Подпись строки с заданным ключом и алгоритмом.
      *
-     * @param string $msg  Сообщение для подписи
-     * @param string|resource|OpenSSLAsymmetricKey|OpenSSLCertificate  $key  Секретный ключ
-     * @param string $alg  Поддерживаемые алгоритмы: 'ES384','ES256', 'HS256', 'HS384',
+     * @param string $msg Сообщение для подписи
+     * @param OpenSSLAsymmetricKey|string|OpenSSLCertificate $key Секретный ключ
+     * @param string $alg Поддерживаемые алгоритмы: 'ES384','ES256', 'HS256', 'HS384',
      *                    'HS512', 'RS256', 'RS384', and 'RS512'
      *
      * @return string Зашифрованное сообщение
@@ -220,23 +252,24 @@ class JWT
      * @throws DomainException Указан неподдерживаемый алгоритм или неверный ключ
      */
     public static function sign(
-        string $msg,
-        $key,
-        string $alg
-    ): string {
+        string                                         $msg,
+        OpenSSLAsymmetricKey|string|OpenSSLCertificate $key,
+        string                                         $alg
+    ): string
+    {
         if (empty(static::$supported_algs[$alg])) {
             throw new DomainException('Алгоритм не поддерживается');
         }
         list($function, $algorithm) = static::$supported_algs[$alg];
         switch ($function) {
             case 'hash_hmac':
-                if (!\is_string($key)) {
+                if (!is_string($key)) {
                     throw new InvalidArgumentException('При использовании HMAC ключ должен быть строкой');
                 }
-                return \hash_hmac($algorithm, $msg, $key, true);
+                return hash_hmac($algorithm, $msg, $key, true);
             case 'openssl':
                 $signature = '';
-                $success = \openssl_sign($msg, $signature, $key, $algorithm); // @phpstan-ignore-line
+                $success = openssl_sign($msg, $signature, $key, $algorithm); // @phpstan-ignore-line
                 if (!$success) {
                     throw new DomainException('OpenSSL не может подписать данные');
                 }
@@ -247,16 +280,16 @@ class JWT
                 }
                 return $signature;
             case 'sodium_crypto':
-                if (!\function_exists('sodium_crypto_sign_detached')) {
+                if (!function_exists('sodium_crypto_sign_detached')) {
                     throw new DomainException('libsodium недоступен');
                 }
-                if (!\is_string($key)) {
+                if (!is_string($key)) {
                     throw new InvalidArgumentException('При использовании EdDSA ключ должен быть строкой');
                 }
                 try {
                     // В качестве ключа используется последняя непустая строка.
                     $lines = array_filter(explode("\n", $key));
-                    $key = base64_decode((string) end($lines));
+                    $key = base64_decode((string)end($lines));
                     return sodium_crypto_sign_detached($msg, $key);
                 } catch (Exception $e) {
                     throw new DomainException($e->getMessage(), 0, $e);
@@ -270,22 +303,23 @@ class JWT
      * Проверка сигнатуры с помощью сообщения, ключа и метода. Не все методы симметричны,
      * поэтому у нас должен быть отдельный метод проверки и подписи.
      *
-     * @param string $msg         Исходное сообщение (header и body)
-     * @param string $signature   Оригинальная сигнатура
-     * @param string|resource|OpenSSLAsymmetricKey|OpenSSLCertificate  $keyMaterial Для HS* работает строковый ключ. 
+     * @param string $msg Исходное сообщение (header и body)
+     * @param string $signature Оригинальная сигнатура
+     * @param OpenSSLAsymmetricKey|string|OpenSSLCertificate $keyMaterial Для HS* работает строковый ключ.
      *                                                                              Для RS* должен быть экземпляр OpenSSLAsymmetricKey
-     * @param string $alg         Алгоритм
+     * @param string $alg Алгоритм
      *
      * @return bool
      *
      * @throws DomainException Неверный алгоритм, неверный ключ или сбой OpenSSL
      */
     private static function verify(
-        string $msg,
-        string $signature,
-        $keyMaterial,
-        string $alg
-    ): bool {
+        string                                         $msg,
+        string                                         $signature,
+        OpenSSLAsymmetricKey|string|OpenSSLCertificate $keyMaterial,
+        string                                         $alg
+    ): bool
+    {
         if (empty(static::$supported_algs[$alg])) {
             throw new DomainException('Алгоритм не поддерживается');
         }
@@ -293,7 +327,7 @@ class JWT
         list($function, $algorithm) = static::$supported_algs[$alg];
         switch ($function) {
             case 'openssl':
-                $success = \openssl_verify($msg, $signature, $keyMaterial, $algorithm); // @phpstan-ignore-line
+                $success = openssl_verify($msg, $signature, $keyMaterial, $algorithm); // @phpstan-ignore-line
                 if ($success === 1) {
                     return true;
                 }
@@ -302,29 +336,29 @@ class JWT
                 }
                 // Возвращает 1 в случае успеха, 0 в случае неудачи, -1 в случае ошибки.
                 throw new DomainException(
-                    'Ошибка OpenSSL: ' . \openssl_error_string()
+                    'Ошибка OpenSSL: ' . openssl_error_string()
                 );
             case 'sodium_crypto':
-                if (!\function_exists('sodium_crypto_sign_verify_detached')) {
+                if (!function_exists('sodium_crypto_sign_verify_detached')) {
                     throw new DomainException('libsodium недоступен');
                 }
-                if (!\is_string($keyMaterial)) {
+                if (!is_string($keyMaterial)) {
                     throw new InvalidArgumentException('При использовании EdDSA ключ должен быть строкой');
                 }
                 try {
                     // В качестве ключа используется последняя непустая строка.
                     $lines = array_filter(explode("\n", $keyMaterial));
-                    $key = base64_decode((string) end($lines));
+                    $key = base64_decode((string)end($lines));
                     return sodium_crypto_sign_verify_detached($signature, $msg, $key);
                 } catch (Exception $e) {
                     throw new DomainException($e->getMessage(), 0, $e);
                 }
             case 'hash_hmac':
             default:
-                if (!\is_string($keyMaterial)) {
+                if (!is_string($keyMaterial)) {
                     throw new InvalidArgumentException('При использовании HMAC ключ должен быть строкой');
                 }
-                $hash = \hash_hmac($algorithm, $msg, $keyMaterial, true);
+                $hash = hash_hmac($algorithm, $msg, $keyMaterial, true);
                 return self::constantTimeEquals($hash, $signature);
         }
     }
@@ -337,11 +371,11 @@ class JWT
      *
      * @throws DomainException Предоставленная строка была недействительным JSON
      */
-    public static function jsonDecode(string $input)
+    public static function jsonDecode(string $input): mixed
     {
-        $obj = \json_decode($input, false, 512, JSON_BIGINT_AS_STRING);
+        $obj = json_decode($input, false, 512, JSON_BIGINT_AS_STRING);
 
-        if ($errno = \json_last_error()) {
+        if ($errno = json_last_error()) {
             self::handleJsonError($errno);
         } elseif ($obj === null && $input !== 'null') {
             throw new DomainException('Нулевой результат с не нулевым вводом (?!)');
@@ -351,7 +385,7 @@ class JWT
 
     /** Кодировать массив PHP в строку JSON.
      *
-     * @param array<mixed> $input PHP-массив
+     * @param array $input PHP-массив
      *
      * @return string JSON-представление массива PHP
      *
@@ -360,14 +394,14 @@ class JWT
     public static function jsonEncode(array $input): string
     {
         if (PHP_VERSION_ID >= 50400) {
-            $json = \json_encode($input, \JSON_UNESCAPED_SLASHES);
+            $json = json_encode($input, JSON_UNESCAPED_SLASHES);
         } else {
             // PHP 5.3
-            $json = \json_encode($input);
+            $json = json_encode($input);
         }
-        if ($errno = \json_last_error()) {
+        if ($errno = json_last_error()) {
             self::handleJsonError($errno);
-        } elseif ($json === 'null' && $input !== null) {
+        } elseif ($json === 'null') {
             throw new DomainException('Нулевой результат с не нулевым вводом (?!)');
         }
         if ($json === false) {
@@ -386,12 +420,12 @@ class JWT
      */
     public static function urlsafeB64Decode(string $input): string
     {
-        $remainder = \strlen($input) % 4;
+        $remainder = strlen($input) % 4;
         if ($remainder) {
             $padlen = 4 - $remainder;
-            $input .= \str_repeat('=', $padlen);
+            $input .= str_repeat('=', $padlen);
         }
-        return \base64_decode(\strtr($input, '-_', '+/'));
+        return base64_decode(strtr($input, '-_', '+/'));
     }
 
     /** Кодировать строку в URL-безопасный Base64.
@@ -402,23 +436,24 @@ class JWT
      */
     public static function urlsafeB64Encode(string $input): string
     {
-        return \str_replace('=', '', \strtr(\base64_encode($input), '+/', '-_'));
+        return str_replace('=', '', strtr(base64_encode($input), '+/', '-_'));
     }
 
 
     /** Определить, предоставлен ли алгоритм для каждого ключа
      *
-     * @param Key|ArrayAccess<string,Key>|array<string,Key> $keyOrKeyArray
-     * @param string|null            $kid
-     *
-     * @throws UnexpectedValueException
+     * @param ArrayAccess<string,Key>|Key|array<string,Key> $keyOrKeyArray
+     * @param string|null $kid
      *
      * @return Key
+     * @throws UnexpectedValueException
+     *
      */
     private static function getKey(
-        $keyOrKeyArray,
-        ?string $kid
-    ): Key {
+        ArrayAccess|Key|array $keyOrKeyArray,
+        ?string               $kid
+    ): Key
+    {
         if ($keyOrKeyArray instanceof Key) {
             return $keyOrKeyArray;
         }
@@ -440,20 +475,20 @@ class JWT
     }
 
     /**
-     * @param string $left  Строка известной длины для сравнения
+     * @param string $left Строка известной длины для сравнения
      * @param string $right Введенная пользователем строка
      * @return bool
      */
     public static function constantTimeEquals(string $left, string $right): bool
     {
-        if (\function_exists('hash_equals')) {
-            return \hash_equals($left, $right);
+        if (function_exists('hash_equals')) {
+            return hash_equals($left, $right);
         }
-        $len = \min(self::safeStrlen($left), self::safeStrlen($right));
+        $len = min(self::safeStrlen($left), self::safeStrlen($right));
 
         $status = 0;
         for ($i = 0; $i < $len; $i++) {
-            $status |= (\ord($left[$i]) ^ \ord($right[$i]));
+            $status |= (ord($left[$i]) ^ ord($right[$i]));
         }
         $status |= (self::safeStrlen($left) ^ self::safeStrlen($right));
 
@@ -464,9 +499,9 @@ class JWT
      *
      * @param int $errno Номер ошибки из json_last_error()
      *
+     * @return void
      * @throws DomainException
      *
-     * @return void
      */
     private static function handleJsonError(int $errno): void
     {
@@ -478,9 +513,7 @@ class JWT
             JSON_ERROR_UTF8 => 'Некорректный UTF-8' //PHP >= 5.3.3
         ];
         throw new DomainException(
-            isset($messages[$errno])
-                ? $messages[$errno]
-                : 'Ошибка JSON: ' . $errno
+            $messages[$errno] ?? 'Ошибка JSON: ' . $errno
         );
     }
 
@@ -492,47 +525,47 @@ class JWT
      */
     private static function safeStrlen(string $str): int
     {
-        if (\function_exists('mb_strlen')) {
-            return \mb_strlen($str, '8bit');
+        if (function_exists('mb_strlen')) {
+            return mb_strlen($str, '8bit');
         }
-        return \strlen($str);
+        return strlen($str);
     }
 
     /** Преобразование подписи ECDSA в последовательность ASN.1 DER
      *
-     * @param   string $sig Подпись ECDSA для преобразования
+     * @param string $sig Подпись ECDSA для преобразования
      * @return  string Закодированный объект DER
      */
     private static function signatureToDER(string $sig): string
     {
         // Разделить подпись на r-значение и s-значение
-        $length = max(1, (int) (\strlen($sig) / 2));
-        list($r, $s) = \str_split($sig, $length);
+        $length = max(1, (int)(strlen($sig) / 2));
+        list($r, $s) = str_split($sig, $length);
 
         // Обрезать ведущие нули
-        $r = \ltrim($r, "\x00");
-        $s = \ltrim($s, "\x00");
+        $r = ltrim($r, "\x00");
+        $s = ltrim($s, "\x00");
 
         // Преобразование значений r и s из беззнаковых целых чисел с обратным порядком байтов в
         // знаковое дополнение до двух
-        if (\ord($r[0]) > 0x7f) {
+        if (ord($r[0]) > 0x7f) {
             $r = "\x00" . $r;
         }
-        if (\ord($s[0]) > 0x7f) {
+        if (ord($s[0]) > 0x7f) {
             $s = "\x00" . $s;
         }
 
         return self::encodeDER(
             self::ASN1_SEQUENCE,
             self::encodeDER(self::ASN1_INTEGER, $r) .
-                self::encodeDER(self::ASN1_INTEGER, $s)
+            self::encodeDER(self::ASN1_INTEGER, $s)
         );
     }
 
     /** Кодирует значение в объект DER.
      *
-     * @param   int     $type Тег DER
-     * @param   string  $value Значение для кодирования
+     * @param int $type Тег DER
+     * @param string $value Значение для кодирования
      *
      * @return  string  Закодированный объект
      */
@@ -544,18 +577,18 @@ class JWT
         }
 
         // Тип
-        $der = \chr($tag_header | $type);
+        $der = chr($tag_header | $type);
 
         // Длина
-        $der .= \chr(\strlen($value));
+        $der .= chr(strlen($value));
 
         return $der . $value;
     }
 
     /** Кодирует подпись из объекта DER.
      *
-     * @param   string  $der Бинарная подпись в формате DER
-     * @param   int     $keySize Количество бит в ключе
+     * @param string $der Бинарная подпись в формате DER
+     * @param int $keySize Количество бит в ключе
      *
      * @return  string  Подпись
      */
@@ -568,12 +601,12 @@ class JWT
 
         // Преобразовать r-значение и s-значение из дополнений со знаком два в беззнаковые
         // целые числа с обратным порядком байтов
-        $r = \ltrim($r, "\x00");
-        $s = \ltrim($s, "\x00");
+        $r = ltrim($r, "\x00");
+        $s = ltrim($s, "\x00");
 
         // Заполнить r и s так, чтобы они были равны $keySize битам.
-        $r = \str_pad($r, $keySize / 8, "\x00", STR_PAD_LEFT);
-        $s = \str_pad($s, $keySize / 8, "\x00", STR_PAD_LEFT);
+        $r = str_pad($r, $keySize / 8, "\x00", STR_PAD_LEFT);
+        $s = str_pad($s, $keySize / 8, "\x00", STR_PAD_LEFT);
 
         return $r . $s;
     }
@@ -588,27 +621,27 @@ class JWT
     private static function readDER(string $der, int $offset = 0): array
     {
         $pos = $offset;
-        $size = \strlen($der);
-        $constructed = (\ord($der[$pos]) >> 5) & 0x01;
-        $type = \ord($der[$pos++]) & 0x1f;
+        $size = strlen($der);
+        $constructed = (ord($der[$pos]) >> 5) & 0x01;
+        $type = ord($der[$pos++]) & 0x1f;
 
         // Длина
-        $len = \ord($der[$pos++]);
+        $len = ord($der[$pos++]);
         if ($len & 0x80) {
             $n = $len & 0x1f;
             $len = 0;
             while ($n-- && $pos < $size) {
-                $len = ($len << 8) | \ord($der[$pos++]);
+                $len = ($len << 8) | ord($der[$pos++]);
             }
         }
 
         // Значение
         if ($type === self::ASN1_BIT_STRING) {
             $pos++; // Пропустить первый октет содержимого (индикатор заполнения)
-            $data = \substr($der, $pos, $len - 1);
+            $data = substr($der, $pos, $len - 1);
             $pos += $len - 1;
         } elseif (!$constructed) {
-            $data = \substr($der, $pos, $len);
+            $data = substr($der, $pos, $len);
             $pos += $len;
         } else {
             $data = null;

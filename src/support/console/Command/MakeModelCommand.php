@@ -3,44 +3,43 @@
 /**
  * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
- * 
+ *
  * @author      Ivan Zorin <creator@localzet.com>
  * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.gnu.org/licenses/agpl AGPL-3.0 license
- * 
+ *
  *              This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU Affero General Public License as
  *              published by the Free Software Foundation, either version 3 of the
  *              License, or (at your option) any later version.
- *              
+ *
  *              This program is distributed in the hope that it will be useful,
  *              but WITHOUT ANY WARRANTY; without even the implied warranty of
  *              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *              GNU Affero General Public License for more details.
- *              
+ *
  *              You should have received a copy of the GNU Affero General Public License
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 namespace support\console\Command;
 
-use support\console\Command\Command;
+use support\console\Input\InputArgument;
 use support\console\Input\InputInterface;
 use support\console\Output\OutputInterface;
-use support\console\Input\InputOption;
-use support\console\Input\InputArgument;
 use support\console\Util;
+use Throwable;
 
 
 class MakeModelCommand extends Command
 {
-    protected static $defaultName = 'make:model';
-    protected static $defaultDescription = 'Создать модель';
+    protected static ?string $defaultName = 'make:model';
+    protected static ?string $defaultDescription = 'Создать модель';
 
     /**
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->addArgument('name', InputArgument::REQUIRED, 'Название модели');
     }
@@ -75,7 +74,7 @@ class MakeModelCommand extends Command
      * @param $file
      * @return void
      */
-    protected function createModel($class, $namespace, $file)
+    protected function createModel($class, $namespace, $file): void
     {
         $path = pathinfo($file, PATHINFO_DIRNAME);
         if (!is_dir($path)) {
@@ -89,7 +88,7 @@ class MakeModelCommand extends Command
                 $table = "{$table}s";
             } else if (db()->get($table)) {
                 $table_val = "'$table'";
-                $table = "{$table}";
+                $table = "$table";
             }
             foreach (db()->orderBy('id', 'desc')->get($table) as $item) {
                 if ($item->Key === 'PRI') {
@@ -97,7 +96,7 @@ class MakeModelCommand extends Command
                     break;
                 }
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable) {
         }
         $model_content = <<<EOF
 <?php

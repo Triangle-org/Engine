@@ -3,31 +3,31 @@
 /**
  * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
- * 
+ *
  * @author      Ivan Zorin <creator@localzet.com>
  * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.gnu.org/licenses/agpl AGPL-3.0 license
- * 
+ *
  *              This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU Affero General Public License as
  *              published by the Free Software Foundation, either version 3 of the
  *              License, or (at your option) any later version.
- *              
+ *
  *              This program is distributed in the hope that it will be useful,
  *              but WITHOUT ANY WARRANTY; without even the implied warranty of
  *              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *              GNU Affero General Public License for more details.
- *              
+ *
  *              You should have received a copy of the GNU Affero General Public License
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 namespace support\console;
 
 use support\console\Command\Command;
 use support\console\Command\CompleteCommand;
 use support\console\Command\ConnectionsCommand;
 use support\console\Command\DisableCommand;
-use support\console\Command\DumpCompletionCommand;
 use support\console\Command\EnableCommand;
 use support\console\Command\GitInitCommand;
 use support\console\Command\GitWebhookCommand;
@@ -217,7 +217,7 @@ class Application implements ResetInterface
 
             $exitCode = $e->getCode();
             if (is_numeric($exitCode)) {
-                $exitCode = (int) $exitCode;
+                $exitCode = (int)$exitCode;
                 if ($exitCode <= 0) {
                     $exitCode = 1;
                 }
@@ -973,7 +973,7 @@ class Application implements ResetInterface
             $input->setInteractive(false);
         }
 
-        switch ($shellVerbosity = (int) getenv('SHELL_VERBOSITY')) {
+        switch ($shellVerbosity = (int)getenv('SHELL_VERBOSITY')) {
             case -1:
                 $output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
                 break;
@@ -1170,7 +1170,7 @@ class Application implements ResetInterface
 
             new GitInitCommand(),
             new GitWebhookCommand(),
-            
+
             new MakeBootstrapCommand(),
             new MakeCommandCommand(),
             new MakeControllerCommand(),

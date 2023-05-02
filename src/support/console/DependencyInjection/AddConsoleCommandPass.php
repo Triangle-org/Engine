@@ -3,21 +3,21 @@
 /**
  * @package     Triangle Engine
  * @link        https://github.com/Triangle-org/Engine
- * 
+ *
  * @author      Ivan Zorin <creator@localzet.com>
  * @copyright   Copyright (c) 2018-2023 Localzet Group
  * @license     https://www.gnu.org/licenses/agpl AGPL-3.0 license
- * 
+ *
  *              This program is free software: you can redistribute it and/or modify
  *              it under the terms of the GNU Affero General Public License as
  *              published by the Free Software Foundation, either version 3 of the
  *              License, or (at your option) any later version.
- *              
+ *
  *              This program is distributed in the hope that it will be useful,
  *              but WITHOUT ANY WARRANTY; without even the implied warranty of
  *              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *              GNU Affero General Public License for more details.
- *              
+ *
  *              You should have received a copy of the GNU Affero General Public License
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -92,7 +92,7 @@ class AddConsoleCommandPass implements CompilerPassInterface
 
             if (null === $commandName) {
                 if (!$definition->isPublic() || $definition->isPrivate() || $definition->hasTag($this->privateTagName)) {
-                    $commandId = 'console.command.public_alias.'.$id;
+                    $commandId = 'console.command.public_alias.' . $id;
                     $container->setAlias($commandId, $id)->setPublic(true);
                     $id = $commandId;
                 }
@@ -143,10 +143,10 @@ class AddConsoleCommandPass implements CompilerPassInterface
             if ($description) {
                 $definition->addMethodCall('setDescription', [$description]);
 
-                $container->register('.'.$id.'.lazy', LazyCommand::class)
+                $container->register('.' . $id . '.lazy', LazyCommand::class)
                     ->setArguments([$commandName, $aliases, $description, $isHidden, new ServiceClosureArgument($lazyCommandRefs[$id])]);
 
-                $lazyCommandRefs[$id] = new Reference('.'.$id.'.lazy');
+                $lazyCommandRefs[$id] = new Reference('.' . $id . '.lazy');
             }
         }
 
