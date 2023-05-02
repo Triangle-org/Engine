@@ -42,9 +42,9 @@ class Context
 {
 
     /**
-     * @var SplObjectStorage|WeakMap
+     * @var WeakMap|SplObjectStorage|null
      */
-    protected static WeakMap|SplObjectStorage $objectStorage;
+    protected static WeakMap|null|SplObjectStorage $objectStorage = null;
 
     /**
      * @var StdClass
