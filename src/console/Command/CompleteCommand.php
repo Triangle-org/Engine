@@ -1,8 +1,9 @@
 <?php
 
 /**
- * @package     Triangle Engine
- * @link        https://github.com/Triangle-org/Engine
+ * @package     Triangle Engine (FrameX Project)
+ * @link        https://github.com/localzet/FrameX      FrameX Project v1-2
+ * @link        https://github.com/Triangle-org/Engine  Triangle Engine v2+
  *
  * @author      Ivan Zorin <creator@localzet.com>
  * @copyright   Copyright (c) 2018-2023 Localzet Group
@@ -25,6 +26,7 @@
 namespace Triangle\Engine\Console\Command;
 
 use RuntimeException;
+use Throwable;
 use Triangle\Engine\Console\Completion\CompletionInput;
 use Triangle\Engine\Console\Completion\CompletionSuggestions;
 use Triangle\Engine\Console\Completion\Output\BashCompletionOutput;
@@ -34,7 +36,6 @@ use Triangle\Engine\Console\Exception\ExceptionInterface;
 use Triangle\Engine\Console\Input\InputInterface;
 use Triangle\Engine\Console\Input\InputOption;
 use Triangle\Engine\Console\Output\OutputInterface;
-use Throwable;
 use function get_class;
 use function in_array;
 use const FILE_APPEND;

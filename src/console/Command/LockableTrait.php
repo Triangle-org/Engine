@@ -1,8 +1,9 @@
 <?php
 
 /**
- * @package     Triangle Engine
- * @link        https://github.com/Triangle-org/Engine
+ * @package     Triangle Engine (FrameX Project)
+ * @link        https://github.com/localzet/FrameX      FrameX Project v1-2
+ * @link        https://github.com/Triangle-org/Engine  Triangle Engine v2+
  *
  * @author      Ivan Zorin <creator@localzet.com>
  * @copyright   Copyright (c) 2018-2023 Localzet Group
@@ -24,11 +25,11 @@
 
 namespace Triangle\Engine\Console\Command;
 
-use Triangle\Engine\Console\Exception\LogicException;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\LockInterface;
 use Symfony\Component\Lock\Store\FlockStore;
 use Symfony\Component\Lock\Store\SemaphoreStore;
+use Triangle\Engine\Console\Exception\LogicException;
 
 /**
  * Basic lock feature for commands.

@@ -1,8 +1,9 @@
 <?php
 
 /**
- * @package     Triangle Engine
- * @link        https://github.com/Triangle-org/Engine
+ * @package     Triangle Engine (FrameX Project)
+ * @link        https://github.com/localzet/FrameX      FrameX Project v1-2
+ * @link        https://github.com/Triangle-org/Engine  Triangle Engine v2+
  *
  * @author      Ivan Zorin <creator@localzet.com>
  * @copyright   Copyright (c) 2018-2023 Localzet Group
@@ -24,9 +25,6 @@
 
 namespace Triangle\Engine\Console\DependencyInjection;
 
-use Triangle\Engine\Console\Command\Command;
-use Triangle\Engine\Console\Command\LazyCommand;
-use Triangle\Engine\Console\CommandLoader\ContainerCommandLoader;
 use Symfony\Component\DependencyInjection\Argument\ServiceClosureArgument;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\Compiler\ServiceLocatorTagPass;
@@ -34,6 +32,9 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\DependencyInjection\TypedReference;
+use Triangle\Engine\Console\Command\Command;
+use Triangle\Engine\Console\Command\LazyCommand;
+use Triangle\Engine\Console\CommandLoader\ContainerCommandLoader;
 
 /**
  * Registers console commands.

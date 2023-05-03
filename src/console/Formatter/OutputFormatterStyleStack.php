@@ -1,8 +1,9 @@
 <?php
 
 /**
- * @package     Triangle Engine
- * @link        https://github.com/Triangle-org/Engine
+ * @package     Triangle Engine (FrameX Project)
+ * @link        https://github.com/localzet/FrameX      FrameX Project v1-2
+ * @link        https://github.com/Triangle-org/Engine  Triangle Engine v2+
  *
  * @author      Ivan Zorin <creator@localzet.com>
  * @copyright   Copyright (c) 2018-2023 Localzet Group
@@ -24,8 +25,8 @@
 
 namespace Triangle\Engine\Console\Formatter;
 
-use Triangle\Engine\Console\Exception\InvalidArgumentException;
 use Symfony\Contracts\Service\ResetInterface;
+use Triangle\Engine\Console\Exception\InvalidArgumentException;
 
 /**
  * @author Jean-François Simon <contact@jfsimon.fr>

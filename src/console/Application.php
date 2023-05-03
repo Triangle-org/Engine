@@ -1,8 +1,9 @@
 <?php
 
 /**
- * @package     Triangle Engine
- * @link        https://github.com/Triangle-org/Engine
+ * @package     Triangle Engine (FrameX Project)
+ * @link        https://github.com/localzet/FrameX      FrameX Project v1-2
+ * @link        https://github.com/Triangle-org/Engine  Triangle Engine v2+
  *
  * @author      Ivan Zorin <creator@localzet.com>
  * @copyright   Copyright (c) 2018-2023 Localzet Group
@@ -24,6 +25,9 @@
 
 namespace Triangle\Engine\Console;
 
+use Symfony\Component\ErrorHandler\ErrorHandler;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\Service\ResetInterface;
 use Triangle\Engine\Console\Command\Command;
 use Triangle\Engine\Console\Command\CompleteCommand;
 use Triangle\Engine\Console\Command\ConnectionsCommand;
@@ -88,9 +92,6 @@ use Triangle\Engine\Console\Output\ConsoleOutputInterface;
 use Triangle\Engine\Console\Output\OutputInterface;
 use Triangle\Engine\Console\SignalRegistry\SignalRegistry;
 use Triangle\Engine\Console\Style\SymfonyStyle;
-use Symfony\Component\ErrorHandler\ErrorHandler;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
-use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * An Application is the container for a collection of commands.
