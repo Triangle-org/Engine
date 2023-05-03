@@ -28,6 +28,6 @@ namespace support\telegram\Exceptions;
 /**
  * Class TelegramOtherException.
  */
-class TelegramOtherException extends TelegramSDKException
+final class TelegramOtherException extends TelegramSDKException
 {
 }

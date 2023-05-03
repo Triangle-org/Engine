@@ -25,6 +25,7 @@
 
 namespace support\telegram\Methods;
 
+use support\telegram\Actions;
 use support\telegram\Exceptions\TelegramSDKException;
 use support\telegram\Objects\Message as MessageObject;
 use support\telegram\Traits\Http;
@@ -56,11 +57,7 @@ trait Message
      *
      * @link https://core.telegram.org/bots/api#sendmessage
      *
-     * @param array $params
-     *
      * @throws TelegramSDKException
-     *
-     * @return MessageObject
      */
     public function sendMessage(array $params): MessageObject
     {
@@ -84,11 +81,7 @@ trait Message
      *
      * @link https://core.telegram.org/bots/api#forwardmessage
      *
-     * @param array $params
-     *
      * @throws TelegramSDKException
-     *
-     * @return MessageObject
      */
     public function forwardMessage(array $params): MessageObject
     {
@@ -120,11 +113,7 @@ trait Message
      *
      * @link https://core.telegram.org/bots/api#copymessage
      *
-     * @param array $params
-     *
      * @throws TelegramSDKException
-     *
-     * @return MessageObject
      */
     public function copyMessage(array $params): MessageObject
     {
@@ -153,11 +142,7 @@ trait Message
      *
      * @link https://core.telegram.org/bots/api#sendphoto
      *
-     * @param array $params
-     *
      * @throws TelegramSDKException
-     *
-     * @return MessageObject
      */
     public function sendPhoto(array $params): MessageObject
     {
@@ -190,11 +175,7 @@ trait Message
      * @link https://core.telegram.org/bots/api#sendaudio
      * </code>
      *
-     * @param array $params
-     *
      * @throws TelegramSDKException
-     *
-     * @return MessageObject
      */
     public function sendAudio(array $params): MessageObject
     {
@@ -225,11 +206,7 @@ trait Message
      *
      * @link https://core.telegram.org/bots/api#senddocument
      *
-     * @param array $params
-     *
      * @throws TelegramSDKException
-     *
-     * @return MessageObject
      */
     public function sendDocument(array $params): MessageObject
     {
@@ -264,11 +241,7 @@ trait Message
      * @link https://core.telegram.org/bots/api#sendvideo
      * @see  sendDocument
      *
-     * @param array $params
-     *
      * @throws TelegramSDKException
-     *
-     * @return MessageObject
      */
     public function sendVideo(array $params): MessageObject
     {
@@ -301,11 +274,7 @@ trait Message
      *
      * @link https://core.telegram.org/bots/api#sendanimation
      *
-     * @param array $params
-     *
      * @throws TelegramSDKException
-     *
-     * @return MessageObject
      */
     public function sendAnimation(array $params): MessageObject
     {
@@ -335,11 +304,7 @@ trait Message
      *
      * @link https://core.telegram.org/bots/api#sendvoice
      *
-     * @param array $params
-     *
      * @throws TelegramSDKException
-     *
-     * @return MessageObject
      */
     public function sendVoice(array $params): MessageObject
     {
@@ -368,11 +333,7 @@ trait Message
      *
      * @link https://core.telegram.org/bots/api#sendvideonote
      *
-     * @param array $params
-     *
      * @throws TelegramSDKException
-     *
-     * @return MessageObject
      */
     public function sendVideoNote(array $params): MessageObject
     {
@@ -397,14 +358,10 @@ trait Message
      *
      * @link https://core.telegram.org/bots/api#sendmediagroup
      *
-     * @param array $params
-     *
      * @throws TelegramSDKException
-     *
      * //TODO Check this return type.
-     * @return MessageObject
      */
-    public function sendMediaGroup(array $params)
+    public function sendMediaGroup(array $params): MessageObject
     {
         $response = $this->uploadFile('sendMediaGroup', $params, 'media');
 
@@ -435,11 +392,7 @@ trait Message
      *
      * @link https://core.telegram.org/bots/api#sendvenue
      *
-     * @param array $params
-     *
      * @throws TelegramSDKException
-     *
-     * @return MessageObject
      */
     public function sendVenue(array $params): MessageObject
     {
@@ -468,11 +421,7 @@ trait Message
      *
      * @link https://core.telegram.org/bots/api#sendcontact
      *
-     * @param array $params
-     *
      * @throws TelegramSDKException
-     *
-     * @return MessageObject
      */
     public function sendContact(array $params): MessageObject
     {
@@ -511,17 +460,13 @@ trait Message
      *
      * @link https://core.telegram.org/bots/api#sendpoll
      *
-     * @param array $params
-     *
      * @throws TelegramSDKException
-     *
-     * @return MessageObject
      */
     public function sendPoll(array $params): MessageObject
     {
         $params['options'] = is_string($params['options'])
             ? $params['options']
-            : json_encode($params['options']);
+            : json_encode($params['options'], JSON_THROW_ON_ERROR);
         $response = $this->post('sendPoll', $params);
 
         return new MessageObject($response->getDecodedBody());
@@ -546,11 +491,7 @@ trait Message
      *
      * @link https://core.telegram.org/bots/api#senddice
      *
-     * @param array $params
-     *
      * @throws TelegramSDKException
-     *
-     * @return MessageObject
      */
     public function sendDice(array $params): MessageObject
     {
@@ -571,33 +512,12 @@ trait Message
      *
      * @link https://core.telegram.org/bots/api#sendchataction
      *
-     * @param array $params
-     *
      * @throws TelegramSDKException
-     *
-     * @return bool
      */
     public function sendChatAction(array $params): bool
     {
-        $validActions = [
-            'typing',
-            'upload_photo',
-            'record_video',
-            'upload_video',
-            'record_audio',
-            'upload_audio',
-            'upload_document',
-            'find_location',
-            'record_video_note',
-            'upload_video_note',
-        ];
+        Actions::isActionValid($params['action']);
 
-        if (isset($params['action']) && in_array($params['action'], $validActions)) {
-            $this->post('sendChatAction', $params);
-
-            return true;
-        }
-
-        throw new TelegramSDKException('Invalid Action! Accepted value: ' . implode(', ', $validActions));
+        return $this->post('sendChatAction', $params)->getResult();
     }
 }

@@ -28,6 +28,6 @@ namespace support\telegram\Exceptions;
 /**
  * Class TelegramOtherException.
  */
-class TelegramEmojiMapFileNotFoundException extends TelegramSDKException
+final class TelegramEmojiMapFileNotFoundException extends TelegramSDKException
 {
 }

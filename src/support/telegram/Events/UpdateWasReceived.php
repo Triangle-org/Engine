@@ -25,46 +25,33 @@
 
 namespace support\telegram\Events;
 
-use League\Event\AbstractEvent;
 use support\telegram\Api;
 use support\telegram\Objects\Update;
 
 /**
  * Class UpdateWasReceived.
  */
-class UpdateWasReceived extends AbstractEvent
+final class UpdateWasReceived extends AbstractEvent
 {
-    /** @var Update */
-    private $update;
-
-    /** @var Api */
-    private $telegram;
-
     /**
      * UpdateWasReceived constructor.
+     */
+    public function __construct(public Api $telegram, public Update $update)
+    {
+    }
+
+    public function eventName(): string
+    {
+        return self::class;
+    }
+
+    /**
+     * Backwards compatibility method
      *
-     * @param Update $update
-     * @param Api $telegram
+     * @deprecated use eventName instead
      */
-    public function __construct(Update $update, Api $telegram)
+    public function getName(): string
     {
-        $this->update = $update;
-        $this->telegram = $telegram;
-    }
-
-    /**
-     * @return Update
-     */
-    public function getUpdate(): Update
-    {
-        return $this->update;
-    }
-
-    /**
-     * @return Api
-     */
-    public function getTelegram(): Api
-    {
-        return $this->telegram;
+        return self::class;
     }
 }

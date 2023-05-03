@@ -23,6 +23,8 @@
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use support\telegram\Commands\HelpCommand;
+
 return [
     /*
     |--------------------------------------------------------------------------
@@ -147,7 +149,7 @@ return [
     |
     */
     'commands' => [
-        support\telegram\Commands\HelpCommand::class,
+        HelpCommand::class,
     ],
 
     /*

@@ -25,7 +25,7 @@
 
 namespace support\telegram\Traits;
 
-use Illuminate\Contracts\Container\Container;
+use Psr\Container\ContainerInterface;
 
 /**
  * HasContainer.
@@ -33,37 +33,31 @@ use Illuminate\Contracts\Container\Container;
 trait HasContainer
 {
     /**
-     * @var Container IoC Container
+     * @var null|ContainerInterface IoC Container
      */
-    protected static $container = null;
+    protected static ?ContainerInterface $container = null;
 
     /**
      * Set the IoC Container.
-     *
-     * @param $container Container instance
      */
-    public static function setContainer(Container $container)
+    public static function setContainer(ContainerInterface $container): void
     {
         self::$container = $container;
     }
 
     /**
      * Get the IoC Container.
-     *
-     * @return Container
      */
-    public function getContainer(): Container
+    public function getContainer(): ?ContainerInterface
     {
         return self::$container;
     }
 
     /**
      * Check if IoC Container has been set.
-     *
-     * @return bool
      */
     public function hasContainer(): bool
     {
-        return self::$container !== null;
+        return self::$container instanceof ContainerInterface;
     }
 }

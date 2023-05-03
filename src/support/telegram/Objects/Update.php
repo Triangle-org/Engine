@@ -49,17 +49,38 @@ use support\telegram\Objects\Payments\ShippingQuery;
  * @property ChatMemberUpdated|null $myChatMember           (Optional). The bot's chat member status was updated in a chat. For private chats, this update is received only when the bot is blocked or unblocked by the user.
  * @property ChatMemberUpdated|null $chatMember             (Optional). A chat member's status was updated in a chat. The bot must be an administrator in the chat and must explicitly specify “chat_member” in the list of allowed_updates to receive these updates.
  * @property ChatJoinRequest|null $chatJoinRequest        (Optional). A request to join the chat has been sent. The bot must have the can_invite_users administrator right in the chat to receive these updates.
- *
  */
 class Update extends BaseObject
 {
     /** @var string|null Cached type of thr Update () */
-    protected $updateType = null;
+    protected ?string $updateType = null;
+
+    /**
+     * @var string[]
+     */
+    protected const TYPES = [
+        'message',
+        'edited_message',
+        'channel_post',
+        'edited_channel_post',
+        'inline_query',
+        'chosen_inline_result',
+        'callback_query',
+        'shipping_query',
+        'pre_checkout_query',
+        'poll',
+        'poll_answer',
+        'my_chat_member',
+        'chat_member',
+        'chat_join_request',
+    ];
 
     /**
      * {@inheritdoc}
+     *
+     * @return array{message: string, edited_message: string, channel_post: string, edited_channel_post: string, inline_query: string, chosen_inline_result: string, callback_query: string, shipping_query: string, pre_checkout_query: string, poll: string, poll_answer: string, my_chat_member: string, chat_member: string, chat_join_request: string}
      */
-    public function relations()
+    public function relations(): array
     {
         return [
             'message' => Message::class,
@@ -80,24 +101,18 @@ class Update extends BaseObject
     }
 
     /**
-     * @return Update
      * @deprecated Will be removed in SDK v4
      * Get recent message.
-     *
      */
-    public function recentMessage()
+    public function recentMessage(): self
     {
-        return new static($this->last());
+        return new self($this->last());
     }
 
     /**
      * Determine if the update is of given type.
-     *
-     * @param string $type
-     *
-     * @return bool
      */
-    public function isType($type)
+    public function isType(string $type): bool
     {
         if ($this->has(strtolower($type))) {
             return true;
@@ -108,15 +123,14 @@ class Update extends BaseObject
 
     /**
      * Update type.
-     *
-     * @return string|null
      */
     public function objectType(): ?string
     {
         if ($this->updateType === null) {
-            $this->updateType = $this->except('update_id')
-                ->keys()
-                ->first();
+            $isWebAppData = (bool)$this->getMessage()->get('web_app_data');
+            $updateType = $this->except('update_id')->keys()->first();
+
+            $this->updateType = $isWebAppData ? 'web_app_data' : $updateType;
         }
 
         return $this->updateType;
@@ -124,86 +138,47 @@ class Update extends BaseObject
 
     /**
      * Detect type based on properties.
-     * @return string|null
-     * @deprecated Will be removed in v4.0, please use {@see \support\telegram\Objects\Update::objectType} instead.
      *
+     * @deprecated Will be removed in v4.0, please use {@see \support\telegram\Objects\Update::objectType} instead.
      */
-    public function detectType()
+    public function detectType(): ?string
     {
-        $types = [
-            'message',
-            'edited_message',
-            'channel_post',
-            'edited_channel_post',
-            'inline_query',
-            'chosen_inline_result',
-            'callback_query',
-            'shipping_query',
-            'pre_checkout_query',
-            'poll',
-            'poll_answer',
-            'my_chat_member',
-            'chat_member',
-            'chat_join_request',
-        ];
-
         return $this->keys()
-            ->intersect($types)
+            ->intersect(static::TYPES)
             ->pop();
     }
 
     /**
      * Get the message contained in the Update.
-     *
-     * @return Message|InlineQuery|ChosenInlineResult|CallbackQuery|ShippingQuery|PreCheckoutQuery|Poll|PollAnswer|Collection
      */
     public function getMessage(): Collection
     {
-        switch ($this->detectType()) {
-            case 'message':
-                return $this->message;
-            case 'edited_message':
-                return $this->editedMessage;
-            case 'channel_post':
-                return $this->channelPost;
-            case 'edited_channel_post':
-                return $this->editedChannelPost;
-            case 'inline_query':
-                return $this->inlineQuery;
-            case 'chosen_inline_result':
-                return $this->chosenInlineResult;
-            case 'callback_query':
-                $callbackQuery = $this->callbackQuery;
-                if ($callbackQuery->has('message')) {
-                    return $callbackQuery->message;
-                }
-                break;
-            case 'shipping_query':
-                return $this->shippingQuery;
-            case 'pre_checkout_query':
-                return $this->preCheckoutQuery;
-            case 'poll':
-                return $this->poll;
-        }
-
-        return collect();
+        return match ($this->detectType()) {
+            'message' => $this->message,
+            'edited_message' => $this->editedMessage,
+            'channel_post' => $this->channelPost,
+            'edited_channel_post' => $this->editedChannelPost,
+            'inline_query' => $this->inlineQuery,
+            'chosen_inline_result' => $this->chosenInlineResult,
+            'callback_query' => $this->callbackQuery->has('message') ? $this->callbackQuery->message : collect(),
+            'shipping_query' => $this->shippingQuery,
+            'pre_checkout_query' => $this->preCheckoutQuery,
+            'poll' => $this->poll,
+            default => collect(),
+        };
     }
 
     /**
      * Borrowed from {@see \support\telegram\Objects\Update::getMessage()} from SDK v4.
      * Get the message contained in the Update.
-     *
-     * @return Message|InlineQuery|ChosenInlineResult|CallbackQuery|ShippingQuery|PreCheckoutQuery|Poll|PollAnswer
      */
-    public function getRelatedObject()
+    public function getRelatedObject(): Message|InlineQuery|ChosenInlineResult|CallbackQuery|ShippingQuery|PreCheckoutQuery|Poll|PollAnswer
     {
         return $this->{$this->objectType()};
     }
 
     /**
      * Get chat object (if exists).
-     *
-     * @return Chat|Collection
      */
     public function getChat(): Collection
     {
@@ -217,12 +192,10 @@ class Update extends BaseObject
     }
 
     /**
-     * @return bool
      * @deprecated This method will be removed in SDK v4
      * Is there a command entity in this update object.
-     *
      */
-    public function hasCommand()
+    public function hasCommand(): bool
     {
         return (bool)$this->getMessage()->get('entities', collect())->contains('type', 'bot_command');
     }

@@ -34,8 +34,10 @@ namespace support\telegram\Objects;
  */
 class VoiceChatParticipantsInvited extends BaseObject
 {
-    /** @inheritDoc */
-    public function relations()
+    /** {@inheritDoc}
+     * @return array{users: string[]}
+     */
+    public function relations(): array
     {
         return [
             'users' => [User::class],

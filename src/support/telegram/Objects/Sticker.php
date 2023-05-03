@@ -45,8 +45,10 @@ class Sticker extends BaseObject
 {
     /**
      * {@inheritdoc}
+     *
+     * @return array{thumb: string, mask_position: string}
      */
-    public function relations()
+    public function relations(): array
     {
         return [
             'thumb' => PhotoSize::class,

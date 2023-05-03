@@ -54,11 +54,7 @@ trait Game
      *
      * @link https://core.telegram.org/bots/api#sendgame
      *
-     * @param array $params
-     *
      * @throws TelegramSDKException
-     *
-     * @return Message
      */
     public function sendGame(array $params): Message
     {
@@ -84,11 +80,7 @@ trait Game
      *
      * @link https://core.telegram.org/bots/api#setgamescore
      *
-     * @param array $params
-     *
      * @throws TelegramSDKException
-     *
-     * @return Message
      */
     public function setGameScore(array $params): Message
     {
@@ -111,11 +103,9 @@ trait Game
      *
      * @link https://core.telegram.org/bots/api#getgamehighscores
      *
-     * @param array $params
+     * @return GameHighScore[]
      *
      * @throws TelegramSDKException
-     *
-     * @return GameHighScore[]
      */
     public function getGameHighScores(array $params): array
     {

@@ -74,15 +74,11 @@ trait Payments
      *
      * @link https://core.telegram.org/bots/api#sendinvoice
      *
-     * @param array $params
-     *
      * @throws TelegramSDKException
-     *
-     * @return Message
      */
     public function sendInvoice(array $params): Message
     {
-        $params['prices'] = json_encode(Arr::wrap($params['prices']));
+        $params['prices'] = json_encode(Arr::wrap($params['prices']), JSON_THROW_ON_ERROR);
         $response = $this->post('sendInvoice', $params);
 
         return new Message($response->getDecodedBody());
@@ -102,11 +98,7 @@ trait Payments
      *
      * @link https://core.telegram.org/bots/api#answershippingquery
      *
-     * @param array $params
-     *
      * @throws TelegramSDKException
-     *
-     * @return bool
      */
     public function answerShippingQuery(array $params): bool
     {
@@ -126,11 +118,7 @@ trait Payments
      *
      * @link https://core.telegram.org/bots/api#answerprecheckoutquery
      *
-     * @param array $params
-     *
      * @throws TelegramSDKException
-     *
-     * @return bool
      */
     public function answerPreCheckoutQuery(array $params): bool
     {

@@ -48,8 +48,10 @@ class Poll extends BaseObject
 {
     /**
      * {@inheritdoc}
+     *
+     * @return array{options: string[]}
      */
-    public function relations()
+    public function relations(): array
     {
         return [
             'options' => [PollOption::class],

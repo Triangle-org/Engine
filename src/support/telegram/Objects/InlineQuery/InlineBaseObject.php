@@ -25,6 +25,7 @@
 
 namespace support\telegram\Objects\InlineQuery;
 
+use BadMethodCallException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
@@ -50,16 +51,14 @@ abstract class InlineBaseObject extends Collection
     /**
      * Magic method to set properties dynamically.
      *
-     * @param $name
-     * @param $arguments
-     *
      * @return $this|mixed
      */
     public function __call($name, $arguments)
     {
         if (!Str::startsWith($name, 'set')) {
-            throw new \BadMethodCallException("Method {$name} does not exist.");
+            throw new BadMethodCallException(sprintf('Method %s does not exist.', $name));
         }
+
         $property = Str::snake(substr($name, 3));
         $this->put($property, $arguments[0]);
 

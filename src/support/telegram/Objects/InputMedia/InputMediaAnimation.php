@@ -46,8 +46,10 @@ class InputMediaAnimation extends InputMedia
 {
     /**
      * {@inheritdoc}
+     *
+     * @return array{thumb: string}
      */
-    public function relations()
+    public function relations(): array
     {
         return [
             'thumb' => InputFile::class,

@@ -34,8 +34,8 @@ namespace support\telegram\Objects;
  */
 class VoiceChatEnded extends BaseObject
 {
-    /** @inheritDoc */
-    public function relations()
+    /** {@inheritDoc} */
+    public function relations(): array
     {
         return [];
     }

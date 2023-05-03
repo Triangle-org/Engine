@@ -34,7 +34,7 @@ namespace support\telegram\Objects;
  */
 class MessageAutoDeleteTimerChanged extends BaseObject
 {
-    public function relations()
+    public function relations(): array
     {
         return [];
     }

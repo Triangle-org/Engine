@@ -44,8 +44,10 @@ class Animation extends BaseObject
 {
     /**
      * {@inheritdoc}
+     *
+     * @return array{thumb: string}
      */
-    public function relations()
+    public function relations(): array
     {
         return [
             'thumb' => PhotoSize::class,

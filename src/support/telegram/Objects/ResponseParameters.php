@@ -37,7 +37,7 @@ namespace support\telegram\Objects;
  */
 class ResponseParameters extends BaseObject
 {
-    public function relations()
+    public function relations(): array
     {
         return [];
     }

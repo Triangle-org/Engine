@@ -42,8 +42,10 @@ class Venue extends BaseObject
 {
     /**
      * {@inheritdoc}
+     *
+     * @return array{location: string}
      */
-    public function relations()
+    public function relations(): array
     {
         return [
             'location' => Location::class,

@@ -44,8 +44,10 @@ class ChatInviteLink extends BaseObject
 {
     /**
      * {@inheritdoc}
+     *
+     * @return array{creator: string}
      */
-    public function relations()
+    public function relations(): array
     {
         return [
             'creator' => User::class,

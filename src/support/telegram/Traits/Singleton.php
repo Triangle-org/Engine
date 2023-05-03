@@ -25,8 +25,12 @@
 
 namespace support\telegram\Traits;
 
+use LogicException;
+
 /**
  * Singleton.
+ *
+ * @deprecated Will be removed in v4.
  */
 trait Singleton
 {
@@ -37,7 +41,7 @@ trait Singleton
      *
      * @return static The Singleton instance.
      */
-    public static function Instance()
+    public static function Instance(): self
     {
         if (null === self::$instance) {
             self::$instance = new static();
@@ -58,25 +62,25 @@ trait Singleton
      * Throw an exception when the user tries to clone the *Singleton*
      * instance.
      *
-     * @throws \LogicException always
+     * @throws LogicException always
      */
     public function __clone()
     {
-        throw new \LogicException('This Singleton cannot be cloned');
+        throw new LogicException('This Singleton cannot be cloned');
     }
 
     /**
      * Throw an exception when the user tries to unserialize the *Singleton*
      * instance.
      *
-     * @throws \LogicException always
+     * @throws LogicException always
      */
     public function __wakeup()
     {
-        throw new \LogicException('This Singleton cannot be serialised');
+        throw new LogicException('This Singleton cannot be serialised');
     }
 
-    public static function destroy()
+    public static function destroy(): void
     {
         self::$instance = null;
     }
