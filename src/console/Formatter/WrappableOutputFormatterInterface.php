@@ -22,28 +22,17 @@
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace support;
+namespace Triangle\Engine\Console\Formatter;
 
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
-use Triangle\Engine\Console\Application;
-use Triangle\Engine\Console\Command\Command as Commands;
-
-class Console extends Application
+/**
+ * Formatter interface for console output that supports word wrapping.
+ *
+ * @author Roland Franssen <franssen.roland@gmail.com>
+ */
+interface WrappableOutputFormatterInterface extends OutputFormatterInterface
 {
-    public function installCommands($path, $namspace = 'app\command'): void
-    {
-        $dir_iterator = new RecursiveDirectoryIterator($path);
-        $iterator = new RecursiveIteratorIterator($dir_iterator);
-        foreach ($iterator as $file) {
-            if (is_dir($file)) {
-                continue;
-            }
-            $class_name = $namspace . '\\' . basename($file, '.php');
-            if (!is_a($class_name, Commands::class, true)) {
-                continue;
-            }
-            $this->add(new $class_name);
-        }
-    }
+    /**
+     * Formats a message according to the given styles, wrapping at `$width` (0 means no wrapping).
+     */
+    public function formatAndWrap(?string $message, int $width);
 }

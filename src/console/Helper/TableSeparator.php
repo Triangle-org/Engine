@@ -22,28 +22,17 @@
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace support;
+namespace Triangle\Engine\Console\Helper;
 
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
-use Triangle\Engine\Console\Application;
-use Triangle\Engine\Console\Command\Command as Commands;
-
-class Console extends Application
+/**
+ * Marks a row as being a separator.
+ *
+ * @author Fabien Potencier <fabien@symfony.com>
+ */
+class TableSeparator extends TableCell
 {
-    public function installCommands($path, $namspace = 'app\command'): void
+    public function __construct(array $options = [])
     {
-        $dir_iterator = new RecursiveDirectoryIterator($path);
-        $iterator = new RecursiveIteratorIterator($dir_iterator);
-        foreach ($iterator as $file) {
-            if (is_dir($file)) {
-                continue;
-            }
-            $class_name = $namspace . '\\' . basename($file, '.php');
-            if (!is_a($class_name, Commands::class, true)) {
-                continue;
-            }
-            $this->add(new $class_name);
-        }
+        parent::__construct('', $options);
     }
 }

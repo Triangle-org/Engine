@@ -22,28 +22,22 @@
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace support;
+namespace Triangle\Engine\Console\Helper;
 
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
-use Triangle\Engine\Console\Application;
-use Triangle\Engine\Console\Command\Command as Commands;
-
-class Console extends Application
+/**
+ * @internal
+ */
+class TableRows implements \IteratorAggregate
 {
-    public function installCommands($path, $namspace = 'app\command'): void
+    private $generator;
+
+    public function __construct(\Closure $generator)
     {
-        $dir_iterator = new RecursiveDirectoryIterator($path);
-        $iterator = new RecursiveIteratorIterator($dir_iterator);
-        foreach ($iterator as $file) {
-            if (is_dir($file)) {
-                continue;
-            }
-            $class_name = $namspace . '\\' . basename($file, '.php');
-            if (!is_a($class_name, Commands::class, true)) {
-                continue;
-            }
-            $this->add(new $class_name);
-        }
+        $this->generator = $generator;
+    }
+
+    public function getIterator(): \Traversable
+    {
+        return ($this->generator)();
     }
 }

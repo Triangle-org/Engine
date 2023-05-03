@@ -22,28 +22,31 @@
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace support;
+namespace Triangle\Engine\Console\Helper;
 
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
-use Triangle\Engine\Console\Application;
-use Triangle\Engine\Console\Command\Command as Commands;
-
-class Console extends Application
+/**
+ * HelperInterface is the interface all helpers must implement.
+ *
+ * @author Fabien Potencier <fabien@symfony.com>
+ */
+interface HelperInterface
 {
-    public function installCommands($path, $namspace = 'app\command'): void
-    {
-        $dir_iterator = new RecursiveDirectoryIterator($path);
-        $iterator = new RecursiveIteratorIterator($dir_iterator);
-        foreach ($iterator as $file) {
-            if (is_dir($file)) {
-                continue;
-            }
-            $class_name = $namspace . '\\' . basename($file, '.php');
-            if (!is_a($class_name, Commands::class, true)) {
-                continue;
-            }
-            $this->add(new $class_name);
-        }
-    }
+    /**
+     * Sets the helper set associated with this helper.
+     */
+    public function setHelperSet(HelperSet $helperSet = null);
+
+    /**
+     * Gets the helper set associated with this helper.
+     *
+     * @return HelperSet|null
+     */
+    public function getHelperSet();
+
+    /**
+     * Returns the canonical name of this helper.
+     *
+     * @return string
+     */
+    public function getName();
 }

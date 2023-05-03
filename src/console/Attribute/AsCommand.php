@@ -22,28 +22,32 @@
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace support;
+namespace Triangle\Engine\Console\Attribute;
 
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
-use Triangle\Engine\Console\Application;
-use Triangle\Engine\Console\Command\Command as Commands;
-
-class Console extends Application
+/**
+ * Service tag to autoconfigure commands.
+ */
+#[\Attribute(\Attribute::TARGET_CLASS)]
+class AsCommand
 {
-    public function installCommands($path, $namspace = 'app\command'): void
+    public function __construct(
+        public string  $name,
+        public ?string $description = null,
+        array          $aliases = [],
+        bool           $hidden = false,
+    )
     {
-        $dir_iterator = new RecursiveDirectoryIterator($path);
-        $iterator = new RecursiveIteratorIterator($dir_iterator);
-        foreach ($iterator as $file) {
-            if (is_dir($file)) {
-                continue;
-            }
-            $class_name = $namspace . '\\' . basename($file, '.php');
-            if (!is_a($class_name, Commands::class, true)) {
-                continue;
-            }
-            $this->add(new $class_name);
+        if (!$hidden && !$aliases) {
+            return;
         }
+
+        $name = explode('|', $name);
+        $name = array_merge($name, $aliases);
+
+        if ($hidden && '' !== $name[0]) {
+            array_unshift($name, '');
+        }
+
+        $this->name = implode('|', $name);
     }
 }

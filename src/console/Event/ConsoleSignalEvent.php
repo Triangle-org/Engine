@@ -22,28 +22,27 @@
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace support;
+namespace Triangle\Engine\Console\Event;
 
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
-use Triangle\Engine\Console\Application;
-use Triangle\Engine\Console\Command\Command as Commands;
+use Triangle\Engine\Console\Command\Command;
+use Triangle\Engine\Console\Input\InputInterface;
+use Triangle\Engine\Console\Output\OutputInterface;
 
-class Console extends Application
+/**
+ * @author marie <marie@users.noreply.github.com>
+ */
+final class ConsoleSignalEvent extends ConsoleEvent
 {
-    public function installCommands($path, $namspace = 'app\command'): void
+    private $handlingSignal;
+
+    public function __construct(Command $command, InputInterface $input, OutputInterface $output, int $handlingSignal)
     {
-        $dir_iterator = new RecursiveDirectoryIterator($path);
-        $iterator = new RecursiveIteratorIterator($dir_iterator);
-        foreach ($iterator as $file) {
-            if (is_dir($file)) {
-                continue;
-            }
-            $class_name = $namspace . '\\' . basename($file, '.php');
-            if (!is_a($class_name, Commands::class, true)) {
-                continue;
-            }
-            $this->add(new $class_name);
-        }
+        parent::__construct($command, $input, $output);
+        $this->handlingSignal = $handlingSignal;
+    }
+
+    public function getHandlingSignal(): int
+    {
+        return $this->handlingSignal;
     }
 }

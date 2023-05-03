@@ -22,28 +22,54 @@
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace support;
+namespace Triangle\Engine\Console\CommandLoader;
 
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
-use Triangle\Engine\Console\Application;
-use Triangle\Engine\Console\Command\Command as Commands;
+use Triangle\Engine\Console\Exception\CommandNotFoundException;
 
-class Console extends Application
+/**
+ * A simple command loader using factories to instantiate commands lazily.
+ *
+ * @author Maxime Steinhausser <maxime.steinhausser@gmail.com>
+ */
+class FactoryCommandLoader implements CommandLoaderInterface
 {
-    public function installCommands($path, $namspace = 'app\command'): void
+    private $factories;
+
+    /**
+     * @param callable[] $factories Indexed by command names
+     */
+    public function __construct(array $factories)
     {
-        $dir_iterator = new RecursiveDirectoryIterator($path);
-        $iterator = new RecursiveIteratorIterator($dir_iterator);
-        foreach ($iterator as $file) {
-            if (is_dir($file)) {
-                continue;
-            }
-            $class_name = $namspace . '\\' . basename($file, '.php');
-            if (!is_a($class_name, Commands::class, true)) {
-                continue;
-            }
-            $this->add(new $class_name);
+        $this->factories = $factories;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function has(string $name)
+    {
+        return isset($this->factories[$name]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function get(string $name)
+    {
+        if (!isset($this->factories[$name])) {
+            throw new CommandNotFoundException(sprintf('Command "%s" does not exist.', $name));
         }
+
+        $factory = $this->factories[$name];
+
+        return $factory();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getNames()
+    {
+        return array_keys($this->factories);
     }
 }

@@ -1,0 +1,157 @@
+<?php
+
+/**
+ * @package     Triangle Engine
+ * @link        https://github.com/Triangle-org/Engine
+ *
+ * @author      Ivan Zorin <creator@localzet.com>
+ * @copyright   Copyright (c) 2018-2023 Localzet Group
+ * @license     https://www.gnu.org/licenses/agpl AGPL-3.0 license
+ *
+ *              This program is free software: you can redistribute it and/or modify
+ *              it under the terms of the GNU Affero General Public License as
+ *              published by the Free Software Foundation, either version 3 of the
+ *              License, or (at your option) any later version.
+ *
+ *              This program is distributed in the hope that it will be useful,
+ *              but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *              MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *              GNU Affero General Public License for more details.
+ *
+ *              You should have received a copy of the GNU Affero General Public License
+ *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+namespace Triangle\Engine\Console\Helper;
+
+use Triangle\Engine\Console\Output\ConsoleOutputInterface;
+use Triangle\Engine\Console\Output\OutputInterface;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
+
+/**
+ * The ProcessHelper class provides helpers to run external processes.
+ *
+ * @author Fabien Potencier <fabien@symfony.com>
+ *
+ * @final
+ */
+class ProcessHelper extends Helper
+{
+    /**
+     * Runs an external process.
+     *
+     * @param array|Process $cmd An instance of Process or an array of the command and arguments
+     * @param callable|null $callback A PHP callback to run whenever there is some
+     *                                output available on STDOUT or STDERR
+     */
+    public function run(OutputInterface $output, $cmd, string $error = null, callable $callback = null, int $verbosity = OutputInterface::VERBOSITY_VERY_VERBOSE): Process
+    {
+        if (!class_exists(Process::class)) {
+            throw new \LogicException('The ProcessHelper cannot be run as the Process component is not installed. Try running "compose require symfony/process".');
+        }
+
+        if ($output instanceof ConsoleOutputInterface) {
+            $output = $output->getErrorOutput();
+        }
+
+        $formatter = $this->getHelperSet()->get('debug_formatter');
+
+        if ($cmd instanceof Process) {
+            $cmd = [$cmd];
+        }
+
+        if (!\is_array($cmd)) {
+            throw new \TypeError(sprintf('The "command" argument of "%s()" must be an array or a "%s" instance, "%s" given.', __METHOD__, Process::class, get_debug_type($cmd)));
+        }
+
+        if (\is_string($cmd[0] ?? null)) {
+            $process = new Process($cmd);
+            $cmd = [];
+        } elseif (($cmd[0] ?? null) instanceof Process) {
+            $process = $cmd[0];
+            unset($cmd[0]);
+        } else {
+            throw new \InvalidArgumentException(sprintf('Invalid command provided to "%s()": the command should be an array whose first element is either the path to the binary to run or a "Process" object.', __METHOD__));
+        }
+
+        if ($verbosity <= $output->getVerbosity()) {
+            $output->write($formatter->start(spl_object_hash($process), $this->escapeString($process->getCommandLine())));
+        }
+
+        if ($output->isDebug()) {
+            $callback = $this->wrapCallback($output, $process, $callback);
+        }
+
+        $process->run($callback, $cmd);
+
+        if ($verbosity <= $output->getVerbosity()) {
+            $message = $process->isSuccessful() ? 'Command ran successfully' : sprintf('%s Command did not run successfully', $process->getExitCode());
+            $output->write($formatter->stop(spl_object_hash($process), $message, $process->isSuccessful()));
+        }
+
+        if (!$process->isSuccessful() && null !== $error) {
+            $output->writeln(sprintf('<error>%s</error>', $this->escapeString($error)));
+        }
+
+        return $process;
+    }
+
+    /**
+     * Runs the process.
+     *
+     * This is identical to run() except that an exception is thrown if the process
+     * exits with a non-zero exit code.
+     *
+     * @param array|Process $cmd An instance of Process or a command to run
+     * @param callable|null $callback A PHP callback to run whenever there is some
+     *                                output available on STDOUT or STDERR
+     *
+     * @throws ProcessFailedException
+     *
+     * @see run()
+     */
+    public function mustRun(OutputInterface $output, $cmd, string $error = null, callable $callback = null): Process
+    {
+        $process = $this->run($output, $cmd, $error, $callback);
+
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        return $process;
+    }
+
+    /**
+     * Wraps a Process callback to add debugging output.
+     */
+    public function wrapCallback(OutputInterface $output, Process $process, callable $callback = null): callable
+    {
+        if ($output instanceof ConsoleOutputInterface) {
+            $output = $output->getErrorOutput();
+        }
+
+        $formatter = $this->getHelperSet()->get('debug_formatter');
+
+        return function ($type, $buffer) use ($output, $process, $callback, $formatter) {
+            $output->write($formatter->progress(spl_object_hash($process), $this->escapeString($buffer), Process::ERR === $type));
+
+            if (null !== $callback) {
+                $callback($type, $buffer);
+            }
+        };
+    }
+
+    private function escapeString(string $str): string
+    {
+        return str_replace('<', '\\<', $str);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getName(): string
+    {
+        return 'process';
+    }
+}

@@ -22,28 +22,16 @@
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace support;
+namespace Triangle\Engine\Console\Descriptor;
 
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
-use Triangle\Engine\Console\Application;
-use Triangle\Engine\Console\Command\Command as Commands;
+use Triangle\Engine\Console\Output\OutputInterface;
 
-class Console extends Application
+/**
+ * Descriptor interface.
+ *
+ * @author Jean-François Simon <contact@jfsimon.fr>
+ */
+interface DescriptorInterface
 {
-    public function installCommands($path, $namspace = 'app\command'): void
-    {
-        $dir_iterator = new RecursiveDirectoryIterator($path);
-        $iterator = new RecursiveIteratorIterator($dir_iterator);
-        foreach ($iterator as $file) {
-            if (is_dir($file)) {
-                continue;
-            }
-            $class_name = $namspace . '\\' . basename($file, '.php');
-            if (!is_a($class_name, Commands::class, true)) {
-                continue;
-            }
-            $this->add(new $class_name);
-        }
-    }
+    public function describe(OutputInterface $output, object $object, array $options = []);
 }

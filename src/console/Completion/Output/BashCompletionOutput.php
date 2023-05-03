@@ -22,28 +22,25 @@
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace support;
+namespace Triangle\Engine\Console\Completion\Output;
 
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
-use Triangle\Engine\Console\Application;
-use Triangle\Engine\Console\Command\Command as Commands;
+use Triangle\Engine\Console\Completion\CompletionSuggestions;
+use Triangle\Engine\Console\Output\OutputInterface;
 
-class Console extends Application
+/**
+ * @author Wouter de Jong <wouter@wouterj.nl>
+ */
+class BashCompletionOutput implements CompletionOutputInterface
 {
-    public function installCommands($path, $namspace = 'app\command'): void
+    public function write(CompletionSuggestions $suggestions, OutputInterface $output): void
     {
-        $dir_iterator = new RecursiveDirectoryIterator($path);
-        $iterator = new RecursiveIteratorIterator($dir_iterator);
-        foreach ($iterator as $file) {
-            if (is_dir($file)) {
-                continue;
+        $values = $suggestions->getValueSuggestions();
+        foreach ($suggestions->getOptionSuggestions() as $option) {
+            $values[] = '--' . $option->getName();
+            if ($option->isNegatable()) {
+                $values[] = '--no-' . $option->getName();
             }
-            $class_name = $namspace . '\\' . basename($file, '.php');
-            if (!is_a($class_name, Commands::class, true)) {
-                continue;
-            }
-            $this->add(new $class_name);
         }
+        $output->writeln(implode("\n", $values));
     }
 }

@@ -22,28 +22,47 @@
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace support;
+namespace Triangle\Engine\Console\Tester\Constraint;
 
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
-use Triangle\Engine\Console\Application;
-use Triangle\Engine\Console\Command\Command as Commands;
+use PHPUnit\Framework\Constraint\Constraint;
+use Triangle\Engine\Console\Command\Command;
 
-class Console extends Application
+final class CommandIsSuccessful extends Constraint
 {
-    public function installCommands($path, $namspace = 'app\command'): void
+    /**
+     * {@inheritdoc}
+     */
+    public function toString(): string
     {
-        $dir_iterator = new RecursiveDirectoryIterator($path);
-        $iterator = new RecursiveIteratorIterator($dir_iterator);
-        foreach ($iterator as $file) {
-            if (is_dir($file)) {
-                continue;
-            }
-            $class_name = $namspace . '\\' . basename($file, '.php');
-            if (!is_a($class_name, Commands::class, true)) {
-                continue;
-            }
-            $this->add(new $class_name);
-        }
+        return 'is successful';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function matches($other): bool
+    {
+        return Command::SUCCESS === $other;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function failureDescription($other): string
+    {
+        return 'the command ' . $this->toString();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function additionalFailureDescription($other): string
+    {
+        $mapping = [
+            Command::FAILURE => 'Command failed.',
+            Command::INVALID => 'Command was invalid.',
+        ];
+
+        return $mapping[$other] ?? sprintf('Command returned exit status %d.', $other);
     }
 }

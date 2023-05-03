@@ -22,28 +22,58 @@
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace support;
+namespace Triangle\Engine\Console\Formatter;
 
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
-use Triangle\Engine\Console\Application;
-use Triangle\Engine\Console\Command\Command as Commands;
-
-class Console extends Application
+/**
+ * @author Tien Xuan Vo <tien.xuan.vo@gmail.com>
+ */
+final class NullOutputFormatterStyle implements OutputFormatterStyleInterface
 {
-    public function installCommands($path, $namspace = 'app\command'): void
+    /**
+     * {@inheritdoc}
+     */
+    public function apply(string $text): string
     {
-        $dir_iterator = new RecursiveDirectoryIterator($path);
-        $iterator = new RecursiveIteratorIterator($dir_iterator);
-        foreach ($iterator as $file) {
-            if (is_dir($file)) {
-                continue;
-            }
-            $class_name = $namspace . '\\' . basename($file, '.php');
-            if (!is_a($class_name, Commands::class, true)) {
-                continue;
-            }
-            $this->add(new $class_name);
-        }
+        return $text;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setBackground(string $color = null): void
+    {
+        // do nothing
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setForeground(string $color = null): void
+    {
+        // do nothing
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setOption(string $option): void
+    {
+        // do nothing
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setOptions(array $options): void
+    {
+        // do nothing
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function unsetOption(string $option): void
+    {
+        // do nothing
     }
 }

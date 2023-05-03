@@ -23,8 +23,8 @@
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use support\console\Application;
-use support\console\Command\Command;
+use Triangle\Engine\Console\Application;
+use Triangle\Engine\Console\Command\Command;
 use Triangle\Engine\Config;
 
 require_once __DIR__ . '/vendor/autoload.php';

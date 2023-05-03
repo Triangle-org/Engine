@@ -22,28 +22,25 @@
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace support;
+namespace Triangle\Engine\Console\Helper;
 
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
-use Triangle\Engine\Console\Application;
-use Triangle\Engine\Console\Command\Command as Commands;
+use Triangle\Engine\Console\Input\InputAwareInterface;
+use Triangle\Engine\Console\Input\InputInterface;
 
-class Console extends Application
+/**
+ * An implementation of InputAwareInterface for Helpers.
+ *
+ * @author Wouter J <waldio.webdesign@gmail.com>
+ */
+abstract class InputAwareHelper extends Helper implements InputAwareInterface
 {
-    public function installCommands($path, $namspace = 'app\command'): void
+    protected $input;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setInput(InputInterface $input)
     {
-        $dir_iterator = new RecursiveDirectoryIterator($path);
-        $iterator = new RecursiveIteratorIterator($dir_iterator);
-        foreach ($iterator as $file) {
-            if (is_dir($file)) {
-                continue;
-            }
-            $class_name = $namspace . '\\' . basename($file, '.php');
-            if (!is_a($class_name, Commands::class, true)) {
-                continue;
-            }
-            $this->add(new $class_name);
-        }
+        $this->input = $input;
     }
 }

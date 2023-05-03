@@ -22,28 +22,34 @@
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace support;
+namespace Triangle\Engine\Console\CommandLoader;
 
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
-use Triangle\Engine\Console\Application;
-use Triangle\Engine\Console\Command\Command as Commands;
+use Triangle\Engine\Console\Command\Command;
+use Triangle\Engine\Console\Exception\CommandNotFoundException;
 
-class Console extends Application
+/**
+ * @author Robin Chalas <robin.chalas@gmail.com>
+ */
+interface CommandLoaderInterface
 {
-    public function installCommands($path, $namspace = 'app\command'): void
-    {
-        $dir_iterator = new RecursiveDirectoryIterator($path);
-        $iterator = new RecursiveIteratorIterator($dir_iterator);
-        foreach ($iterator as $file) {
-            if (is_dir($file)) {
-                continue;
-            }
-            $class_name = $namspace . '\\' . basename($file, '.php');
-            if (!is_a($class_name, Commands::class, true)) {
-                continue;
-            }
-            $this->add(new $class_name);
-        }
-    }
+    /**
+     * Loads a command.
+     *
+     * @return Command
+     *
+     * @throws CommandNotFoundException
+     */
+    public function get(string $name);
+
+    /**
+     * Checks if a command exists.
+     *
+     * @return bool
+     */
+    public function has(string $name);
+
+    /**
+     * @return string[]
+     */
+    public function getNames();
 }

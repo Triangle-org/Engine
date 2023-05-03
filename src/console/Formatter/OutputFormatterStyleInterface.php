@@ -22,28 +22,44 @@
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace support;
+namespace Triangle\Engine\Console\Formatter;
 
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
-use Triangle\Engine\Console\Application;
-use Triangle\Engine\Console\Command\Command as Commands;
-
-class Console extends Application
+/**
+ * Formatter style interface for defining styles.
+ *
+ * @author Konstantin Kudryashov <ever.zet@gmail.com>
+ */
+interface OutputFormatterStyleInterface
 {
-    public function installCommands($path, $namspace = 'app\command'): void
-    {
-        $dir_iterator = new RecursiveDirectoryIterator($path);
-        $iterator = new RecursiveIteratorIterator($dir_iterator);
-        foreach ($iterator as $file) {
-            if (is_dir($file)) {
-                continue;
-            }
-            $class_name = $namspace . '\\' . basename($file, '.php');
-            if (!is_a($class_name, Commands::class, true)) {
-                continue;
-            }
-            $this->add(new $class_name);
-        }
-    }
+    /**
+     * Sets style foreground color.
+     */
+    public function setForeground(string $color = null);
+
+    /**
+     * Sets style background color.
+     */
+    public function setBackground(string $color = null);
+
+    /**
+     * Sets some specific style option.
+     */
+    public function setOption(string $option);
+
+    /**
+     * Unsets some specific style option.
+     */
+    public function unsetOption(string $option);
+
+    /**
+     * Sets multiple style options at once.
+     */
+    public function setOptions(array $options);
+
+    /**
+     * Applies the style to a given text.
+     *
+     * @return string
+     */
+    public function apply(string $text);
 }

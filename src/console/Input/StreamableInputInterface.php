@@ -22,28 +22,29 @@
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace support;
+namespace Triangle\Engine\Console\Input;
 
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
-use Triangle\Engine\Console\Application;
-use Triangle\Engine\Console\Command\Command as Commands;
-
-class Console extends Application
+/**
+ * StreamableInputInterface is the interface implemented by all input classes
+ * that have an input stream.
+ *
+ * @author Robin Chalas <robin.chalas@gmail.com>
+ */
+interface StreamableInputInterface extends InputInterface
 {
-    public function installCommands($path, $namspace = 'app\command'): void
-    {
-        $dir_iterator = new RecursiveDirectoryIterator($path);
-        $iterator = new RecursiveIteratorIterator($dir_iterator);
-        foreach ($iterator as $file) {
-            if (is_dir($file)) {
-                continue;
-            }
-            $class_name = $namspace . '\\' . basename($file, '.php');
-            if (!is_a($class_name, Commands::class, true)) {
-                continue;
-            }
-            $this->add(new $class_name);
-        }
-    }
+    /**
+     * Sets the input stream to read from when interacting with the user.
+     *
+     * This is mainly useful for testing purpose.
+     *
+     * @param resource $stream The input stream
+     */
+    public function setStream($stream);
+
+    /**
+     * Returns the input stream.
+     *
+     * @return resource|null
+     */
+    public function getStream();
 }
