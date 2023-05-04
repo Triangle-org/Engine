@@ -9,10 +9,16 @@
   "license": "AGPL-3.0-or-later",
   "authors": [
     {
+      "role": "Developer",
       "name": "Ivan Zorin",
-      "email": "creator@localzet.com",
-      "homepage": "https://www.localzet.ru",
-      "role": "Developer"
+      "email": "creator@localzet.ru",
+      "homepage": "https://github.com/localzet"
+    },
+    {
+      "role": "Community",
+      "name": "Localzet Group",
+      "email": "community@localzet.com",
+      "homepage": "https://www.localzet.com"
     }
   ],
   "support": {
@@ -37,7 +43,7 @@
     "ext-redis": "For Redis"
   },
   "require": {
-    "php": ">=8.2",
+    "php": "^8.2",
     "ext-curl": "*",
     "ext-intl": "*",
     "ext-mbstring": "*",
