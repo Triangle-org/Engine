@@ -25,27 +25,27 @@
 
 namespace support;
 
+use Exception;
 use Psr\Http\Message\RequestInterface;
-use support\telegram\Api;
-use support\telegram\Objects\Update;
+use Telegram\Bot\Api;
+use Telegram\Bot\Objects\Update;
 
 
-if (!class_exists(\Telegram\Bot\Api::class)) {
-    class_alias(Api::class, 'Telegram\Bot\Api');
+if (!class_exists(Api::class)) {
+    throw new Exception("Не найдена библиотека Telegram Bot API. Выполните \"composer require irazasyed/telegram-bot-sdk\"")
 }
 
 /**
  * Class TelegramBotApi
  */
-class TelegramBotApi extends \Telegram\Bot\Api
+class TelegramBotApi extends Api
 {
     /**
      * {@inheritdoc}
      */
     public function getWebhookUpdate(bool $shouldDispatchEvents = true, ?RequestInterface $request = null): Update
     {
-        $rawBody = request()->rawBody();
-        $body = json_decode($rawBody, true);
+        $body = json_decode(request()->rawBody(), true);
 
         $update = new Update($body);
 
