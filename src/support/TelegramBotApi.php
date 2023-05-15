@@ -32,7 +32,7 @@ use Telegram\Bot\Objects\Update;
 
 
 if (!class_exists(Api::class)) {
-    throw new Exception("Не найдена библиотека Telegram Bot API. Выполните \"composer require irazasyed/telegram-bot-sdk\"")
+    throw new Exception("Не найдена библиотека Telegram Bot API. Выполните \"composer require irazasyed/telegram-bot-sdk\"");
 }
 
 /**
