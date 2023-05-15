@@ -43,14 +43,12 @@ class TelegramBotApi extends Api
     /**
      * {@inheritdoc}
      */
-    public function getWebhookUpdate(bool $shouldDispatchEvents = true, ?RequestInterface $request = null): Update
+    public function getWebhookUpdate($shouldEmitEvent = true, ?RequestInterface $request = null): Update
     {
         $body = json_decode(request()->rawBody(), true);
 
         $update = new Update($body);
 
-        if ($shouldDispatchEvents) {
-            $this->dispatchUpdateEvent($update);
         if ($shouldEmitEvent) {
             $this->emitEvent(new UpdateWasReceived($update, $this));
         }
