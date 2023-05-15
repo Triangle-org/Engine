@@ -29,7 +29,7 @@ use Exception;
 use Psr\Http\Message\RequestInterface;
 use Telegram\Bot\Api;
 use Telegram\Bot\Objects\Update;
-
+use Telegram\Bot\Events\UpdateWasReceived;
 
 if (!class_exists(Api::class)) {
     throw new Exception("Не найдена библиотека Telegram Bot API. Выполните \"composer require irazasyed/telegram-bot-sdk\"");
@@ -51,6 +51,8 @@ class TelegramBotApi extends Api
 
         if ($shouldDispatchEvents) {
             $this->dispatchUpdateEvent($update);
+        if ($shouldEmitEvent) {
+            $this->emitEvent(new UpdateWasReceived($update, $this));
         }
 
         return $update;
