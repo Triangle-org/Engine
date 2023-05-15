@@ -28,14 +28,25 @@ namespace Triangle\Engine;
 use Triangle\Engine\Http\Request;
 use Triangle\Engine\Http\Response;
 
+/**
+ * Участник обработки запроса и ответа сервера.
+ *
+ * Компонент промежуточного программного обеспечения HTTP участвует в обработке HTTP-сообщения:
+ * воздействуя на запрос, генерируя ответ или пересылая запрос последующему
+ * промежуточному программному обеспечению и, возможно, действуя на его ответ.
+ *
+ * @see https://www.php-fig.org/psr/psr-15 PSR-15
+ * @see https://github.com/php-fig/http-server-middleware HTTP Server Middleware
+ */
 interface MiddlewareInterface
 {
     /**
-     * Process an incoming server request.
+     * Обработка входящего запроса к серверу.
      *
-     * Processes an incoming server request in order to produce a response.
-     * If unable to produce the response itself, it may delegate to the provided
-     * request handler to do so.
+     * Обрабатывает входящий запрос к серверу для получения ответа.
+     * Если не удается создать ответ самостоятельно, он может
+     * делегировать это предоставленному обработчику запросов.
+     *
      */
     public function process(Request $request, callable $handler): Response;
 }
