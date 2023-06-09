@@ -47,8 +47,10 @@ class NginxEnableCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (!is_dir("/etc/nginx/sites-enabled")) {
-            $output->writeln("<error>Папка /etc/nginx/sites-enabled не существует</>");
+        $path = config('nginx.path', "/etc/nginx/sites-enabled");
+
+        if ($path !== false && !is_dir($path)) {
+            $output->writeln("<error>Папка $path не существует</>");
             return self::FAILURE;
         }
 
@@ -219,14 +221,16 @@ class NginxEnableCommand extends Command
             $output->writeln("<comment>Конфигурация создана</>");
         }
 
-        exec("ln -sf $file /etc/nginx/sites-enabled/$domain.conf");
-        $output->writeln("<info>Ссылка создана</>");
+        if ($path !== false) {
+            exec("ln -sf $file $path/$domain.conf");
+            $output->writeln("<info>Ссылка создана</>");
 
-        $output->writeln("<info>Проверка конфигурации:</>");
-        exec("nginx -t");
+            $output->writeln("<info>Проверка конфигурации:</>");
+            exec("nginx -t");
 
-        exec("service nginx restart");
-        $output->writeln("<info>Nginx перезагружен</>");
+            exec("service nginx restart");
+            $output->writeln("<info>Nginx перезагружен</>");
+        }
 
         return self::SUCCESS;
     }

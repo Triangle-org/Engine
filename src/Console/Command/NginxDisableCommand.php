@@ -47,8 +47,14 @@ class NginxDisableCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (!is_dir("/etc/nginx/sites-enabled")) {
-            $output->writeln("<error>Папка /etc/nginx/sites-enabled не существует</>");
+        $path = config('nginx.path', "/etc/nginx/sites-enabled");
+
+        if ($path === false) {
+            $output->writeln("<info>Сохранение отключено</>");
+        }
+
+        if (!is_dir($path)) {
+            $output->writeln("<error>Папка $path не существует</>");
             return self::FAILURE;
         }
 
@@ -57,7 +63,7 @@ class NginxDisableCommand extends Command
             $output->writeln("<error>Не задан app.domain</>");
             return self::FAILURE;
         }
-        $file = "/etc/nginx/sites-enabled/$domain.conf";
+        $file = "$path/$domain.conf";
 
         if (is_file($file)) {
             @unlink($file);
