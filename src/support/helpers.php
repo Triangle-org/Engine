@@ -23,8 +23,8 @@
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use Jenssegers\Mongodb\Connection;
-use Jenssegers\Mongodb\Query\Builder;
+use support\database\MongoDB\Connection;
+use support\database\MongoDB\Query\Builder;
 use localzet\Server\Server;
 use support\Container;
 use support\database\MySQL;
@@ -49,7 +49,7 @@ define('BASE_PATH', dirname(__DIR__));
 /**
  * @param string|null $connection
  * @param string|null $collection
- * @return \Jenssegers\Mongodb\Connection|\Jenssegers\Mongodb\Query\Builder
+ * @return \support\database\MongoDB\Connection|\support\database\MongoDB\Query\Builder
  * @throws Exception
  */
 function MongoDB(string $connection = NULL, string $collection = NULL): Builder|Connection
@@ -62,7 +62,7 @@ function MongoDB(string $connection = NULL, string $collection = NULL): Builder|
         throw new Exception("MongoDB соединения не существует в конфигурации");
     }
 
-    /** @var \Jenssegers\Mongodb\Connection $db */
+    /** @var \support\database\MongoDB\Connection $db */
     $db = Db::connection($connection);
     return empty($collection) ? $db : $db->collection($collection);
 }

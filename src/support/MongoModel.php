@@ -35,7 +35,7 @@ use Illuminate\Database\Query\Grammars\Grammar;
 use Illuminate\Database\Query\Processors\Processor;
 use Illuminate\Support\Collection;
 use Illuminate\Support\LazyCollection;
-use Jenssegers\Mongodb\Eloquent\Model as BaseModel;
+use support\database\MongoDB\Eloquent\Model as BaseModel;
 
 /**
  * @method static BaseModel make($attributes = [])

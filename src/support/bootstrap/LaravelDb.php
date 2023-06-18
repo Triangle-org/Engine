@@ -30,7 +30,7 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\MySqlConnection;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Pagination\Paginator;
-use Jenssegers\Mongodb\Connection as MongodbConnection;
+use support\database\MongoDB\Connection as MongodbConnection;
 use localzet\Server\Server;
 use localzet\Server\Timer;
 use support\Container;
