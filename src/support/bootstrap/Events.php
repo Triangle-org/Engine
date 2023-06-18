@@ -35,7 +35,9 @@ use function class_exists;
 use function is_array;
 use function is_string;
 
-
+/**
+ * @deprecated
+ */
 class Events implements Bootstrap
 {
     /**

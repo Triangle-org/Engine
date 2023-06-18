@@ -34,31 +34,20 @@ use function method_exists;
 class Middleware
 {
     /**
-     * @var array
+     * @var array Массив экземпляров промежуточного ПО
      */
     protected static array $instances = [];
 
     /**
-     * @param array $allMiddlewares
-     * @param string $plugin
+     * Загружает промежуточное ПО.
+     *
+     * @param array $allMiddlewares Массив конфигурации промежуточного ПО
+     * @param string $plugin Имя плагина (необязательно)
      * @return void
+     * @throws RuntimeException Если конфигурация промежуточного ПО некорректна
      */
     public static function load(array $allMiddlewares, string $plugin = ''): void
     {
-
-        // $allMiddlewares = [
-        //     'app1' => [
-        //         'Class1',
-        //         'Class2',
-        //         'Class3'
-        //     ],
-        //     'app2' => [
-        //         'Class1',
-        //         'Class2',
-        //         'Class3'
-        //     ]
-        // ];
-
         foreach ($allMiddlewares as $appName => $middlewares) {
             if (!is_array($middlewares)) {
                 throw new RuntimeException('Некорректная конфигурация промежуточного ПО');
@@ -75,19 +64,21 @@ class Middleware
     }
 
     /**
-     * @param string $plugin
-     * @param string $appName
-     * @param bool $withGlobalMiddleware
-     * @return array|mixed
+     * Возвращает промежуточное ПО для указанного плагина и приложения.
+     *
+     * @param string $plugin Имя плагина
+     * @param string $appName Имя приложения
+     * @param bool $withGlobalMiddleware Флаг, указывающий, включать ли глобальное промежуточное ПО
+     * @return array|mixed Массив промежуточного ПО
      */
     public static function getMiddleware(string $plugin, string $appName, bool $withGlobalMiddleware = true): mixed
     {
-        // Глобальная midleware
+        // Глобальное промежуточное ПО
         $globalMiddleware = $withGlobalMiddleware && isset(static::$instances[$plugin]['']) ? static::$instances[$plugin][''] : [];
         if ($appName === '') {
             return array_reverse($globalMiddleware);
         }
-        // midleware приложения
+        // Промежуточное ПО для приложения
         $appMiddleware = static::$instances[$plugin][$appName] ?? [];
         return array_reverse(array_merge($globalMiddleware, $appMiddleware));
     }
