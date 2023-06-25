@@ -49,9 +49,13 @@ class Blade implements View
      * @param array|string $name
      * @param mixed|null $value
      */
-    public static function assign(array|string $name, mixed $value = null): void
+    public static function assign(array|string $name, mixed $value = null, $merge_recursive = false): void
     {
-        static::$vars = array_merge(static::$vars, is_array($name) ? $name : [$name => $value]);
+        if ($merge_recursive) {
+            array_merge_recursive(static::$vars, is_array($name) ? $name : [$name => $value]);
+        } else {
+            static::$vars = array_merge(static::$vars, is_array($name) ? $name : [$name => $value]);
+        }
     }
 
     public static function vars(): array
