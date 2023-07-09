@@ -85,8 +85,8 @@ class Raw implements View
         $app = $app === null ? $request->app : $app;
         $baseViewPath = $plugin ? base_path() . "/plugin/$plugin/app" : app_path();
         $__template_body__ = $app === '' ? "$baseViewPath/view/$template.$viewSuffix" : "$baseViewPath/$app/view/$template.$viewSuffix";
-        $__template_head__ = ($view_global ? app_path() : $baseViewPath) . ($app === '' ? "/view/$view_head.$viewSuffix" : "/$app/view/$view_head.$viewSuffix");
-        $__template_foot__ = ($view_global ? app_path() : $baseViewPath) . ($app === '' ? "/view/$view_footer.$viewSuffix" : "/$app/view/$view_footer.$viewSuffix");
+        $__template_head__ = ($view_global ? app_path() : $baseViewPath) . ($app === '' || $view_global ? "/view/$view_head.$viewSuffix" : "/$app/view/$view_head.$viewSuffix");
+        $__template_foot__ = ($view_global ? app_path() : $baseViewPath) . ($app === '' || $view_global ? "/view/$view_footer.$viewSuffix" : "/$app/view/$view_footer.$viewSuffix");
 
         $name = config('app.name', 'Triangle App');
         $description = config('app.description', 'Simple web application on Triangle Engine');

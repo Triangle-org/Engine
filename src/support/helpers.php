@@ -125,6 +125,15 @@ function app_path(string $path = ''): string
  * @param string $path
  * @return string
  */
+function view_path(string $path = ''): string
+{
+    return path_combine(BASE_PATH . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'view', $path);
+}
+
+/**
+ * @param string $path
+ * @return string
+ */
 function public_path(string $path = ''): string
 {
     static $publicPath = '';
@@ -643,6 +652,8 @@ function getRequestIp(): ?string
         $ip = request()->header('client-ip');
     } elseif (!empty(request()->header('remote-addr')) && validate_ip(request()->header('remote-addr'))) {
         $ip = request()->header('remote-addr');
+    } elseif (request()->getRealIp()) {
+        $ip = request()->getRealIp();
     } else {
         $ip = null;
     }
@@ -703,9 +714,9 @@ function getBrowser(): array
     $platform = 'Неизвестно';
 
     if (preg_match('/macintosh|mac os x/i', $u_agent)) {
-        $platform = 'mac';
+        $platform = 'Mac';
     } elseif (preg_match('/windows|win32/i', $u_agent)) {
-        $platform = 'windows';
+        $platform = 'Windows';
     } elseif (preg_match('/iphone|IPhone/i', $u_agent)) {
         $platform = 'IPhone Web';
     } elseif (preg_match('/android|Android/i', $u_agent)) {
@@ -713,7 +724,7 @@ function getBrowser(): array
     } else if (preg_match("/(android|avantgo|blackberry|bolt|boost|cricket|docomo|fone|hiptop|mini|mobi|palm|phone|pie|tablet|up\.browser|up\.link|webos|wos)/i", $u_agent)) {
         $platform = 'Mobile';
     } else if (preg_match('/linux/i', $u_agent)) {
-        $platform = 'linux';
+        $platform = 'Linux';
     }
 
     if (preg_match('/MSIE/i', $u_agent) && !preg_match('/Opera/i', $u_agent)) {
