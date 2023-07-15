@@ -29,7 +29,7 @@ use Fiber;
 use localzet\Server\Events\Revolt;
 use localzet\Server\Events\Swoole;
 use localzet\Server\Events\Swow;
-use localzet\Server\Server;
+use localzet\Server;
 use SplObjectStorage;
 use StdClass;
 use Swow\Coroutine;

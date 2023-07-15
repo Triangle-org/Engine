@@ -105,7 +105,7 @@ class ReloadCommand extends Command
             
             require_once __DIR__ . '/../../vendor/autoload.php';
             
-            use localzet\Server\Server;
+            use localzet\Server;
             use Triangle\Engine\Config;
             use support\App;
             

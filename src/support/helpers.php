@@ -25,7 +25,7 @@
 
 use support\database\MongoDB\Connection;
 use support\database\MongoDB\Query\Builder;
-use localzet\Server\Server;
+use localzet\Server;
 use support\Container;
 use support\database\MySQL;
 use support\Db;

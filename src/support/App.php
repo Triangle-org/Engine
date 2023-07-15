@@ -27,7 +27,7 @@ namespace support;
 
 use Dotenv\Dotenv;
 use localzet\Server\Connection\TcpConnection;
-use localzet\Server\Server;
+use localzet\Server;
 use RuntimeException;
 use Throwable;
 use Triangle\Engine\Config;

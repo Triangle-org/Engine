@@ -25,7 +25,7 @@
 
 namespace Triangle\Engine;
 
-use localzet\Server\Server;
+use localzet\Server;
 
 interface Bootstrap
 {

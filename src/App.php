@@ -31,7 +31,7 @@ use FastRoute\Dispatcher;
 use InvalidArgumentException;
 use localzet\Server\Connection\TcpConnection;
 use localzet\Server\Protocols\Http;
-use localzet\Server\Server;
+use localzet\Server;
 use Monolog\Logger;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;

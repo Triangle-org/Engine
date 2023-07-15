@@ -25,7 +25,7 @@
 
 namespace support\bootstrap;
 
-use localzet\Server\Server;
+use localzet\Server;
 use support\Container;
 use support\Event;
 use support\Log;
