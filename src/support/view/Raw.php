@@ -95,11 +95,8 @@ class Raw implements View
 
         $domain = config('app.domain', 'https://' . $request->host(true));
         $canonical = config('app.canonical', $request->url());
-        $src = config('app.src', 'https://static.localzet.com');
-        $fonts = config('app.fonts', 'https://fonts.localzet.com');
-
-        $logo = config('app.logo', 'https://static.localzet.com/localzet.svg');
-        $og_image = config('app.og_image', 'https://static.localzet.com/localzet.svg');
+        $assets = config('app.assets', '/');
+        $logo = config('app.logo', '/favicon.svg');
 
         $owner = config('app.owner', '');
         $designer = config('app.designer', '');
@@ -107,18 +104,13 @@ class Raw implements View
         $copyright = config('app.copyright', '');
         $reply_to = config('app.reply_to', '');
 
-        $custom = [];
-        $assets = [];
-        $page = '';
+        $page = last(explode('/', $template) ?? [$template]);
 
         $AppInfo = [
             'name' => $name,
             'description' => $description,
             'keywords' => $keywords,
             'viewport' => $viewport,
-
-            'logo' => $logo,
-            'og_image' => $og_image,
 
             'owner' => $owner,
             'designer' => $designer,
@@ -128,8 +120,8 @@ class Raw implements View
 
             'domain' => $domain,
             'canonical' => $canonical,
-            'src' => $src,
-            'fonts' => $fonts,
+            'assets' => $assets,
+            'logo' => $logo,
         ];
 
         extract(static::$vars);
@@ -160,18 +152,18 @@ class Raw implements View
         $request = request();
         $plugin = $request->plugin ?? '';
         $config_prefix = $plugin ? "plugin.$plugin." : '';
-        $view = config("{$config_prefix}view.system.$template", app_path() . "/view/response/$template.phtml");
+        $sysview = __DIR__ . "/response/$template.phtml";
+        $view = config("{$config_prefix}view.system.$template", $sysview);
 
         $name = config('app.name', 'Triangle App');
         $description = config('app.description', 'Simple web application on Triangle Engine');
         $keywords = config('app.keywords', '');
         $viewport = config('app.viewport', 'width=device-width, initial-scale=1');
 
-        $src = config('app.src', 'https://static.localzet.com');
-        $fonts = config('app.fonts', 'https://fonts.localzet.com');
-
-        $logo = config('app.logo', 'https://static.localzet.com/localzet.svg');
-        $og_image = config('app.og_image', 'https://static.localzet.com/localzet.svg');
+        $domain = config('app.domain', 'https://' . $request->host(true));
+        $canonical = config('app.canonical', $request->url());
+        $assets = config('app.assets', '/');
+        $logo = config('app.logo', '/favicon.svg');
 
         $owner = config('app.owner', '');
         $designer = config('app.designer', '');
@@ -179,9 +171,7 @@ class Raw implements View
         $copyright = config('app.copyright', '');
         $reply_to = config('app.reply_to', '');
 
-        $custom = [];
-        $assets = [];
-        $page = '';
+        $page = last(explode('/', $template) ?? [$template]);
 
         $AppInfo = [
             'name' => $name,
@@ -189,17 +179,16 @@ class Raw implements View
             'keywords' => $keywords,
             'viewport' => $viewport,
 
-            'logo' => $logo,
-            'og_image' => $og_image,
-
             'owner' => $owner,
             'designer' => $designer,
             'author' => $author,
             'copyright' => $copyright,
             'reply_to' => $reply_to,
 
-            'src' => $src,
-            'fonts' => $fonts,
+            'domain' => $domain,
+            'canonical' => $canonical,
+            'assets' => $assets,
+            'logo' => $logo,
         ];
 
         extract(static::$vars);
