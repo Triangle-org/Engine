@@ -40,7 +40,7 @@ class Handler extends ExceptionHandler
     ];
 
     /**
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function render(Request $request, Throwable $exception): Response
     {

@@ -220,21 +220,14 @@ class Redis
 {
 
     /**
-     * @var RedisManager|null
-     */
-    protected static ?RedisManager $instance = null;
-
-    /**
      * need to install phpredis extension
      */
     const PHPREDIS_CLIENT = 'phpredis';
-
     /**
      * need to install the 'predis/predis' packgage.
      * cmd: composer install predis/predis
      */
     const PREDIS_CLIENT = 'predis';
-
     /**
      * Support client collection
      */
@@ -242,23 +235,19 @@ class Redis
         self::PHPREDIS_CLIENT,
         self::PREDIS_CLIENT
     ];
+    /**
+     * @var RedisManager|null
+     */
+    protected static ?RedisManager $instance = null;
 
     /**
-     * @return \Illuminate\Redis\RedisManager|null
+     * @param string $name
+     * @param array $arguments
+     * @return mixed
      */
-    public static function instance(): ?RedisManager
+    public static function __callStatic(string $name, array $arguments)
     {
-        if (!static::$instance) {
-            $config = config('redis');
-            $client = $config['client'] ?? self::PHPREDIS_CLIENT;
-
-            if (!in_array($client, static::$allowClient)) {
-                $client = self::PHPREDIS_CLIENT;
-            }
-
-            static::$instance = new RedisManager('', $client, $config);
-        }
-        return static::$instance;
+        return static::connection()->{$name}(...$arguments);
     }
 
     /**
@@ -281,12 +270,20 @@ class Redis
     }
 
     /**
-     * @param string $name
-     * @param array $arguments
-     * @return mixed
+     * @return RedisManager|null
      */
-    public static function __callStatic(string $name, array $arguments)
+    public static function instance(): ?RedisManager
     {
-        return static::connection()->{$name}(...$arguments);
+        if (!static::$instance) {
+            $config = config('redis');
+            $client = $config['client'] ?? self::PHPREDIS_CLIENT;
+
+            if (!in_array($client, static::$allowClient)) {
+                $client = self::PHPREDIS_CLIENT;
+            }
+
+            static::$instance = new RedisManager('', $client, $config);
+        }
+        return static::$instance;
     }
 }

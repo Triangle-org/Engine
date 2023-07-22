@@ -25,6 +25,8 @@
 
 namespace Triangle\Engine\Console\Question;
 
+use function is_bool;
+
 /**
  * Represents a yes/no question.
  *
@@ -56,7 +58,7 @@ class ConfirmationQuestion extends Question
         $regex = $this->trueAnswerRegex;
 
         return function ($answer) use ($default, $regex) {
-            if (\is_bool($answer)) {
+            if (is_bool($answer)) {
                 return $answer;
             }
 

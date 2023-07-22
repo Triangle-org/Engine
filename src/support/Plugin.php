@@ -37,7 +37,7 @@ class Plugin
         static::findHelper();
         $psr4 = static::getPsr4($event);
         foreach ($psr4 as $namespace => $path) {
-            $pluginConst = "\\{$namespace}Install::FRAMEX_PLUGIN";
+            $pluginConst = "\\{$namespace}Install::TRIANGLE_PLUGIN";
             if (!defined($pluginConst)) {
                 continue;
             }
@@ -46,6 +46,35 @@ class Plugin
                 $installFunction(true);
             }
         }
+    }
+
+    /**
+     * FindHelper.
+     * @return void
+     */
+    protected static function findHelper(): void
+    {
+        // Plugin.php in vendor
+        $file = __DIR__ . '/../../../../../support/helpers.php';
+        if (is_file($file)) {
+            require_once $file;
+            return;
+        }
+        // Plugin.php in webman
+        require_once __DIR__ . '/helpers.php';
+    }
+
+    /**
+     * Get psr-4 info
+     *
+     * @param mixed $event
+     * @return array
+     */
+    protected static function getPsr4(mixed $event): array
+    {
+        $operation = $event->getOperation();
+        $autoload = method_exists($operation, 'getPackage') ? $operation->getPackage()->getAutoload() : $operation->getTargetPackage()->getAutoload();
+        return $autoload['psr-4'] ?? [];
     }
 
     /**
@@ -58,7 +87,7 @@ class Plugin
         static::findHelper();
         $psr4 = static::getPsr4($event);
         foreach ($psr4 as $namespace => $path) {
-            $pluginConst = "\\{$namespace}Install::FRAMEX_PLUGIN";
+            $pluginConst = "\\{$namespace}Install::TRIANGLE_PLUGIN";
             if (!defined($pluginConst)) {
                 continue;
             }
@@ -84,7 +113,7 @@ class Plugin
         static::findHelper();
         $psr4 = static::getPsr4($event);
         foreach ($psr4 as $namespace => $path) {
-            $pluginConst = "\\{$namespace}Install::FRAMEX_PLUGIN";
+            $pluginConst = "\\{$namespace}Install::TRIANGLE_PLUGIN";
             if (!defined($pluginConst)) {
                 continue;
             }
@@ -93,34 +122,5 @@ class Plugin
                 $uninstallFunction();
             }
         }
-    }
-
-    /**
-     * Get psr-4 info
-     *
-     * @param mixed $event
-     * @return array
-     */
-    protected static function getPsr4(mixed $event): array
-    {
-        $operation = $event->getOperation();
-        $autoload = method_exists($operation, 'getPackage') ? $operation->getPackage()->getAutoload() : $operation->getTargetPackage()->getAutoload();
-        return $autoload['psr-4'] ?? [];
-    }
-
-    /**
-     * FindHelper.
-     * @return void
-     */
-    protected static function findHelper(): void
-    {
-        // Plugin.php in vendor
-        $file = __DIR__ . '/../../../../../support/helpers.php';
-        if (is_file($file)) {
-            require_once $file;
-            return;
-        }
-        // Plugin.php in webman
-        require_once __DIR__ . '/helpers.php';
     }
 }

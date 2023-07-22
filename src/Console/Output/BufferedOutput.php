@@ -25,6 +25,8 @@
 
 namespace Triangle\Engine\Console\Output;
 
+use const PHP_EOL;
+
 /**
  * @author Jean-François Simon <contact@jfsimon.fr>
  */
@@ -53,7 +55,7 @@ class BufferedOutput extends Output
         $this->buffer .= $message;
 
         if ($newline) {
-            $this->buffer .= \PHP_EOL;
+            $this->buffer .= PHP_EOL;
         }
     }
 }

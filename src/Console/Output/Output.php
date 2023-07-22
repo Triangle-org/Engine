@@ -61,9 +61,9 @@ abstract class Output implements OutputInterface
     /**
      * {@inheritdoc}
      */
-    public function setFormatter(OutputFormatterInterface $formatter)
+    public function setDecorated(bool $decorated)
     {
-        $this->formatter = $formatter;
+        $this->formatter->setDecorated($decorated);
     }
 
     /**
@@ -77,9 +77,9 @@ abstract class Output implements OutputInterface
     /**
      * {@inheritdoc}
      */
-    public function setDecorated(bool $decorated)
+    public function setFormatter(OutputFormatterInterface $formatter)
     {
-        $this->formatter->setDecorated($decorated);
+        $this->formatter = $formatter;
     }
 
     /**
@@ -88,22 +88,6 @@ abstract class Output implements OutputInterface
     public function isDecorated()
     {
         return $this->formatter->isDecorated();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setVerbosity(int $level)
-    {
-        $this->verbosity = $level;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getVerbosity()
-    {
-        return $this->verbosity;
     }
 
     /**
@@ -179,6 +163,22 @@ abstract class Output implements OutputInterface
 
             $this->doWrite($message ?? '', $newline);
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getVerbosity()
+    {
+        return $this->verbosity;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setVerbosity(int $level)
+    {
+        $this->verbosity = $level;
     }
 
     /**

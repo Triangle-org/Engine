@@ -25,6 +25,8 @@
 
 namespace support;
 
+use Exception;
+
 /**
  * Session storage manager
  */
@@ -44,9 +46,26 @@ class Storage
      */
     protected string $keyPrefix = '';
 
+    /**
+     * @throws Exception
+     */
+    public function set($key, $value): void
+    {
+        $key = $this->keyPrefix . strtolower($key);
+
+        if (is_object($value)) {
+            // We encapsulate as our classes may be defined after session is initialized.
+            $value = ['lateObject' => serialize($value)];
+        }
+
+        $s = session()->get($this->storeNamespace);
+        $s[$key] = $value;
+        session()->put([$this->storeNamespace => $s]);
+        session()->save();
+    }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function get($key)
     {
@@ -66,25 +85,7 @@ class Storage
     }
 
     /**
-     * @throws \Exception
-     */
-    public function set($key, $value): void
-    {
-        $key = $this->keyPrefix . strtolower($key);
-
-        if (is_object($value)) {
-            // We encapsulate as our classes may be defined after session is initialized.
-            $value = ['lateObject' => serialize($value)];
-        }
-
-        $s = session()->get($this->storeNamespace);
-        $s[$key] = $value;
-        session()->put([$this->storeNamespace => $s]);
-        session()->save();
-    }
-
-    /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function clear(): void
     {
@@ -93,7 +94,7 @@ class Storage
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function delete($key): void
     {
@@ -110,7 +111,7 @@ class Storage
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteMatch($key): void
     {

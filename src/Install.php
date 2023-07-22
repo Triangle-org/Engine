@@ -27,7 +27,7 @@ namespace Triangle\Engine;
 
 class Install
 {
-    const FRAMEX_PLUGIN = true;
+    const TRIANGLE_PLUGIN = true;
 
     /**
      * @var array
@@ -45,14 +45,6 @@ class Install
     public static function install(): void
     {
         static::installByRelation();
-    }
-
-    /**
-     * Uninstall
-     * @return void
-     */
-    public static function uninstall()
-    {
     }
 
     /**
@@ -75,5 +67,13 @@ class Install
                 @unlink($sourceFile);
             }
         }
+    }
+
+    /**
+     * Uninstall
+     * @return void
+     */
+    public static function uninstall()
+    {
     }
 }

@@ -87,12 +87,42 @@ class Config
     }
 
     /**
-     * Очистить
-     * @return void
+     * Загрузить из папки
+     * @param string $configPath
+     * @param array $excludeFile
+     * @return array
      */
-    public static function clear(): void
+    public static function loadFromDir(string $configPath, array $excludeFile = []): array
     {
-        static::$config = [];
+        $allConfig = [];
+        $dirIterator = new RecursiveDirectoryIterator($configPath, FilesystemIterator::FOLLOW_SYMLINKS);
+        $iterator = new RecursiveIteratorIterator($dirIterator);
+        foreach ($iterator as $file) {
+            /** var SplFileInfo $file */
+            if (is_dir($file) || $file->getExtension() != 'php' || in_array($file->getBaseName('.php'), $excludeFile)) {
+                continue;
+            }
+            $appConfigFile = $file->getPath() . '/app.php';
+            if (!is_file($appConfigFile)) {
+                continue;
+            }
+            $relativePath = str_replace($configPath . DIRECTORY_SEPARATOR, '', substr($file, 0, -4));
+            $explode = array_reverse(explode(DIRECTORY_SEPARATOR, $relativePath));
+            if (count($explode) >= 2) {
+                $appConfig = include $appConfigFile;
+                if (empty($appConfig['enable'])) {
+                    continue;
+                }
+            }
+            $config = include $file;
+            foreach ($explode as $section) {
+                $tmp = [];
+                $tmp[$section] = $config;
+                $config = $tmp;
+            }
+            $allConfig = array_replace_recursive($allConfig, $config);
+        }
+        return $allConfig;
     }
 
     /**
@@ -176,42 +206,12 @@ class Config
     }
 
     /**
-     * Загрузить из папки
-     * @param string $configPath
-     * @param array $excludeFile
-     * @return array
+     * Очистить
+     * @return void
      */
-    public static function loadFromDir(string $configPath, array $excludeFile = []): array
+    public static function clear(): void
     {
-        $allConfig = [];
-        $dirIterator = new RecursiveDirectoryIterator($configPath, FilesystemIterator::FOLLOW_SYMLINKS);
-        $iterator = new RecursiveIteratorIterator($dirIterator);
-        foreach ($iterator as $file) {
-            /** var SplFileInfo $file */
-            if (is_dir($file) || $file->getExtension() != 'php' || in_array($file->getBaseName('.php'), $excludeFile)) {
-                continue;
-            }
-            $appConfigFile = $file->getPath() . '/app.php';
-            if (!is_file($appConfigFile)) {
-                continue;
-            }
-            $relativePath = str_replace($configPath . DIRECTORY_SEPARATOR, '', substr($file, 0, -4));
-            $explode = array_reverse(explode(DIRECTORY_SEPARATOR, $relativePath));
-            if (count($explode) >= 2) {
-                $appConfig = include $appConfigFile;
-                if (empty($appConfig['enable'])) {
-                    continue;
-                }
-            }
-            $config = include $file;
-            foreach ($explode as $section) {
-                $tmp = [];
-                $tmp[$section] = $config;
-                $config = $tmp;
-            }
-            $allConfig = array_replace_recursive($allConfig, $config);
-        }
-        return $allConfig;
+        static::$config = [];
     }
 
     /**

@@ -74,14 +74,6 @@ abstract class Descriptor implements DescriptorInterface
     }
 
     /**
-     * Writes content to output.
-     */
-    protected function write(string $content, bool $decorated = false)
-    {
-        $this->output->write($content, false, $decorated ? OutputInterface::OUTPUT_NORMAL : OutputInterface::OUTPUT_RAW);
-    }
-
-    /**
      * Describes an InputArgument instance.
      */
     abstract protected function describeInputArgument(InputArgument $argument, array $options = []);
@@ -105,4 +97,12 @@ abstract class Descriptor implements DescriptorInterface
      * Describes an Application instance.
      */
     abstract protected function describeApplication(Application $application, array $options = []);
+
+    /**
+     * Writes content to output.
+     */
+    protected function write(string $content, bool $decorated = false)
+    {
+        $this->output->write($content, false, $decorated ? OutputInterface::OUTPUT_NORMAL : OutputInterface::OUTPUT_RAW);
+    }
 }

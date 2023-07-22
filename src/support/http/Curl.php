@@ -117,7 +117,7 @@ class Curl implements HttpClientInterface
     /**
      * logger instance
      *
-     * @var \Monolog\Logger|Log|null
+     * @var Logger|Log|null
      */
     protected null|Logger|Log $logger = null;
 
@@ -205,6 +205,22 @@ class Curl implements HttpClientInterface
     }
 
     /**
+     * Convert request headers to the expect curl format
+     *
+     * @return array
+     */
+    protected function prepareRequestHeaders(): array
+    {
+        $headers = [];
+
+        foreach ($this->requestHeader as $header => $value) {
+            $headers[] = trim($header) . ': ' . trim($value);
+        }
+
+        return $headers;
+    }
+
+    /**
      * Get response details
      *
      * @return array Map structure of details
@@ -231,23 +247,23 @@ class Curl implements HttpClientInterface
     }
 
     /**
-     * Reset curl options
+     * Returns method request() arguments
      *
-     * @param array $curlOptions
+     * This is used for debugging.
+     *
+     * @return array
      */
-    public function setCurlOptions(array $curlOptions): void
+    protected function getRequestArguments(): array
     {
-        foreach ($curlOptions as $opt => $value) {
-            $this->curlOptions[$opt] = $value;
-        }
+        return $this->requestArguments;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getResponseBody(): string
+    public function getResponseHttpCode(): int
     {
-        return $this->responseBody;
+        return $this->responseHttpCode;
     }
 
     /**
@@ -261,9 +277,9 @@ class Curl implements HttpClientInterface
     /**
      * {@inheritdoc}
      */
-    public function getResponseHttpCode(): int
+    public function getResponseBody(): string
     {
-        return $this->responseHttpCode;
+        return $this->responseBody;
     }
 
     /**
@@ -283,15 +299,15 @@ class Curl implements HttpClientInterface
     }
 
     /**
-     * Returns method request() arguments
+     * Reset curl options
      *
-     * This is used for debugging.
-     *
-     * @return array
+     * @param array $curlOptions
      */
-    protected function getRequestArguments(): array
+    public function setCurlOptions(array $curlOptions): void
     {
-        return $this->requestArguments;
+        foreach ($curlOptions as $opt => $value) {
+            $this->curlOptions[$opt] = $value;
+        }
     }
 
     /**
@@ -315,21 +331,5 @@ class Curl implements HttpClientInterface
         }
 
         return strlen($header);
-    }
-
-    /**
-     * Convert request headers to the expect curl format
-     *
-     * @return array
-     */
-    protected function prepareRequestHeaders(): array
-    {
-        $headers = [];
-
-        foreach ($this->requestHeader as $header => $value) {
-            $headers[] = trim($header) . ': ' . trim($value);
-        }
-
-        return $headers;
     }
 }

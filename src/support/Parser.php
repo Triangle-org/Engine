@@ -102,7 +102,7 @@ final class Parser
      *
      * @param $result
      *
-     * @return \StdClass
+     * @return StdClass
      */
     public function parseQueryString($result): StdClass
     {

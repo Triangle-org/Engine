@@ -101,49 +101,63 @@ class Route
      * @param callable|mixed $callback
      * @return RouteObject
      */
-    public static function get(string $path, mixed $callback): RouteObject
-    {
-        return static::addRoute('GET', $path, $callback);
-    }
-
-    /**
-     * @param string $path
-     * @param callable|mixed $callback
-     * @return RouteObject
-     */
-    public static function post(string $path, mixed $callback): RouteObject
-    {
-        return static::addRoute('POST', $path, $callback);
-    }
-
-    /**
-     * @param string $path
-     * @param callable|mixed $callback
-     * @return RouteObject
-     */
-    public static function put(string $path, mixed $callback): RouteObject
-    {
-        return static::addRoute('PUT', $path, $callback);
-    }
-
-    /**
-     * @param string $path
-     * @param callable|mixed $callback
-     * @return RouteObject
-     */
     public static function patch(string $path, mixed $callback): RouteObject
     {
         return static::addRoute('PATCH', $path, $callback);
     }
 
     /**
+     * @param array|string $methods
      * @param string $path
      * @param callable|mixed $callback
      * @return RouteObject
      */
-    public static function delete(string $path, mixed $callback): RouteObject
+    protected static function addRoute(array|string $methods, string $path, mixed $callback): RouteObject
     {
-        return static::addRoute('DELETE', $path, $callback);
+        $route = new RouteObject($methods, static::$groupPrefix . $path, $callback);
+        static::$allRoutes[] = $route;
+
+        if ($callback = static::convertToCallable($path, $callback)) {
+            static::$collector->addRoute($methods, $path, ['callback' => $callback, 'route' => $route]);
+        }
+        static::$instance?->collect($route);
+        return $route;
+    }
+
+    /**
+     * @param string $path
+     * @param callable|mixed $callback
+     * @return callable|false|string[]
+     */
+    public static function convertToCallable(string $path, mixed $callback): array|callable|false
+    {
+        if (is_string($callback) && strpos($callback, '@')) {
+            $callback = explode('@', $callback, 2);
+        }
+
+        if (!is_array($callback)) {
+            if (!is_callable($callback)) {
+                $callStr = is_scalar($callback) ? $callback : 'Closure';
+                echo "Route $path $callStr is not callable\n";
+                return false;
+            }
+        } else {
+            $callback = array_values($callback);
+            if (!isset($callback[1]) || !class_exists($callback[0]) || !method_exists($callback[0], $callback[1])) {
+                echo "Route $path " . json_encode($callback) . " is not callable\n";
+                return false;
+            }
+        }
+
+        return $callback;
+    }
+
+    /**
+     * @param RouteObject $route
+     */
+    public function collect(RouteObject $route): void
+    {
+        $this->routes[] = $route;
     }
 
     /**
@@ -164,16 +178,6 @@ class Route
     public static function options(string $path, mixed $callback): RouteObject
     {
         return static::addRoute('OPTIONS', $path, $callback);
-    }
-
-    /**
-     * @param string $path
-     * @param callable|mixed $callback
-     * @return RouteObject
-     */
-    public static function any(string $path, mixed $callback): RouteObject
-    {
-        return static::addRoute(['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'], $path, $callback);
     }
 
     /**
@@ -247,6 +251,56 @@ class Route
     }
 
     /**
+     * @param string $path
+     * @param callable|mixed $callback
+     * @return RouteObject
+     */
+    public static function any(string $path, mixed $callback): RouteObject
+    {
+        return static::addRoute(['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'], $path, $callback);
+    }
+
+    /**
+     * @param string $path
+     * @param callable|mixed $callback
+     * @return RouteObject
+     */
+    public static function get(string $path, mixed $callback): RouteObject
+    {
+        return static::addRoute('GET', $path, $callback);
+    }
+
+    /**
+     * @param string $path
+     * @param callable|mixed $callback
+     * @return RouteObject
+     */
+    public static function post(string $path, mixed $callback): RouteObject
+    {
+        return static::addRoute('POST', $path, $callback);
+    }
+
+    /**
+     * @param string $path
+     * @param callable|mixed $callback
+     * @return RouteObject
+     */
+    public static function put(string $path, mixed $callback): RouteObject
+    {
+        return static::addRoute('PUT', $path, $callback);
+    }
+
+    /**
+     * @param string $path
+     * @param callable|mixed $callback
+     * @return RouteObject
+     */
+    public static function delete(string $path, mixed $callback): RouteObject
+    {
+        return static::addRoute('DELETE', $path, $callback);
+    }
+
+    /**
      * @return RouteObject[]
      */
     public static function getRoutes(): array
@@ -275,26 +329,6 @@ class Route
     }
 
     /**
-     * @param $middleware
-     * @return $this
-     */
-    public function middleware($middleware): Route
-    {
-        foreach ($this->routes as $route) {
-            $route->middleware($middleware);
-        }
-        return $this;
-    }
-
-    /**
-     * @param RouteObject $route
-     */
-    public function collect(RouteObject $route): void
-    {
-        $this->routes[] = $route;
-    }
-
-    /**
      * @param string $name
      * @param RouteObject $instance
      */
@@ -312,7 +346,6 @@ class Route
         return static::$nameList[$name] ?? null;
     }
 
-
     /**
      * @param string $method
      * @param string $path
@@ -321,52 +354,6 @@ class Route
     public static function dispatch(string $method, string $path): array
     {
         return static::$dispatcher->dispatch($method, $path);
-    }
-
-    /**
-     * @param string $path
-     * @param callable|mixed $callback
-     * @return callable|false|string[]
-     */
-    public static function convertToCallable(string $path, mixed $callback): array|callable|false
-    {
-        if (is_string($callback) && strpos($callback, '@')) {
-            $callback = explode('@', $callback, 2);
-        }
-
-        if (!is_array($callback)) {
-            if (!is_callable($callback)) {
-                $callStr = is_scalar($callback) ? $callback : 'Closure';
-                echo "Route $path $callStr is not callable\n";
-                return false;
-            }
-        } else {
-            $callback = array_values($callback);
-            if (!isset($callback[1]) || !class_exists($callback[0]) || !method_exists($callback[0], $callback[1])) {
-                echo "Route $path " . json_encode($callback) . " is not callable\n";
-                return false;
-            }
-        }
-
-        return $callback;
-    }
-
-    /**
-     * @param array|string $methods
-     * @param string $path
-     * @param callable|mixed $callback
-     * @return RouteObject
-     */
-    protected static function addRoute(array|string $methods, string $path, mixed $callback): RouteObject
-    {
-        $route = new RouteObject($methods, static::$groupPrefix . $path, $callback);
-        static::$allRoutes[] = $route;
-
-        if ($callback = static::convertToCallable($path, $callback)) {
-            static::$collector->addRoute($methods, $path, ['callback' => $callback, 'route' => $route]);
-        }
-        static::$instance?->collect($route);
-        return $route;
     }
 
     /**
@@ -438,5 +425,17 @@ class Route
     public static function getFallback(string $plugin = ''): ?callable
     {
         return static::$fallback[$plugin] ?? null;
+    }
+
+    /**
+     * @param $middleware
+     * @return $this
+     */
+    public function middleware($middleware): Route
+    {
+        foreach ($this->routes as $route) {
+            $route->middleware($middleware);
+        }
+        return $this;
     }
 }

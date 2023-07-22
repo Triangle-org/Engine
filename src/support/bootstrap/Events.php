@@ -63,17 +63,6 @@ class Events implements Bootstrap
         }
     }
 
-    protected static function convertCallable($callbacks): array
-    {
-        if (is_array($callbacks)) {
-            $callback = array_values($callbacks);
-            if (isset($callback[1]) && is_string($callback[0]) && class_exists($callback[0])) {
-                return [Container::get($callback[0]), $callback[1]];
-            }
-        }
-        return $callback ?? [];
-    }
-
     /**
      * @return void
      */
@@ -99,5 +88,16 @@ class Events implements Bootstrap
                 }
             }
         }
+    }
+
+    protected static function convertCallable($callbacks): array
+    {
+        if (is_array($callbacks)) {
+            $callback = array_values($callbacks);
+            if (isset($callback[1]) && is_string($callback[0]) && class_exists($callback[0])) {
+                return [Container::get($callback[0]), $callback[1]];
+            }
+        }
+        return $callback ?? [];
     }
 }

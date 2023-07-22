@@ -28,8 +28,8 @@ namespace support;
 use Exception;
 use Psr\Http\Message\RequestInterface;
 use Telegram\Bot\Api;
-use Telegram\Bot\Objects\Update;
 use Telegram\Bot\Events\UpdateWasReceived;
+use Telegram\Bot\Objects\Update;
 
 if (!class_exists(Api::class)) {
     throw new Exception("Не найдена библиотека Telegram Bot API. Выполните \"composer require irazasyed/telegram-bot-sdk\"");

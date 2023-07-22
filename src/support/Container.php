@@ -37,15 +37,6 @@ use Triangle\Engine\Config;
 class Container
 {
     /**
-     * @param string $plugin
-     * @return array|mixed|void|null
-     */
-    public static function instance(string $plugin = '')
-    {
-        return Config::get($plugin ? "plugin.$plugin.container" : 'container');
-    }
-
-    /**
      * @param string $name
      * @param array $arguments
      * @return mixed
@@ -54,5 +45,14 @@ class Container
     {
         $plugin = App::getPluginByClass($name);
         return static::instance($plugin)->{$name}(...$arguments);
+    }
+
+    /**
+     * @param string $plugin
+     * @return array|mixed|void|null
+     */
+    public static function instance(string $plugin = '')
+    {
+        return Config::get($plugin ? "plugin.$plugin.container" : 'container');
     }
 }

@@ -48,18 +48,6 @@ class SingleCommandApplication extends Command
         return $this;
     }
 
-    /**
-     * @final
-     *
-     * @return $this
-     */
-    public function setAutoExit(bool $autoExit): self
-    {
-        $this->autoExit = $autoExit;
-
-        return $this;
-    }
-
     public function run(InputInterface $input = null, OutputInterface $output = null): int
     {
         if ($this->running) {
@@ -82,5 +70,17 @@ class SingleCommandApplication extends Command
         }
 
         return $ret ?? 1;
+    }
+
+    /**
+     * @final
+     *
+     * @return $this
+     */
+    public function setAutoExit(bool $autoExit): self
+    {
+        $this->autoExit = $autoExit;
+
+        return $this;
     }
 }

@@ -26,6 +26,7 @@
 namespace support\exception;
 
 use Exception;
+use Throwable;
 use Triangle\Engine\Http\Request;
 use Triangle\Engine\Http\Response;
 use function nl2br;
@@ -36,7 +37,7 @@ use function nl2br;
 class BusinessException extends Exception
 {
     /**
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function render(Request $request): ?Response
     {

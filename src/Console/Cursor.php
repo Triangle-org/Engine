@@ -26,6 +26,9 @@
 namespace Triangle\Engine\Console;
 
 use Triangle\Engine\Console\Output\OutputInterface;
+use function defined;
+use function function_exists;
+use const STDIN;
 
 /**
  * @author Pierre du Plessis <pdples@gmail.com>
@@ -41,7 +44,7 @@ final class Cursor
     public function __construct(OutputInterface $output, $input = null)
     {
         $this->output = $output;
-        $this->input = $input ?? (\defined('STDIN') ? \STDIN : fopen('php://input', 'r+'));
+        $this->input = $input ?? (defined('STDIN') ? STDIN : fopen('php://input', 'r+'));
     }
 
     /**
@@ -197,7 +200,7 @@ final class Cursor
     {
         static $isTtySupported;
 
-        if (null === $isTtySupported && \function_exists('proc_open')) {
+        if (null === $isTtySupported && function_exists('proc_open')) {
             $isTtySupported = (bool)@proc_open('echo 1 >/dev/null', [['file', '/dev/tty', 'r'], ['file', '/dev/tty', 'w'], ['file', '/dev/tty', 'w']], $pipes);
         }
 

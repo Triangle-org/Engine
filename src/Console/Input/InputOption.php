@@ -27,6 +27,7 @@ namespace Triangle\Engine\Console\Input;
 
 use Triangle\Engine\Console\Exception\InvalidArgumentException;
 use Triangle\Engine\Console\Exception\LogicException;
+use function is_array;
 
 /**
  * Represents a command line option.
@@ -88,7 +89,7 @@ class InputOption
         }
 
         if (null !== $shortcut) {
-            if (\is_array($shortcut)) {
+            if (is_array($shortcut)) {
                 $shortcut = implode('|', $shortcut);
             }
             $shortcuts = preg_split('{(\|)-?}', ltrim($shortcut, '-'));
@@ -122,23 +123,13 @@ class InputOption
     }
 
     /**
-     * Returns the option shortcut.
+     * Returns true if the option can take multiple values.
      *
-     * @return string|null
+     * @return bool true if mode is self::VALUE_IS_ARRAY, false otherwise
      */
-    public function getShortcut()
+    public function isArray()
     {
-        return $this->shortcut;
-    }
-
-    /**
-     * Returns the option name.
-     *
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->name;
+        return self::VALUE_IS_ARRAY === (self::VALUE_IS_ARRAY & $this->mode);
     }
 
     /**
@@ -171,49 +162,9 @@ class InputOption
         return self::VALUE_OPTIONAL === (self::VALUE_OPTIONAL & $this->mode);
     }
 
-    /**
-     * Returns true if the option can take multiple values.
-     *
-     * @return bool true if mode is self::VALUE_IS_ARRAY, false otherwise
-     */
-    public function isArray()
-    {
-        return self::VALUE_IS_ARRAY === (self::VALUE_IS_ARRAY & $this->mode);
-    }
-
     public function isNegatable(): bool
     {
         return self::VALUE_NEGATABLE === (self::VALUE_NEGATABLE & $this->mode);
-    }
-
-    /**
-     * @param string|bool|int|float|array|null $default
-     */
-    public function setDefault($default = null)
-    {
-        if (self::VALUE_NONE === (self::VALUE_NONE & $this->mode) && null !== $default) {
-            throw new LogicException('Cannot set a default value when using InputOption::VALUE_NONE mode.');
-        }
-
-        if ($this->isArray()) {
-            if (null === $default) {
-                $default = [];
-            } elseif (!\is_array($default)) {
-                throw new LogicException('A default value for an array option must be an array.');
-            }
-        }
-
-        $this->default = $this->acceptValue() || $this->isNegatable() ? $default : false;
-    }
-
-    /**
-     * Returns the default value.
-     *
-     * @return string|bool|int|float|array|null
-     */
-    public function getDefault()
-    {
-        return $this->default;
     }
 
     /**
@@ -240,5 +191,55 @@ class InputOption
             && $option->isArray() === $this->isArray()
             && $option->isValueRequired() === $this->isValueRequired()
             && $option->isValueOptional() === $this->isValueOptional();
+    }
+
+    /**
+     * Returns the option name.
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * Returns the option shortcut.
+     *
+     * @return string|null
+     */
+    public function getShortcut()
+    {
+        return $this->shortcut;
+    }
+
+    /**
+     * Returns the default value.
+     *
+     * @return string|bool|int|float|array|null
+     */
+    public function getDefault()
+    {
+        return $this->default;
+    }
+
+    /**
+     * @param string|bool|int|float|array|null $default
+     */
+    public function setDefault($default = null)
+    {
+        if (self::VALUE_NONE === (self::VALUE_NONE & $this->mode) && null !== $default) {
+            throw new LogicException('Cannot set a default value when using InputOption::VALUE_NONE mode.');
+        }
+
+        if ($this->isArray()) {
+            if (null === $default) {
+                $default = [];
+            } elseif (!is_array($default)) {
+                throw new LogicException('A default value for an array option must be an array.');
+            }
+        }
+
+        $this->default = $this->acceptValue() || $this->isNegatable() ? $default : false;
     }
 }

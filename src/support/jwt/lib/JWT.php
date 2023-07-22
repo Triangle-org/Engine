@@ -223,167 +223,22 @@ class JWT
         return $payload;
     }
 
-    /** Преобразует и подписывает массив PHP в строку JWT
+    /** Декодировать строку из URL-безопасного Base64.
      *
-     * @param array $payload массив PHP
-     * @param OpenSSLAsymmetricKey|string|OpenSSLCertificate $key Секретный ключ
-     * @param string $alg Поддерживаемые алгоритмы: 'ES384','ES256', 'HS256', 'HS384',
-     *                                       'HS512', 'RS256', 'RS384', and 'RS512'
-     * @param string|null $keyId
-     * @param array<string, string> $head Массив с элементами заголовка для прикрепления
+     * @param string $input Строка в кодировке Base64
      *
-     * @return string Подписанный JWT
+     * @return string Декодированная строка
      *
-     * @uses jsonEncode
-     * @uses urlsafeB64Encode
+     * @throws InvalidArgumentException Недопустимые символы base64
      */
-    public static function encode(
-        array                                          $payload,
-        OpenSSLAsymmetricKey|string|OpenSSLCertificate $key,
-        string                                         $alg,
-        string                                         $keyId = null,
-        array                                          $head = null
-    ): string
+    public static function urlsafeB64Decode(string $input): string
     {
-        $header = ['typ' => 'JWT', 'alg' => $alg, 'gen' => 'LOCALZET'];
-        if ($keyId !== null) {
-            $header['kid'] = $keyId;
+        $remainder = strlen($input) % 4;
+        if ($remainder) {
+            $padlen = 4 - $remainder;
+            $input .= str_repeat('=', $padlen);
         }
-        if (is_array($head)) {
-            $header = array_merge($head, $header);
-        }
-        $segments = [];
-        $segments[] = static::urlsafeB64Encode(static::jsonEncode($header));
-        $segments[] = static::urlsafeB64Encode(static::jsonEncode($payload));
-        $signing_input = implode('.', $segments);
-
-        $signature = static::sign($signing_input, $key, $alg);
-        $segments[] = static::urlsafeB64Encode($signature);
-
-        return implode('.', $segments);
-    }
-
-    /** Подпись строки с заданным ключом и алгоритмом.
-     *
-     * @param string $msg Сообщение для подписи
-     * @param OpenSSLAsymmetricKey|string|OpenSSLCertificate $key Секретный ключ
-     * @param string $alg Поддерживаемые алгоритмы: 'ES384','ES256', 'HS256', 'HS384',
-     *                    'HS512', 'RS256', 'RS384', and 'RS512'
-     *
-     * @return string Зашифрованное сообщение
-     *
-     * @throws DomainException Указан неподдерживаемый алгоритм или неверный ключ
-     */
-    public static function sign(
-        string                                         $msg,
-        OpenSSLAsymmetricKey|string|OpenSSLCertificate $key,
-        string                                         $alg
-    ): string
-    {
-        if (empty(static::$supported_algs[$alg])) {
-            throw new DomainException('Алгоритм не поддерживается');
-        }
-        list($function, $algorithm) = static::$supported_algs[$alg];
-        switch ($function) {
-            case 'hash_hmac':
-                if (!is_string($key)) {
-                    throw new InvalidArgumentException('При использовании HMAC ключ должен быть строкой');
-                }
-                return hash_hmac($algorithm, $msg, $key, true);
-            case 'openssl':
-                $signature = '';
-                $success = openssl_sign($msg, $signature, $key, $algorithm); // @phpstan-ignore-line
-                if (!$success) {
-                    throw new DomainException('OpenSSL не может подписать данные');
-                }
-                if ($alg === 'ES256') {
-                    $signature = self::signatureFromDER($signature, 256);
-                } elseif ($alg === 'ES384') {
-                    $signature = self::signatureFromDER($signature, 384);
-                }
-                return $signature;
-            case 'sodium_crypto':
-                if (!function_exists('sodium_crypto_sign_detached')) {
-                    throw new DomainException('libsodium недоступен');
-                }
-                if (!is_string($key)) {
-                    throw new InvalidArgumentException('При использовании EdDSA ключ должен быть строкой');
-                }
-                try {
-                    // В качестве ключа используется последняя непустая строка.
-                    $lines = array_filter(explode("\n", $key));
-                    $key = base64_decode((string)end($lines));
-                    return sodium_crypto_sign_detached($msg, $key);
-                } catch (Exception $e) {
-                    throw new DomainException($e->getMessage(), 0, $e);
-                }
-        }
-
-        throw new DomainException('Алгоритм не поддерживается');
-    }
-
-    /**
-     * Проверка сигнатуры с помощью сообщения, ключа и метода. Не все методы симметричны,
-     * поэтому у нас должен быть отдельный метод проверки и подписи.
-     *
-     * @param string $msg Исходное сообщение (header и body)
-     * @param string $signature Оригинальная сигнатура
-     * @param OpenSSLAsymmetricKey|string|OpenSSLCertificate $keyMaterial Для HS* работает строковый ключ.
-     *                                                                              Для RS* должен быть экземпляр OpenSSLAsymmetricKey
-     * @param string $alg Алгоритм
-     *
-     * @return bool
-     *
-     * @throws DomainException Неверный алгоритм, неверный ключ или сбой OpenSSL
-     */
-    private static function verify(
-        string                                         $msg,
-        string                                         $signature,
-        OpenSSLAsymmetricKey|string|OpenSSLCertificate $keyMaterial,
-        string                                         $alg
-    ): bool
-    {
-        if (empty(static::$supported_algs[$alg])) {
-            throw new DomainException('Алгоритм не поддерживается');
-        }
-
-        list($function, $algorithm) = static::$supported_algs[$alg];
-        switch ($function) {
-            case 'openssl':
-                $success = openssl_verify($msg, $signature, $keyMaterial, $algorithm); // @phpstan-ignore-line
-                if ($success === 1) {
-                    return true;
-                }
-                if ($success === 0) {
-                    return false;
-                }
-                // Возвращает 1 в случае успеха, 0 в случае неудачи, -1 в случае ошибки.
-                throw new DomainException(
-                    'Ошибка OpenSSL: ' . openssl_error_string()
-                );
-            case 'sodium_crypto':
-                if (!function_exists('sodium_crypto_sign_verify_detached')) {
-                    throw new DomainException('libsodium недоступен');
-                }
-                if (!is_string($keyMaterial)) {
-                    throw new InvalidArgumentException('При использовании EdDSA ключ должен быть строкой');
-                }
-                try {
-                    // В качестве ключа используется последняя непустая строка.
-                    $lines = array_filter(explode("\n", $keyMaterial));
-                    $key = base64_decode((string)end($lines));
-                    return sodium_crypto_sign_verify_detached($signature, $msg, $key);
-                } catch (Exception $e) {
-                    throw new DomainException($e->getMessage(), 0, $e);
-                }
-            case 'hash_hmac':
-            default:
-                if (!is_string($keyMaterial)) {
-                    throw new InvalidArgumentException('При использовании HMAC ключ должен быть строкой');
-                }
-                $hash = hash_hmac($algorithm, $msg, $keyMaterial, true);
-                return self::constantTimeEquals($hash, $signature);
-        }
+        return base64_decode(strtr($input, '-_', '+/'));
     }
 
     /** Декодировать строку JSON в объект PHP.
@@ -406,62 +261,27 @@ class JWT
         return $obj;
     }
 
-    /** Кодировать массив PHP в строку JSON.
+    /** Вспомогательный метод для создания ошибки JSON.
      *
-     * @param array $input PHP-массив
+     * @param int $errno Номер ошибки из json_last_error()
      *
-     * @return string JSON-представление массива PHP
+     * @return void
+     * @throws DomainException
      *
-     * @throws DomainException Предоставленный объект не может быть закодирован в действительный JSON
      */
-    public static function jsonEncode(array $input): string
+    private static function handleJsonError(int $errno): void
     {
-        if (PHP_VERSION_ID >= 50400) {
-            $json = json_encode($input, JSON_UNESCAPED_SLASHES);
-        } else {
-            // PHP 5.3
-            $json = json_encode($input);
-        }
-        if ($errno = json_last_error()) {
-            self::handleJsonError($errno);
-        } elseif ($json === 'null') {
-            throw new DomainException('Нулевой результат с не нулевым вводом (?!)');
-        }
-        if ($json === false) {
-            throw new DomainException('Объект не может быть представлен в формате JSON');
-        }
-        return $json;
+        $messages = [
+            JSON_ERROR_DEPTH => 'Превышена максимальный объём стека',
+            JSON_ERROR_STATE_MISMATCH => 'Некорректный JSON',
+            JSON_ERROR_CTRL_CHAR => 'Unexpected control character found',
+            JSON_ERROR_SYNTAX => 'Ошибка синтаксиса, некорректный JSON',
+            JSON_ERROR_UTF8 => 'Некорректный UTF-8' //PHP >= 5.3.3
+        ];
+        throw new DomainException(
+            $messages[$errno] ?? 'Ошибка JSON: ' . $errno
+        );
     }
-
-    /** Декодировать строку из URL-безопасного Base64.
-     *
-     * @param string $input Строка в кодировке Base64
-     *
-     * @return string Декодированная строка
-     *
-     * @throws InvalidArgumentException Недопустимые символы base64
-     */
-    public static function urlsafeB64Decode(string $input): string
-    {
-        $remainder = strlen($input) % 4;
-        if ($remainder) {
-            $padlen = 4 - $remainder;
-            $input .= str_repeat('=', $padlen);
-        }
-        return base64_decode(strtr($input, '-_', '+/'));
-    }
-
-    /** Кодировать строку в URL-безопасный Base64.
-     *
-     * @param string $input Строка, которую вы хотите закодировать
-     *
-     * @return string Кодировка base64 того, что вы передали
-     */
-    public static function urlsafeB64Encode(string $input): string
-    {
-        return str_replace('=', '', strtr(base64_encode($input), '+/', '-_'));
-    }
-
 
     /** Определить, предоставлен ли алгоритм для каждого ключа
      *
@@ -516,28 +336,6 @@ class JWT
         $status |= (self::safeStrlen($left) ^ self::safeStrlen($right));
 
         return ($status === 0);
-    }
-
-    /** Вспомогательный метод для создания ошибки JSON.
-     *
-     * @param int $errno Номер ошибки из json_last_error()
-     *
-     * @return void
-     * @throws DomainException
-     *
-     */
-    private static function handleJsonError(int $errno): void
-    {
-        $messages = [
-            JSON_ERROR_DEPTH => 'Превышена максимальный объём стека',
-            JSON_ERROR_STATE_MISMATCH => 'Некорректный JSON',
-            JSON_ERROR_CTRL_CHAR => 'Unexpected control character found',
-            JSON_ERROR_SYNTAX => 'Ошибка синтаксиса, некорректный JSON',
-            JSON_ERROR_UTF8 => 'Некорректный UTF-8' //PHP >= 5.3.3
-        ];
-        throw new DomainException(
-            $messages[$errno] ?? 'Ошибка JSON: ' . $errno
-        );
     }
 
     /** Получить количество байтов в криптографических строках.
@@ -606,6 +404,207 @@ class JWT
         $der .= chr(strlen($value));
 
         return $der . $value;
+    }
+
+    /**
+     * Проверка сигнатуры с помощью сообщения, ключа и метода. Не все методы симметричны,
+     * поэтому у нас должен быть отдельный метод проверки и подписи.
+     *
+     * @param string $msg Исходное сообщение (header и body)
+     * @param string $signature Оригинальная сигнатура
+     * @param OpenSSLAsymmetricKey|string|OpenSSLCertificate $keyMaterial Для HS* работает строковый ключ.
+     *                                                                              Для RS* должен быть экземпляр OpenSSLAsymmetricKey
+     * @param string $alg Алгоритм
+     *
+     * @return bool
+     *
+     * @throws DomainException Неверный алгоритм, неверный ключ или сбой OpenSSL
+     */
+    private static function verify(
+        string                                         $msg,
+        string                                         $signature,
+        OpenSSLAsymmetricKey|string|OpenSSLCertificate $keyMaterial,
+        string                                         $alg
+    ): bool
+    {
+        if (empty(static::$supported_algs[$alg])) {
+            throw new DomainException('Алгоритм не поддерживается');
+        }
+
+        list($function, $algorithm) = static::$supported_algs[$alg];
+        switch ($function) {
+            case 'openssl':
+                $success = openssl_verify($msg, $signature, $keyMaterial, $algorithm); // @phpstan-ignore-line
+                if ($success === 1) {
+                    return true;
+                }
+                if ($success === 0) {
+                    return false;
+                }
+                // Возвращает 1 в случае успеха, 0 в случае неудачи, -1 в случае ошибки.
+                throw new DomainException(
+                    'Ошибка OpenSSL: ' . openssl_error_string()
+                );
+            case 'sodium_crypto':
+                if (!function_exists('sodium_crypto_sign_verify_detached')) {
+                    throw new DomainException('libsodium недоступен');
+                }
+                if (!is_string($keyMaterial)) {
+                    throw new InvalidArgumentException('При использовании EdDSA ключ должен быть строкой');
+                }
+                try {
+                    // В качестве ключа используется последняя непустая строка.
+                    $lines = array_filter(explode("\n", $keyMaterial));
+                    $key = base64_decode((string)end($lines));
+                    return sodium_crypto_sign_verify_detached($signature, $msg, $key);
+                } catch (Exception $e) {
+                    throw new DomainException($e->getMessage(), 0, $e);
+                }
+            case 'hash_hmac':
+            default:
+                if (!is_string($keyMaterial)) {
+                    throw new InvalidArgumentException('При использовании HMAC ключ должен быть строкой');
+                }
+                $hash = hash_hmac($algorithm, $msg, $keyMaterial, true);
+                return self::constantTimeEquals($hash, $signature);
+        }
+    }
+
+    /** Преобразует и подписывает массив PHP в строку JWT
+     *
+     * @param array $payload массив PHP
+     * @param OpenSSLAsymmetricKey|string|OpenSSLCertificate $key Секретный ключ
+     * @param string $alg Поддерживаемые алгоритмы: 'ES384','ES256', 'HS256', 'HS384',
+     *                                       'HS512', 'RS256', 'RS384', and 'RS512'
+     * @param string|null $keyId
+     * @param array<string, string> $head Массив с элементами заголовка для прикрепления
+     *
+     * @return string Подписанный JWT
+     *
+     * @uses jsonEncode
+     * @uses urlsafeB64Encode
+     */
+    public static function encode(
+        array                                          $payload,
+        OpenSSLAsymmetricKey|string|OpenSSLCertificate $key,
+        string                                         $alg,
+        string                                         $keyId = null,
+        array                                          $head = null
+    ): string
+    {
+        $header = ['typ' => 'JWT', 'alg' => $alg, 'gen' => 'LOCALZET'];
+        if ($keyId !== null) {
+            $header['kid'] = $keyId;
+        }
+        if (is_array($head)) {
+            $header = array_merge($head, $header);
+        }
+        $segments = [];
+        $segments[] = static::urlsafeB64Encode(static::jsonEncode($header));
+        $segments[] = static::urlsafeB64Encode(static::jsonEncode($payload));
+        $signing_input = implode('.', $segments);
+
+        $signature = static::sign($signing_input, $key, $alg);
+        $segments[] = static::urlsafeB64Encode($signature);
+
+        return implode('.', $segments);
+    }
+
+    /** Кодировать строку в URL-безопасный Base64.
+     *
+     * @param string $input Строка, которую вы хотите закодировать
+     *
+     * @return string Кодировка base64 того, что вы передали
+     */
+    public static function urlsafeB64Encode(string $input): string
+    {
+        return str_replace('=', '', strtr(base64_encode($input), '+/', '-_'));
+    }
+
+    /** Кодировать массив PHP в строку JSON.
+     *
+     * @param array $input PHP-массив
+     *
+     * @return string JSON-представление массива PHP
+     *
+     * @throws DomainException Предоставленный объект не может быть закодирован в действительный JSON
+     */
+    public static function jsonEncode(array $input): string
+    {
+        if (PHP_VERSION_ID >= 50400) {
+            $json = json_encode($input, JSON_UNESCAPED_SLASHES);
+        } else {
+            // PHP 5.3
+            $json = json_encode($input);
+        }
+        if ($errno = json_last_error()) {
+            self::handleJsonError($errno);
+        } elseif ($json === 'null') {
+            throw new DomainException('Нулевой результат с не нулевым вводом (?!)');
+        }
+        if ($json === false) {
+            throw new DomainException('Объект не может быть представлен в формате JSON');
+        }
+        return $json;
+    }
+
+    /** Подпись строки с заданным ключом и алгоритмом.
+     *
+     * @param string $msg Сообщение для подписи
+     * @param OpenSSLAsymmetricKey|string|OpenSSLCertificate $key Секретный ключ
+     * @param string $alg Поддерживаемые алгоритмы: 'ES384','ES256', 'HS256', 'HS384',
+     *                    'HS512', 'RS256', 'RS384', and 'RS512'
+     *
+     * @return string Зашифрованное сообщение
+     *
+     * @throws DomainException Указан неподдерживаемый алгоритм или неверный ключ
+     */
+    public static function sign(
+        string                                         $msg,
+        OpenSSLAsymmetricKey|string|OpenSSLCertificate $key,
+        string                                         $alg
+    ): string
+    {
+        if (empty(static::$supported_algs[$alg])) {
+            throw new DomainException('Алгоритм не поддерживается');
+        }
+        list($function, $algorithm) = static::$supported_algs[$alg];
+        switch ($function) {
+            case 'hash_hmac':
+                if (!is_string($key)) {
+                    throw new InvalidArgumentException('При использовании HMAC ключ должен быть строкой');
+                }
+                return hash_hmac($algorithm, $msg, $key, true);
+            case 'openssl':
+                $signature = '';
+                $success = openssl_sign($msg, $signature, $key, $algorithm); // @phpstan-ignore-line
+                if (!$success) {
+                    throw new DomainException('OpenSSL не может подписать данные');
+                }
+                if ($alg === 'ES256') {
+                    $signature = self::signatureFromDER($signature, 256);
+                } elseif ($alg === 'ES384') {
+                    $signature = self::signatureFromDER($signature, 384);
+                }
+                return $signature;
+            case 'sodium_crypto':
+                if (!function_exists('sodium_crypto_sign_detached')) {
+                    throw new DomainException('libsodium недоступен');
+                }
+                if (!is_string($key)) {
+                    throw new InvalidArgumentException('При использовании EdDSA ключ должен быть строкой');
+                }
+                try {
+                    // В качестве ключа используется последняя непустая строка.
+                    $lines = array_filter(explode("\n", $key));
+                    $key = base64_decode((string)end($lines));
+                    return sodium_crypto_sign_detached($msg, $key);
+                } catch (Exception $e) {
+                    throw new DomainException($e->getMessage(), 0, $e);
+                }
+        }
+
+        throw new DomainException('Алгоритм не поддерживается');
     }
 
     /** Кодирует подпись из объекта DER.

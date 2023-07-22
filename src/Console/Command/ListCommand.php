@@ -41,6 +41,21 @@ use Triangle\Engine\Console\Output\OutputInterface;
  */
 class ListCommand extends Command
 {
+    public function complete(CompletionInput $input, CompletionSuggestions $suggestions): void
+    {
+        if ($input->mustSuggestArgumentValuesFor('namespace')) {
+            $descriptor = new ApplicationDescription($this->getApplication());
+            $suggestions->suggestValues(array_keys($descriptor->getNamespaces()));
+
+            return;
+        }
+
+        if ($input->mustSuggestOptionValuesFor('format')) {
+            $helper = new DescriptorHelper();
+            $suggestions->suggestValues($helper->getFormats());
+        }
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -89,20 +104,5 @@ EOF
         ]);
 
         return 0;
-    }
-
-    public function complete(CompletionInput $input, CompletionSuggestions $suggestions): void
-    {
-        if ($input->mustSuggestArgumentValuesFor('namespace')) {
-            $descriptor = new ApplicationDescription($this->getApplication());
-            $suggestions->suggestValues(array_keys($descriptor->getNamespaces()));
-
-            return;
-        }
-
-        if ($input->mustSuggestOptionValuesFor('format')) {
-            $helper = new DescriptorHelper();
-            $suggestions->suggestValues($helper->getFormats());
-        }
     }
 }

@@ -66,14 +66,6 @@ class Request extends \localzet\Server\Protocols\Http\Request
     public ?Route $route = null;
 
     /**
-     * @return mixed|null
-     */
-    public function all(): mixed
-    {
-        return $this->post() + $this->get();
-    }
-
-    /**
      * @param string $name
      * @param mixed|null $default
      * @return mixed|null
@@ -102,6 +94,14 @@ class Request extends \localzet\Server\Protocols\Http\Request
             }
         }
         return $result;
+    }
+
+    /**
+     * @return mixed|null
+     */
+    public function all(): mixed
+    {
+        return $this->post() + $this->get();
     }
 
     /**
@@ -147,15 +147,6 @@ class Request extends \localzet\Server\Protocols\Http\Request
     }
 
     /**
-     * @param array $file
-     * @return UploadFile
-     */
-    protected function parseFile(array $file): UploadFile
-    {
-        return new UploadFile($file['tmp_name'], $file['name'], $file['type'], $file['error']);
-    }
-
-    /**
      * @param array $files
      * @return array
      */
@@ -173,11 +164,12 @@ class Request extends \localzet\Server\Protocols\Http\Request
     }
 
     /**
-     * @return string
+     * @param array $file
+     * @return UploadFile
      */
-    public function getRemoteIp(): string
+    protected function parseFile(array $file): UploadFile
     {
-        return $this->connection->getRemoteIp();
+        return new UploadFile($file['tmp_name'], $file['name'], $file['type'], $file['error']);
     }
 
     /**
@@ -227,49 +219,9 @@ class Request extends \localzet\Server\Protocols\Http\Request
     /**
      * @return string
      */
-    public function url(): string
+    public function getRemoteIp(): string
     {
-        return '//' . $this->host() . $this->path();
-    }
-
-    /**
-     * @return string
-     */
-    public function fullUrl(): string
-    {
-        return '//' . $this->host() . $this->uri();
-    }
-
-    /**
-     * @return bool
-     */
-    public function isAjax(): bool
-    {
-        return $this->header('X-Requested-With') === 'XMLHttpRequest';
-    }
-
-    /**
-     * @return bool
-     */
-    public function isPjax(): bool
-    {
-        return (bool)$this->header('X-PJAX');
-    }
-
-    /**
-     * @return bool
-     */
-    public function expectsJson(): bool
-    {
-        return ($this->isAjax() && !$this->isPjax()) || $this->acceptJson() || strtoupper($this->method()) != 'GET';
-    }
-
-    /**
-     * @return bool
-     */
-    public function acceptJson(): bool
-    {
-        return str_contains($this->header('accept', ''), 'json');
+        return $this->connection->getRemoteIp();
     }
 
     /**
@@ -317,5 +269,53 @@ class Request extends \localzet\Server\Protocols\Http\Request
             }
         }
         return false;
+    }
+
+    /**
+     * @return string
+     */
+    public function url(): string
+    {
+        return '//' . $this->host() . $this->path();
+    }
+
+    /**
+     * @return string
+     */
+    public function fullUrl(): string
+    {
+        return '//' . $this->host() . $this->uri();
+    }
+
+    /**
+     * @return bool
+     */
+    public function expectsJson(): bool
+    {
+        return ($this->isAjax() && !$this->isPjax()) || $this->acceptJson() || strtoupper($this->method()) != 'GET';
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAjax(): bool
+    {
+        return $this->header('X-Requested-With') === 'XMLHttpRequest';
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPjax(): bool
+    {
+        return (bool)$this->header('X-PJAX');
+    }
+
+    /**
+     * @return bool
+     */
+    public function acceptJson(): bool
+    {
+        return str_contains($this->header('accept', ''), 'json');
     }
 }

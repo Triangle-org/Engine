@@ -26,10 +26,10 @@
 namespace Triangle\Engine;
 
 use Fiber;
+use localzet\Server;
 use localzet\Server\Events\Revolt;
 use localzet\Server\Events\Swoole;
 use localzet\Server\Events\Swow;
-use localzet\Server;
 use SplObjectStorage;
 use StdClass;
 use Swow\Coroutine;
@@ -51,6 +51,19 @@ class Context
      * @var StdClass
      */
     protected static StdClass $object;
+
+    /**
+     * @param string|null $key
+     * @return mixed
+     */
+    public static function get(string $key = null): mixed
+    {
+        $obj = static::getObject();
+        if ($key === null) {
+            return $obj;
+        }
+        return $obj->$key ?? null;
+    }
 
     /**
      * @return StdClass
@@ -79,19 +92,6 @@ class Context
             Swow::class => Coroutine::getCurrent(),
             default => static::$object,
         };
-    }
-
-    /**
-     * @param string|null $key
-     * @return mixed
-     */
-    public static function get(string $key = null): mixed
-    {
-        $obj = static::getObject();
-        if ($key === null) {
-            return $obj;
-        }
-        return $obj->$key ?? null;
     }
 
     /**

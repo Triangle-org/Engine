@@ -32,6 +32,7 @@ use Triangle\Engine\Console\Input\InputArgument;
 use Triangle\Engine\Console\Input\InputDefinition;
 use Triangle\Engine\Console\Input\InputOption;
 use Triangle\Engine\Console\Output\OutputInterface;
+use function count;
 
 /**
  * Markdown descriptor.
@@ -58,77 +59,53 @@ class MarkdownDescriptor extends Descriptor
     /**
      * {@inheritdoc}
      */
+    protected function describeApplication(Application $application, array $options = [])
+    {
+        $describedNamespace = $options['namespace'] ?? null;
+        $description = new ApplicationDescription($application, $describedNamespace);
+        $title = $this->getApplicationTitle($application);
+
+        $this->write($title . "\n" . str_repeat('=', Helper::width($title)));
+
+        foreach ($description->getNamespaces() as $namespace) {
+            if (ApplicationDescription::GLOBAL_NAMESPACE !== $namespace['id']) {
+                $this->write("\n\n");
+                $this->write('**' . $namespace['id'] . ':**');
+            }
+
+            $this->write("\n\n");
+            $this->write(implode("\n", array_map(function ($commandName) use ($description) {
+                return sprintf('* [`%s`](#%s)', $commandName, str_replace(':', '', $description->getCommand($commandName)->getName()));
+            }, $namespace['commands'])));
+        }
+
+        foreach ($description->getCommands() as $command) {
+            $this->write("\n\n");
+            if (null !== $describeCommand = $this->describeCommand($command, $options)) {
+                $this->write($describeCommand);
+            }
+        }
+    }
+
+    private function getApplicationTitle(Application $application): string
+    {
+        if ('UNKNOWN' !== $application->getName()) {
+            if ('UNKNOWN' !== $application->getVersion()) {
+                return sprintf('%s %s', $application->getName(), $application->getVersion());
+            }
+
+            return $application->getName();
+        }
+
+        return 'Инструмент консоли';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function write(string $content, bool $decorated = true)
     {
         parent::write($content, $decorated);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function describeInputArgument(InputArgument $argument, array $options = [])
-    {
-        $this->write(
-            '#### `' . ($argument->getName() ?: '<none>') . "`\n\n"
-            . ($argument->getDescription() ? preg_replace('/\s*[\r\n]\s*/', "\n", $argument->getDescription()) . "\n\n" : '')
-            . '* Обязателен: ' . ($argument->isRequired() ? 'Да' : 'Нет') . "\n"
-            . '* Массив: ' . ($argument->isArray() ? 'Да' : 'Нет') . "\n"
-            . '* По умолчанию: `' . str_replace("\n", '', var_export($argument->getDefault(), true)) . '`'
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function describeInputOption(InputOption $option, array $options = [])
-    {
-        $name = '--' . $option->getName();
-        if ($option->isNegatable()) {
-            $name .= '|--no-' . $option->getName();
-        }
-        if ($option->getShortcut()) {
-            $name .= '|-' . str_replace('|', '|-', $option->getShortcut()) . '';
-        }
-
-        $this->write(
-            '#### `' . $name . '`' . "\n\n"
-            . ($option->getDescription() ? preg_replace('/\s*[\r\n]\s*/', "\n", $option->getDescription()) . "\n\n" : '')
-            . '* Принимает значения: ' . ($option->acceptValue() ? 'Да' : 'Нет') . "\n"
-            . '* Значение обязательно: ' . ($option->isValueRequired() ? 'Да' : 'Нет') . "\n"
-            . '* Несколько значений: ' . ($option->isArray() ? 'Да' : 'Нет') . "\n"
-            . '* Is negatable: ' . ($option->isNegatable() ? 'Да' : 'Нет') . "\n"
-            . '* По умолчанию: `' . str_replace("\n", '', var_export($option->getDefault(), true)) . '`'
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function describeInputDefinition(InputDefinition $definition, array $options = [])
-    {
-        if ($showArguments = \count($definition->getArguments()) > 0) {
-            $this->write('### Аргументы');
-            foreach ($definition->getArguments() as $argument) {
-                $this->write("\n\n");
-                if (null !== $describeInputArgument = $this->describeInputArgument($argument)) {
-                    $this->write($describeInputArgument);
-                }
-            }
-        }
-
-        if (\count($definition->getOptions()) > 0) {
-            if ($showArguments) {
-                $this->write("\n\n");
-            }
-
-            $this->write('### Опции');
-            foreach ($definition->getOptions() as $option) {
-                $this->write("\n\n");
-                if (null !== $describeInputOption = $this->describeInputOption($option)) {
-                    $this->write($describeInputOption);
-                }
-            }
-        }
     }
 
     /**
@@ -177,44 +154,68 @@ class MarkdownDescriptor extends Descriptor
     /**
      * {@inheritdoc}
      */
-    protected function describeApplication(Application $application, array $options = [])
+    protected function describeInputDefinition(InputDefinition $definition, array $options = [])
     {
-        $describedNamespace = $options['namespace'] ?? null;
-        $description = new ApplicationDescription($application, $describedNamespace);
-        $title = $this->getApplicationTitle($application);
-
-        $this->write($title . "\n" . str_repeat('=', Helper::width($title)));
-
-        foreach ($description->getNamespaces() as $namespace) {
-            if (ApplicationDescription::GLOBAL_NAMESPACE !== $namespace['id']) {
+        if ($showArguments = count($definition->getArguments()) > 0) {
+            $this->write('### Аргументы');
+            foreach ($definition->getArguments() as $argument) {
                 $this->write("\n\n");
-                $this->write('**' . $namespace['id'] . ':**');
+                if (null !== $describeInputArgument = $this->describeInputArgument($argument)) {
+                    $this->write($describeInputArgument);
+                }
             }
-
-            $this->write("\n\n");
-            $this->write(implode("\n", array_map(function ($commandName) use ($description) {
-                return sprintf('* [`%s`](#%s)', $commandName, str_replace(':', '', $description->getCommand($commandName)->getName()));
-            }, $namespace['commands'])));
         }
 
-        foreach ($description->getCommands() as $command) {
-            $this->write("\n\n");
-            if (null !== $describeCommand = $this->describeCommand($command, $options)) {
-                $this->write($describeCommand);
+        if (count($definition->getOptions()) > 0) {
+            if ($showArguments) {
+                $this->write("\n\n");
+            }
+
+            $this->write('### Опции');
+            foreach ($definition->getOptions() as $option) {
+                $this->write("\n\n");
+                if (null !== $describeInputOption = $this->describeInputOption($option)) {
+                    $this->write($describeInputOption);
+                }
             }
         }
     }
 
-    private function getApplicationTitle(Application $application): string
+    /**
+     * {@inheritdoc}
+     */
+    protected function describeInputArgument(InputArgument $argument, array $options = [])
     {
-        if ('UNKNOWN' !== $application->getName()) {
-            if ('UNKNOWN' !== $application->getVersion()) {
-                return sprintf('%s %s', $application->getName(), $application->getVersion());
-            }
+        $this->write(
+            '#### `' . ($argument->getName() ?: '<none>') . "`\n\n"
+            . ($argument->getDescription() ? preg_replace('/\s*[\r\n]\s*/', "\n", $argument->getDescription()) . "\n\n" : '')
+            . '* Обязателен: ' . ($argument->isRequired() ? 'Да' : 'Нет') . "\n"
+            . '* Массив: ' . ($argument->isArray() ? 'Да' : 'Нет') . "\n"
+            . '* По умолчанию: `' . str_replace("\n", '', var_export($argument->getDefault(), true)) . '`'
+        );
+    }
 
-            return $application->getName();
+    /**
+     * {@inheritdoc}
+     */
+    protected function describeInputOption(InputOption $option, array $options = [])
+    {
+        $name = '--' . $option->getName();
+        if ($option->isNegatable()) {
+            $name .= '|--no-' . $option->getName();
+        }
+        if ($option->getShortcut()) {
+            $name .= '|-' . str_replace('|', '|-', $option->getShortcut()) . '';
         }
 
-        return 'Инструмент консоли';
+        $this->write(
+            '#### `' . $name . '`' . "\n\n"
+            . ($option->getDescription() ? preg_replace('/\s*[\r\n]\s*/', "\n", $option->getDescription()) . "\n\n" : '')
+            . '* Принимает значения: ' . ($option->acceptValue() ? 'Да' : 'Нет') . "\n"
+            . '* Значение обязательно: ' . ($option->isValueRequired() ? 'Да' : 'Нет') . "\n"
+            . '* Несколько значений: ' . ($option->isArray() ? 'Да' : 'Нет') . "\n"
+            . '* Is negatable: ' . ($option->isNegatable() ? 'Да' : 'Нет') . "\n"
+            . '* По умолчанию: `' . str_replace("\n", '', var_export($option->getDefault(), true)) . '`'
+        );
     }
 }

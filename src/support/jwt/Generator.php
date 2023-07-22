@@ -53,22 +53,6 @@ class Generator
         return self::encode($data);
     }
 
-    /** Генерация токенов
-     * @param array $data Данные токена
-     * @return array 'access' => access_token, 'refresh' => refresh_token
-     */
-    public static function encode(array $data): array
-    {
-        $payload = self::payload($data);
-        $accessKey = self::key();
-        $refreshKey = self::key(self::REFRESH_TOKEN);
-
-        return [
-            'access' => JWT::encode($payload['access'], $accessKey['private'], config('jwt.algorithms')),
-            'refresh' => JWT::encode($payload['refresh'], $refreshKey['private'], config('jwt.algorithms')),
-        ];
-    }
-
     /** Расшифровка токена
      * @param string $token access_token | refresh_token
      * @param int $type self::ACCESS_TOKEN(1) | self::REFRESH_TOKEN(2)
@@ -94,6 +78,41 @@ class Generator
             throw new ResponseException('jwt-exp');
         }
         return $result;
+    }
+
+    /** Генерация ключа
+     * @param int $type self::ACCESS_TOKEN(1) | self::REFRESH_TOKEN(2)
+     * @return array 'public' => public_key, 'private' => private_key
+     */
+    private static function key(int $type = self::ACCESS_TOKEN): array
+    {
+        switch (config('jwt.algorithms')) {
+            case 'RS512':
+            case 'RS256':
+                $public = self::ACCESS_TOKEN == $type ? config('jwt.access_public_key') : config('jwt.refresh_public_key');
+                $private = self::ACCESS_TOKEN == $type ? config('jwt.access_private_key') : config('jwt.refresh_private_key');
+                break;
+            default:
+                $public = $private = self::ACCESS_TOKEN == $type ? config('jwt.access_secret_key') : config('jwt.refresh_secret_key');
+        }
+
+        return ['public' => $public, 'private' => $private];
+    }
+
+    /** Генерация токенов
+     * @param array $data Данные токена
+     * @return array 'access' => access_token, 'refresh' => refresh_token
+     */
+    public static function encode(array $data): array
+    {
+        $payload = self::payload($data);
+        $accessKey = self::key();
+        $refreshKey = self::key(self::REFRESH_TOKEN);
+
+        return [
+            'access' => JWT::encode($payload['access'], $accessKey['private'], config('jwt.algorithms')),
+            'refresh' => JWT::encode($payload['refresh'], $refreshKey['private'], config('jwt.algorithms')),
+        ];
     }
 
     /** Генерация полезной нагрузки
@@ -137,24 +156,5 @@ class Generator
         }
 
         return $result;
-    }
-
-    /** Генерация ключа
-     * @param int $type self::ACCESS_TOKEN(1) | self::REFRESH_TOKEN(2)
-     * @return array 'public' => public_key, 'private' => private_key
-     */
-    private static function key(int $type = self::ACCESS_TOKEN): array
-    {
-        switch (config('jwt.algorithms')) {
-            case 'RS512':
-            case 'RS256':
-                $public = self::ACCESS_TOKEN == $type ? config('jwt.access_public_key') : config('jwt.refresh_public_key');
-                $private = self::ACCESS_TOKEN == $type ? config('jwt.access_private_key') : config('jwt.refresh_private_key');
-                break;
-            default:
-                $public = $private = self::ACCESS_TOKEN == $type ? config('jwt.access_secret_key') : config('jwt.refresh_secret_key');
-        }
-
-        return ['public' => $public, 'private' => $private];
     }
 }

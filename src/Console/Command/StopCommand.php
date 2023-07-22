@@ -26,6 +26,7 @@
 namespace Triangle\Engine\Console\Command;
 
 use support\App;
+use Throwable;
 use Triangle\Engine\Console\Input\InputInterface;
 use Triangle\Engine\Console\Input\InputOption;
 use Triangle\Engine\Console\Output\OutputInterface;
@@ -45,7 +46,7 @@ class StopCommand extends Command
      * @param InputInterface $input
      * @param OutputInterface $output
      * @return int
-     * @throws \Throwable
+     * @throws Throwable
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {

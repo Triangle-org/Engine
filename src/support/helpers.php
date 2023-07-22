@@ -23,11 +23,8 @@
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use support\database\MongoDB\Connection;
-use support\database\MongoDB\Query\Builder;
 use localzet\Server;
 use support\Container;
-use support\database\MySQL;
 use support\Db;
 use support\Request;
 use support\Response;
@@ -38,7 +35,10 @@ use support\view\ThinkPHP;
 use support\view\Twig;
 use Triangle\Engine\App;
 use Triangle\Engine\Config;
+use Triangle\Engine\Http\Request as TriangleRequest;
 use Triangle\Engine\Route;
+use Triangle\MongoDB\Connection;
+use Triangle\MongoDB\Query\Builder;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
@@ -49,7 +49,7 @@ define('BASE_PATH', dirname(__DIR__));
 /**
  * @param string|null $connection
  * @param string|null $collection
- * @return \support\database\MongoDB\Connection|\support\database\MongoDB\Query\Builder
+ * @return Connection|Builder
  * @throws Exception
  */
 function MongoDB(string $connection = NULL, string $collection = NULL): Builder|Connection
@@ -62,28 +62,9 @@ function MongoDB(string $connection = NULL, string $collection = NULL): Builder|
         throw new Exception("MongoDB соединения не существует в конфигурации");
     }
 
-    /** @var \support\database\MongoDB\Connection $db */
+    /** @var Connection $db */
     $db = Db::connection($connection);
     return empty($collection) ? $db : $db->collection($collection);
-}
-
-/**
- * @param string|null $connection
- * @return \support\database\MySQL
- * @throws \Exception
- */
-function MySQL(string $connection = NULL): MySQL
-{
-    if (empty($connection)) {
-        $connection = config('database.default', 'default');
-    }
-
-    if (!in_array($connection, array_keys(config('database.connections'))) || config("database.connections.$connection.driver") != 'mysql') {
-        throw new Exception("MySQL соединения не существует в конфигурации");
-    }
-
-    $db = new MySQL();
-    return $db->connection($connection);
 }
 
 /**
@@ -183,7 +164,7 @@ function path_combine(string $front, string $back): string
  * @param bool $http_status
  * @param bool $onlyJson
  * @return Response
- * @throws \Throwable
+ * @throws Throwable
  */
 function response(mixed $body = '', int $status = 200, array $headers = [], bool $http_status = false, bool $onlyJson = false): Response
 {
@@ -238,7 +219,7 @@ function responseJson($data, int $status = 200, array $headers = [], int $option
  * @param null $status
  * @param array $headers
  * @return Response
- * @throws \Throwable
+ * @throws Throwable
  */
 function responseView(array $data, $status = null, array $headers = []): Response
 {
@@ -310,7 +291,7 @@ function redirect(string $location, int $status = 302, array $headers = []): Res
  */
 function view(string $template, array $vars = [], string $app = null, string $plugin = null, int $http_code = 200): Response
 {
-    $request = \request();
+    $request = request();
     $plugin = $plugin === null ? ($request->plugin ?? '') : $plugin;
     $handler = config($plugin ? "plugin.$plugin.view.handler" : 'view.handler');
     return new Response($http_code, [], $handler::render($template, $vars, $app, $plugin));
@@ -365,9 +346,9 @@ function twig_view(string $template, array $vars = [], string $app = null): Resp
 }
 
 /**
- * @return \Triangle\Engine\Http\Request|Request|null
+ * @return TriangleRequest|Request|null
  */
-function request(): \Triangle\Engine\Http\Request|Request|null
+function request(): TriangleRequest|Request|null
 {
     return App::request();
 }
@@ -409,11 +390,11 @@ function route(string $name, ...$parameters): string
  * @param mixed|null $key
  * @param mixed|null $default
  * @return mixed
- * @throws \Exception
+ * @throws Exception
  */
 function session(mixed $key = null, mixed $default = null): mixed
 {
-    $session = \request()->session();
+    $session = request()->session();
     if (null === $key) {
         return $session;
     }
@@ -467,7 +448,7 @@ function locale(string $locale = null): string
  * 404 not found
  *
  * @return Response
- * @throws \Throwable
+ * @throws Throwable
  */
 function not_found(): Response
 {

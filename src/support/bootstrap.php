@@ -37,9 +37,9 @@ $server = $server ?? null;
 
 // Установка обработчика ошибок
 set_error_handler(
-    /**
-     * @throws ErrorException
-     */
+/**
+ * @throws ErrorException
+ */
     function ($level, $message, $file = '', $line = 0) {
         if (error_reporting() & $level) {
             throw new ErrorException($message, 0, $level, $file, $line);
@@ -77,7 +77,7 @@ date_default_timezone_set(config('app.default_timezone', 'Europe/Moscow'));
 
 
 /***********************************************
- *              Autoload 
+ *              Autoload
  **********************************************/
 
 // Загрузка файлов автозагрузки системы
@@ -112,7 +112,7 @@ foreach (config('plugin', []) as $firm => $projects) {
 
 
 /***********************************************
- *              Middleware 
+ *              Middleware
  **********************************************/
 
 // Загрузка системных middleware
@@ -139,7 +139,7 @@ foreach (config('plugin', []) as $firm => $projects) {
 
 
 /***********************************************
- *              Events 
+ *              Events
  **********************************************/
 
 /**
@@ -207,7 +207,7 @@ foreach ($allEvents as $name => $events) {
 
 
 /***********************************************
- *              Bootstrap 
+ *              Bootstrap
  **********************************************/
 
 // Запуск системных bootstrap

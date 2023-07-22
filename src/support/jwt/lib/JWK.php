@@ -100,7 +100,7 @@ class JWK
      * @param array $jwk Индивидуальный JWK
      * @param string|null $defaultAlg Алгоритм по-умолчанию для объекта Key
      *
-     * @return \support\jwt\lib\Key|null Ключевой объект для JWK
+     * @return Key|null Ключевой объект для JWK
      *
      * @uses createPemFromModulusAndExponent
      */
@@ -172,44 +172,6 @@ class JWK
         return null;
     }
 
-    /** Преобразует значения EC JWK в формат pem.
-     *
-     * @param string $crv Кривая EC (поддерживается только P-256)
-     * @param string $x EC X-Координата
-     * @param string $y EC Y-Координата
-     *
-     * @return  string
-     */
-    private static function createPemFromCrvAndXYCoordinates(string $crv, string $x, string $y): string
-    {
-        $pem =
-            self::encodeDER(
-                self::ASN1_SEQUENCE,
-                self::encodeDER(
-                    self::ASN1_SEQUENCE,
-                    self::encodeDER(
-                        self::ASN1_OBJECT_IDENTIFIER,
-                        self::encodeOID(self::OID)
-                    )
-                    . self::encodeDER(
-                        self::ASN1_OBJECT_IDENTIFIER,
-                        self::encodeOID(self::EC_CURVES[$crv])
-                    )
-                ) .
-                self::encodeDER(
-                    self::ASN1_BIT_STRING,
-                    chr(0x00) . chr(0x04)
-                    . JWT::urlsafeB64Decode($x)
-                    . JWT::urlsafeB64Decode($y)
-                )
-            );
-
-        return sprintf(
-            "-----BEGIN PUBLIC KEY-----\n%s\n-----END PUBLIC KEY-----\n",
-            wordwrap(base64_encode($pem), 64, "\n", true)
-        );
-    }
-
     /** Создать открытый ключ, представленный в формате PEM, из информации о модуле и экспоненте RSA.
      *
      * @param string $n Модуль RSA, закодированный в Base64
@@ -272,6 +234,44 @@ class JWK
         $temp = ltrim(pack('N', $length), chr(0));
 
         return pack('Ca*', 0x80 | strlen($temp), $temp);
+    }
+
+    /** Преобразует значения EC JWK в формат pem.
+     *
+     * @param string $crv Кривая EC (поддерживается только P-256)
+     * @param string $x EC X-Координата
+     * @param string $y EC Y-Координата
+     *
+     * @return  string
+     */
+    private static function createPemFromCrvAndXYCoordinates(string $crv, string $x, string $y): string
+    {
+        $pem =
+            self::encodeDER(
+                self::ASN1_SEQUENCE,
+                self::encodeDER(
+                    self::ASN1_SEQUENCE,
+                    self::encodeDER(
+                        self::ASN1_OBJECT_IDENTIFIER,
+                        self::encodeOID(self::OID)
+                    )
+                    . self::encodeDER(
+                        self::ASN1_OBJECT_IDENTIFIER,
+                        self::encodeOID(self::EC_CURVES[$crv])
+                    )
+                ) .
+                self::encodeDER(
+                    self::ASN1_BIT_STRING,
+                    chr(0x00) . chr(0x04)
+                    . JWT::urlsafeB64Decode($x)
+                    . JWT::urlsafeB64Decode($y)
+                )
+            );
+
+        return sprintf(
+            "-----BEGIN PUBLIC KEY-----\n%s\n-----END PUBLIC KEY-----\n",
+            wordwrap(base64_encode($pem), 64, "\n", true)
+        );
     }
 
     /**

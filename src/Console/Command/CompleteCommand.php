@@ -25,6 +25,7 @@
 
 namespace Triangle\Engine\Console\Command;
 
+use ReflectionException;
 use RuntimeException;
 use Throwable;
 use Triangle\Engine\Console\Completion\CompletionInput;
@@ -58,7 +59,7 @@ final class CompleteCommand extends Command
 
     /**
      * @param array<string, class-string<CompletionOutputInterface>> $completionOutputs A list of additional completion outputs, with shell name as key and FQCN as value
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function __construct(array $completionOutputs = [])
     {
@@ -83,7 +84,7 @@ final class CompleteCommand extends Command
     }
 
     /**
-     * @throws \Throwable
+     * @throws Throwable
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
@@ -204,6 +205,16 @@ final class CompleteCommand extends Command
         return $completionInput;
     }
 
+    private function log($messages): void
+    {
+        if (!$this->isDebug) {
+            return;
+        }
+
+        $commandName = basename($_SERVER['argv'][0]);
+        file_put_contents(sys_get_temp_dir() . '/sf_' . $commandName . '.log', implode(PHP_EOL, (array)$messages) . PHP_EOL, FILE_APPEND);
+    }
+
     private function findCommand(CompletionInput $completionInput): ?Command
     {
         try {
@@ -217,15 +228,5 @@ final class CompleteCommand extends Command
         }
 
         return null;
-    }
-
-    private function log($messages): void
-    {
-        if (!$this->isDebug) {
-            return;
-        }
-
-        $commandName = basename($_SERVER['argv'][0]);
-        file_put_contents(sys_get_temp_dir() . '/sf_' . $commandName . '.log', implode(PHP_EOL, (array)$messages) . PHP_EOL, FILE_APPEND);
     }
 }

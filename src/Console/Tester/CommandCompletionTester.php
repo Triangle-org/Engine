@@ -28,6 +28,7 @@ namespace Triangle\Engine\Console\Tester;
 use Triangle\Engine\Console\Command\Command;
 use Triangle\Engine\Console\Completion\CompletionInput;
 use Triangle\Engine\Console\Completion\CompletionSuggestions;
+use function count;
 
 /**
  * Eases the testing of command completion.
@@ -48,7 +49,7 @@ class CommandCompletionTester
      */
     public function complete(array $input): array
     {
-        $currentIndex = \count($input);
+        $currentIndex = count($input);
         if ('' === end($input)) {
             array_pop($input);
         }

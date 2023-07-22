@@ -50,6 +50,19 @@ class Translation
     protected static array $instance = [];
 
     /**
+     * @param string $name
+     * @param array $arguments
+     * @return mixed
+     * @throws NotFoundException
+     */
+    public static function __callStatic(string $name, array $arguments)
+    {
+        $request = request();
+        $plugin = $request->plugin ?? '';
+        return static::instance($plugin)->{$name}(...$arguments);
+    }
+
+    /**
      * @param string $plugin
      * @return Translator
      * @throws NotFoundException
@@ -90,18 +103,5 @@ class Translation
             }
         }
         return static::$instance[$plugin];
-    }
-
-    /**
-     * @param string $name
-     * @param array $arguments
-     * @return mixed
-     * @throws NotFoundException
-     */
-    public static function __callStatic(string $name, array $arguments)
-    {
-        $request = request();
-        $plugin = $request->plugin ?? '';
-        return static::instance($plugin)->{$name}(...$arguments);
     }
 }

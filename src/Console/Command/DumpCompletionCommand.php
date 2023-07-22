@@ -52,6 +52,16 @@ final class DumpCompletionCommand extends Command
         }
     }
 
+    /**
+     * @return string[]
+     */
+    private function getSupportedShells(): array
+    {
+        return array_map(function ($f) {
+            return pathinfo($f, PATHINFO_EXTENSION);
+        }, glob(__DIR__ . '/../Resources/completion.*'));
+    }
+
     protected function configure(): void
     {
         $fullCommand = $_SERVER['PHP_SELF'];
@@ -124,11 +134,6 @@ EOH
         return self::SUCCESS;
     }
 
-    private static function guessShell(): string
-    {
-        return basename($_SERVER['SHELL'] ?? '');
-    }
-
     private function tailDebugLog(string $commandName, OutputInterface $output): void
     {
         $debugFile = sys_get_temp_dir() . '/sf_' . $commandName . '.log';
@@ -141,13 +146,8 @@ EOH
         });
     }
 
-    /**
-     * @return string[]
-     */
-    private function getSupportedShells(): array
+    private static function guessShell(): string
     {
-        return array_map(function ($f) {
-            return pathinfo($f, PATHINFO_EXTENSION);
-        }, glob(__DIR__ . '/../Resources/completion.*'));
+        return basename($_SERVER['SHELL'] ?? '');
     }
 }

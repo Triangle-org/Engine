@@ -43,6 +43,26 @@ class HelpCommand extends Command
 {
     private $command;
 
+    public function setCommand(Command $command): void
+    {
+        $this->command = $command;
+    }
+
+    public function complete(CompletionInput $input, CompletionSuggestions $suggestions): void
+    {
+        if ($input->mustSuggestArgumentValuesFor('command_name')) {
+            $descriptor = new ApplicationDescription($this->getApplication());
+            $suggestions->suggestValues(array_keys($descriptor->getCommands()));
+
+            return;
+        }
+
+        if ($input->mustSuggestOptionValuesFor('format')) {
+            $helper = new DescriptorHelper();
+            $suggestions->suggestValues($helper->getFormats());
+        }
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -72,11 +92,6 @@ EOF
             );
     }
 
-    public function setCommand(Command $command): void
-    {
-        $this->command = $command;
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -95,20 +110,5 @@ EOF
         $this->command = null;
 
         return 0;
-    }
-
-    public function complete(CompletionInput $input, CompletionSuggestions $suggestions): void
-    {
-        if ($input->mustSuggestArgumentValuesFor('command_name')) {
-            $descriptor = new ApplicationDescription($this->getApplication());
-            $suggestions->suggestValues(array_keys($descriptor->getCommands()));
-
-            return;
-        }
-
-        if ($input->mustSuggestOptionValuesFor('format')) {
-            $helper = new DescriptorHelper();
-            $suggestions->suggestValues($helper->getFormats());
-        }
     }
 }

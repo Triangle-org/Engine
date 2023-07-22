@@ -26,6 +26,9 @@
 namespace Triangle\Engine\Console\Formatter;
 
 use Triangle\Engine\Console\Exception\InvalidArgumentException;
+use function strlen;
+use const PREG_OFFSET_CAPTURE;
+use const PREG_SET_ORDER;
 
 /**
  * Formatter class for console output.
@@ -38,43 +41,6 @@ class OutputFormatter implements WrappableOutputFormatterInterface
     private $decorated;
     private $styles = [];
     private $styleStack;
-
-    public function __clone()
-    {
-        $this->styleStack = clone $this->styleStack;
-        foreach ($this->styles as $key => $value) {
-            $this->styles[$key] = clone $value;
-        }
-    }
-
-    /**
-     * Escapes "<" and ">" special chars in given text.
-     *
-     * @return string
-     */
-    public static function escape(string $text)
-    {
-        $text = preg_replace('/([^\\\\]|^)([<>])/', '$1\\\\$2', $text);
-
-        return self::escapeTrailingBackslash($text);
-    }
-
-    /**
-     * Escapes trailing "\" in given text.
-     *
-     * @internal
-     */
-    public static function escapeTrailingBackslash(string $text): string
-    {
-        if (str_ends_with($text, '\\')) {
-            $len = \strlen($text);
-            $text = rtrim($text, '\\');
-            $text = str_replace("\0", '', $text);
-            $text .= str_repeat("\0", $len - \strlen($text));
-        }
-
-        return $text;
-    }
 
     /**
      * Initializes console output formatter.
@@ -100,33 +66,46 @@ class OutputFormatter implements WrappableOutputFormatterInterface
     /**
      * {@inheritdoc}
      */
-    public function setDecorated(bool $decorated)
-    {
-        $this->decorated = $decorated;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function isDecorated()
-    {
-        return $this->decorated;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function setStyle(string $name, OutputFormatterStyleInterface $style)
     {
         $this->styles[strtolower($name)] = $style;
     }
 
     /**
-     * {@inheritdoc}
+     * Escapes "<" and ">" special chars in given text.
+     *
+     * @return string
      */
-    public function hasStyle(string $name)
+    public static function escape(string $text)
     {
-        return isset($this->styles[strtolower($name)]);
+        $text = preg_replace('/([^\\\\]|^)([<>])/', '$1\\\\$2', $text);
+
+        return self::escapeTrailingBackslash($text);
+    }
+
+    /**
+     * Escapes trailing "\" in given text.
+     *
+     * @internal
+     */
+    public static function escapeTrailingBackslash(string $text): string
+    {
+        if (str_ends_with($text, '\\')) {
+            $len = strlen($text);
+            $text = rtrim($text, '\\');
+            $text = str_replace("\0", '', $text);
+            $text .= str_repeat("\0", $len - strlen($text));
+        }
+
+        return $text;
+    }
+
+    public function __clone()
+    {
+        $this->styleStack = clone $this->styleStack;
+        foreach ($this->styles as $key => $value) {
+            $this->styles[$key] = clone $value;
+        }
     }
 
     /**
@@ -139,6 +118,14 @@ class OutputFormatter implements WrappableOutputFormatterInterface
         }
 
         return $this->styles[strtolower($name)];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasStyle(string $name)
+    {
+        return isset($this->styles[strtolower($name)]);
     }
 
     /**
@@ -163,7 +150,7 @@ class OutputFormatter implements WrappableOutputFormatterInterface
         $openTagRegex = '[a-z](?:[^\\\\<>]*+ | \\\\.)*';
         $closeTagRegex = '[a-z][^<>]*+';
         $currentLineLength = 0;
-        preg_match_all("#<(($openTagRegex) | /($closeTagRegex)?)>#ix", $message, $matches, \PREG_OFFSET_CAPTURE);
+        preg_match_all("#<(($openTagRegex) | /($closeTagRegex)?)>#ix", $message, $matches, PREG_OFFSET_CAPTURE);
         foreach ($matches[0] as $i => $match) {
             $pos = $match[1];
             $text = $match[0];
@@ -174,7 +161,7 @@ class OutputFormatter implements WrappableOutputFormatterInterface
 
             // add the text up to the next tag
             $output .= $this->applyCurrentStyle(substr($message, $offset, $pos - $offset), $output, $width, $currentLineLength);
-            $offset = $pos + \strlen($text);
+            $offset = $pos + strlen($text);
 
             // opening tag?
             if ($open = '/' != $text[1]) {
@@ -198,53 +185,6 @@ class OutputFormatter implements WrappableOutputFormatterInterface
         $output .= $this->applyCurrentStyle(substr($message, $offset), $output, $width, $currentLineLength);
 
         return strtr($output, ["\0" => '\\', '\\<' => '<', '\\>' => '>']);
-    }
-
-    /**
-     * @return OutputFormatterStyleStack
-     */
-    public function getStyleStack()
-    {
-        return $this->styleStack;
-    }
-
-    /**
-     * Tries to create new style instance from string.
-     */
-    private function createStyleFromString(string $string): ?OutputFormatterStyleInterface
-    {
-        if (isset($this->styles[$string])) {
-            return $this->styles[$string];
-        }
-
-        if (!preg_match_all('/([^=]+)=([^;]+)(;|$)/', $string, $matches, \PREG_SET_ORDER)) {
-            return null;
-        }
-
-        $style = new OutputFormatterStyle();
-        foreach ($matches as $match) {
-            array_shift($match);
-            $match[0] = strtolower($match[0]);
-
-            if ('fg' == $match[0]) {
-                $style->setForeground(strtolower($match[1]));
-            } elseif ('bg' == $match[0]) {
-                $style->setBackground(strtolower($match[1]));
-            } elseif ('href' === $match[0]) {
-                $url = preg_replace('{\\\\([<>])}', '$1', $match[1]);
-                $style->setHref($url);
-            } elseif ('options' === $match[0]) {
-                preg_match_all('([^,;]+)', strtolower($match[1]), $options);
-                $options = array_shift($options);
-                foreach ($options as $option) {
-                    $style->setOption($option);
-                }
-            } else {
-                return null;
-            }
-        }
-
-        return $style;
     }
 
     /**
@@ -282,7 +222,7 @@ class OutputFormatter implements WrappableOutputFormatterInterface
         $lines = explode("\n", $text);
 
         foreach ($lines as $line) {
-            $currentLineLength += \strlen($line);
+            $currentLineLength += strlen($line);
             if ($width <= $currentLineLength) {
                 $currentLineLength = 0;
             }
@@ -295,5 +235,68 @@ class OutputFormatter implements WrappableOutputFormatterInterface
         }
 
         return implode("\n", $lines);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isDecorated()
+    {
+        return $this->decorated;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setDecorated(bool $decorated)
+    {
+        $this->decorated = $decorated;
+    }
+
+    /**
+     * Tries to create new style instance from string.
+     */
+    private function createStyleFromString(string $string): ?OutputFormatterStyleInterface
+    {
+        if (isset($this->styles[$string])) {
+            return $this->styles[$string];
+        }
+
+        if (!preg_match_all('/([^=]+)=([^;]+)(;|$)/', $string, $matches, PREG_SET_ORDER)) {
+            return null;
+        }
+
+        $style = new OutputFormatterStyle();
+        foreach ($matches as $match) {
+            array_shift($match);
+            $match[0] = strtolower($match[0]);
+
+            if ('fg' == $match[0]) {
+                $style->setForeground(strtolower($match[1]));
+            } elseif ('bg' == $match[0]) {
+                $style->setBackground(strtolower($match[1]));
+            } elseif ('href' === $match[0]) {
+                $url = preg_replace('{\\\\([<>])}', '$1', $match[1]);
+                $style->setHref($url);
+            } elseif ('options' === $match[0]) {
+                preg_match_all('([^,;]+)', strtolower($match[1]), $options);
+                $options = array_shift($options);
+                foreach ($options as $option) {
+                    $style->setOption($option);
+                }
+            } else {
+                return null;
+            }
+        }
+
+        return $style;
+    }
+
+    /**
+     * @return OutputFormatterStyleStack
+     */
+    public function getStyleStack()
+    {
+        return $this->styleStack;
     }
 }

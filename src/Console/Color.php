@@ -26,6 +26,8 @@
 namespace Triangle\Engine\Console;
 
 use Triangle\Engine\Console\Exception\InvalidArgumentException;
+use function count;
+use function strlen;
 
 /**
  * @author Fabien Potencier <fabien@symfony.com>
@@ -81,49 +83,6 @@ final class Color
         }
     }
 
-    public function apply(string $text): string
-    {
-        return $this->set() . $text . $this->unset();
-    }
-
-    public function set(): string
-    {
-        $setCodes = [];
-        if ('' !== $this->foreground) {
-            $setCodes[] = $this->foreground;
-        }
-        if ('' !== $this->background) {
-            $setCodes[] = $this->background;
-        }
-        foreach ($this->options as $option) {
-            $setCodes[] = $option['set'];
-        }
-        if (0 === \count($setCodes)) {
-            return '';
-        }
-
-        return sprintf("\033[%sm", implode(';', $setCodes));
-    }
-
-    public function unset(): string
-    {
-        $unsetCodes = [];
-        if ('' !== $this->foreground) {
-            $unsetCodes[] = 39;
-        }
-        if ('' !== $this->background) {
-            $unsetCodes[] = 49;
-        }
-        foreach ($this->options as $option) {
-            $unsetCodes[] = $option['unset'];
-        }
-        if (0 === \count($unsetCodes)) {
-            return '';
-        }
-
-        return sprintf("\033[%sm", implode(';', $unsetCodes));
-    }
-
     private function parseColor(string $color, bool $background = false): string
     {
         if ('' === $color) {
@@ -133,11 +92,11 @@ final class Color
         if ('#' === $color[0]) {
             $color = substr($color, 1);
 
-            if (3 === \strlen($color)) {
+            if (3 === strlen($color)) {
                 $color = $color[0] . $color[0] . $color[1] . $color[1] . $color[2] . $color[2];
             }
 
-            if (6 !== \strlen($color)) {
+            if (6 !== strlen($color)) {
                 throw new InvalidArgumentException(sprintf('Invalid "%s" color.', $color));
             }
 
@@ -190,5 +149,48 @@ final class Color
         }
 
         return (int)$diff * 100 / $v;
+    }
+
+    public function apply(string $text): string
+    {
+        return $this->set() . $text . $this->unset();
+    }
+
+    public function set(): string
+    {
+        $setCodes = [];
+        if ('' !== $this->foreground) {
+            $setCodes[] = $this->foreground;
+        }
+        if ('' !== $this->background) {
+            $setCodes[] = $this->background;
+        }
+        foreach ($this->options as $option) {
+            $setCodes[] = $option['set'];
+        }
+        if (0 === count($setCodes)) {
+            return '';
+        }
+
+        return sprintf("\033[%sm", implode(';', $setCodes));
+    }
+
+    public function unset(): string
+    {
+        $unsetCodes = [];
+        if ('' !== $this->foreground) {
+            $unsetCodes[] = 39;
+        }
+        if ('' !== $this->background) {
+            $unsetCodes[] = 49;
+        }
+        foreach ($this->options as $option) {
+            $unsetCodes[] = $option['unset'];
+        }
+        if (0 === count($unsetCodes)) {
+            return '';
+        }
+
+        return sprintf("\033[%sm", implode(';', $unsetCodes));
     }
 }

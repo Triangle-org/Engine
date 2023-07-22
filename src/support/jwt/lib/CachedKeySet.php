@@ -30,6 +30,8 @@ use LogicException;
 use OutOfBoundsException;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
+use Psr\Cache\InvalidArgumentException;
+use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use RuntimeException;
@@ -118,11 +120,38 @@ class CachedKeySet implements ArrayAccess
         $this->setCacheKeys();
     }
 
+    private function setCacheKeys(): void
+    {
+        if (empty($this->jwksUri)) {
+            throw new RuntimeException('JWKS URI пуст');
+        }
+
+        $key = preg_replace('|[^a-zA-Z0-9_.!]|', '', $this->jwksUri);
+
+        $key = $this->cacheKeyPrefix . $key;
+
+        if (strlen($key) > $this->maxKeyLength) {
+            $key = substr(hash('sha256', $key), 0, $this->maxKeyLength);
+        }
+
+        $this->cacheKey = $key;
+
+        if ($this->rateLimit) {
+            $rateLimitKey = $this->cacheKeyPrefix . 'ratelimit' . $key;
+
+            if (strlen($rateLimitKey) > $this->maxKeyLength) {
+                $rateLimitKey = substr(hash('sha256', $rateLimitKey), 0, $this->maxKeyLength);
+            }
+
+            $this->rateLimitCacheKey = $rateLimitKey;
+        }
+    }
+
     /**
      * @param string $keyId
      * @return Key
-     * @throws \Psr\Cache\InvalidArgumentException
-     * @throws \Psr\Http\Client\ClientExceptionInterface
+     * @throws InvalidArgumentException
+     * @throws ClientExceptionInterface
      */
     public function offsetGet($keyId): Key
     {
@@ -133,36 +162,8 @@ class CachedKeySet implements ArrayAccess
     }
 
     /**
-     * @param string $keyId
-     * @return bool
-     * @throws \Psr\Cache\InvalidArgumentException
-     * @throws \Psr\Http\Client\ClientExceptionInterface
-     */
-    public function offsetExists($keyId): bool
-    {
-        return $this->keyIdExists($keyId);
-    }
-
-    /**
-     * @param string $offset
-     * @param Key $value
-     */
-    public function offsetSet($offset, $value): void
-    {
-        throw new LogicException('Метод не реализован');
-    }
-
-    /**
-     * @param string $offset
-     */
-    public function offsetUnset($offset): void
-    {
-        throw new LogicException('Метод не реализован');
-    }
-
-    /**
-     * @throws \Psr\Http\Client\ClientExceptionInterface
-     * @throws \Psr\Cache\InvalidArgumentException
+     * @throws ClientExceptionInterface
+     * @throws InvalidArgumentException
      */
     private function keyIdExists(string $keyId): bool
     {
@@ -199,7 +200,19 @@ class CachedKeySet implements ArrayAccess
     }
 
     /**
-     * @throws \Psr\Cache\InvalidArgumentException
+     * @throws InvalidArgumentException
+     */
+    private function getCacheItem(): CacheItemInterface
+    {
+        if (is_null($this->cacheItem)) {
+            $this->cacheItem = $this->cache->getItem($this->cacheKey);
+        }
+
+        return $this->cacheItem;
+    }
+
+    /**
+     * @throws InvalidArgumentException
      */
     private function rateLimitExceeded(): bool
     {
@@ -222,41 +235,30 @@ class CachedKeySet implements ArrayAccess
     }
 
     /**
-     * @throws \Psr\Cache\InvalidArgumentException
+     * @param string $keyId
+     * @return bool
+     * @throws InvalidArgumentException
+     * @throws ClientExceptionInterface
      */
-    private function getCacheItem(): CacheItemInterface
+    public function offsetExists($keyId): bool
     {
-        if (is_null($this->cacheItem)) {
-            $this->cacheItem = $this->cache->getItem($this->cacheKey);
-        }
-
-        return $this->cacheItem;
+        return $this->keyIdExists($keyId);
     }
 
-    private function setCacheKeys(): void
+    /**
+     * @param string $offset
+     * @param Key $value
+     */
+    public function offsetSet($offset, $value): void
     {
-        if (empty($this->jwksUri)) {
-            throw new RuntimeException('JWKS URI пуст');
-        }
+        throw new LogicException('Метод не реализован');
+    }
 
-        $key = preg_replace('|[^a-zA-Z0-9_.!]|', '', $this->jwksUri);
-
-        $key = $this->cacheKeyPrefix . $key;
-
-        if (strlen($key) > $this->maxKeyLength) {
-            $key = substr(hash('sha256', $key), 0, $this->maxKeyLength);
-        }
-
-        $this->cacheKey = $key;
-
-        if ($this->rateLimit) {
-            $rateLimitKey = $this->cacheKeyPrefix . 'ratelimit' . $key;
-
-            if (strlen($rateLimitKey) > $this->maxKeyLength) {
-                $rateLimitKey = substr(hash('sha256', $rateLimitKey), 0, $this->maxKeyLength);
-            }
-
-            $this->rateLimitCacheKey = $rateLimitKey;
-        }
+    /**
+     * @param string $offset
+     */
+    public function offsetUnset($offset): void
+    {
+        throw new LogicException('Метод не реализован');
     }
 }

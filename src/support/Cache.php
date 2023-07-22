@@ -49,6 +49,16 @@ class Cache
     public static ?Psr16Cache $instance = null;
 
     /**
+     * @param $name
+     * @param $arguments
+     * @return mixed
+     */
+    public static function __callStatic($name, $arguments)
+    {
+        return static::instance()->{$name}(...$arguments);
+    }
+
+    /**
      * @return Psr16Cache|null
      */
     public static function instance(): ?Psr16Cache
@@ -58,15 +68,5 @@ class Cache
             self::$instance = new Psr16Cache($adapter);
         }
         return static::$instance;
-    }
-
-    /**
-     * @param $name
-     * @param $arguments
-     * @return mixed
-     */
-    public static function __callStatic($name, $arguments)
-    {
-        return static::instance()->{$name}(...$arguments);
     }
 }

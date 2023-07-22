@@ -25,6 +25,8 @@
 
 namespace Triangle\Engine\Console\Formatter;
 
+use InvalidArgumentException;
+
 /**
  * Formatter interface for console output.
  *
@@ -61,7 +63,7 @@ interface OutputFormatterInterface
      *
      * @return OutputFormatterStyleInterface
      *
-     * @throws \InvalidArgumentException When style isn't defined
+     * @throws InvalidArgumentException When style isn't defined
      */
     public function getStyle(string $name);
 

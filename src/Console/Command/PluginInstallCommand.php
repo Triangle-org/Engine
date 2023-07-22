@@ -55,7 +55,7 @@ class PluginInstallCommand extends Command
         $output->writeln("Установка плагина $name");
         $namespace = Util::nameToNamespace($name);
         $install_function = "\\$namespace\\Install::install";
-        $plugin_const = "\\$namespace\\Install::FRAMEX_PLUGIN";
+        $plugin_const = "\\$namespace\\Install::TRIANGLE_PLUGIN";
         if (defined($plugin_const) && is_callable($install_function)) {
             $install_function();
         }

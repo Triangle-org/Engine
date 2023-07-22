@@ -26,6 +26,7 @@
 namespace Triangle\Engine\Console\Helper;
 
 use Triangle\Engine\Console\Formatter\OutputFormatter;
+use function is_array;
 
 /**
  * The Formatter class provides helpers to format messages.
@@ -53,7 +54,7 @@ class FormatterHelper extends Helper
      */
     public function formatBlock($messages, string $style, bool $large = false)
     {
-        if (!\is_array($messages)) {
+        if (!is_array($messages)) {
             $messages = [$messages];
         }
 

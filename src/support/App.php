@@ -26,8 +26,8 @@
 namespace support;
 
 use Dotenv\Dotenv;
-use localzet\Server\Connection\TcpConnection;
 use localzet\Server;
+use localzet\Server\Connection\TcpConnection;
 use RuntimeException;
 use Throwable;
 use Triangle\Engine\Config;
@@ -97,7 +97,6 @@ class App
         Server::$pidFile = $config['pid_file'];
         Server::$stdoutFile = $config['stdout_file'];
         Server::$logFile = $config['log_file'];
-        Server::$eventLoopClass = $config['event_loop'] ?? '';
         TcpConnection::$defaultMaxPackageSize = $config['max_package_size'] ?? 10 * 1024 * 1024;
         if (property_exists(Server::class, 'statusFile')) {
             Server::$statusFile = $config['status_file'] ?? '';

@@ -59,7 +59,7 @@ class PluginUninstallCommand extends Command
         }
         $namespace = Util::nameToNamespace($name);
         $uninstall_function = "\\$namespace\\Install::uninstall";
-        $plugin_const = "\\$namespace\\Install::FRAMEX_PLUGIN";
+        $plugin_const = "\\$namespace\\Install::TRIANGLE_PLUGIN";
         if (defined($plugin_const) && is_callable($uninstall_function)) {
             $uninstall_function();
         }

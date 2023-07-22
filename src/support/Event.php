@@ -113,6 +113,22 @@ class Event
     }
 
     /**
+     * @param mixed $event_name
+     * @return callable[]
+     */
+    public static function getListeners(mixed $event_name): array
+    {
+        $listeners = static::$eventMap[$event_name] ?? [];
+        foreach (static::$prefixEventMap as $name => $callback_items) {
+            if (str_starts_with($event_name, $name)) {
+                $listeners = array_merge($listeners, $callback_items);
+            }
+        }
+        ksort($listeners);
+        return $listeners;
+    }
+
+    /**
      * @return array
      */
     public static function list(): array
@@ -126,22 +142,6 @@ class Event
         foreach (static::$prefixEventMap as $event_name => $callback_items) {
             foreach ($callback_items as $id => $callback_item) {
                 $listeners[$id] = [$event_name . '*', $callback_item];
-            }
-        }
-        ksort($listeners);
-        return $listeners;
-    }
-
-    /**
-     * @param mixed $event_name
-     * @return callable[]
-     */
-    public static function getListeners(mixed $event_name): array
-    {
-        $listeners = static::$eventMap[$event_name] ?? [];
-        foreach (static::$prefixEventMap as $name => $callback_items) {
-            if (str_starts_with($event_name, $name)) {
-                $listeners = array_merge($listeners, $callback_items);
             }
         }
         ksort($listeners);

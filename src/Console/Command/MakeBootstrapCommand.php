@@ -35,6 +35,16 @@ class MakeBootstrapCommand extends Command
     protected static ?string $defaultName = 'make:bootstrap';
     protected static ?string $defaultDescription = 'Добавить класс в автозагрузку';
 
+    public function addConfig($class, $config_file): void
+    {
+        $config = include $config_file;
+        if (!in_array($class, $config ?? [])) {
+            $config_file_content = file_get_contents($config_file);
+            $config_file_content = preg_replace('/];/', "    $class::class,\n];", $config_file_content);
+            file_put_contents($config_file, $config_file_content);
+        }
+    }
+
     /**
      * @return void
      */
@@ -98,15 +108,5 @@ class $name implements Bootstrap
 
 EOF;
         file_put_contents($file, $bootstrap_content);
-    }
-
-    public function addConfig($class, $config_file): void
-    {
-        $config = include $config_file;
-        if (!in_array($class, $config ?? [])) {
-            $config_file_content = file_get_contents($config_file);
-            $config_file_content = preg_replace('/];/', "    $class::class,\n];", $config_file_content);
-            file_put_contents($config_file, $config_file_content);
-        }
     }
 }

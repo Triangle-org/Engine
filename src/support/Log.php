@@ -55,6 +55,16 @@ class Log
 
     /**
      * @param string $name
+     * @param array $arguments
+     * @return mixed
+     */
+    public static function __callStatic(string $name, array $arguments)
+    {
+        return static::channel()->{$name}(...$arguments);
+    }
+
+    /**
+     * @param string $name
      * @param array $localConfig
      * @return Logger
      */
@@ -69,7 +79,6 @@ class Log
 
         return static::$instance[$name];
     }
-
 
     /**
      * @param array $config
@@ -133,15 +142,5 @@ class Log
         }
 
         return $result;
-    }
-
-    /**
-     * @param string $name
-     * @param array $arguments
-     * @return mixed
-     */
-    public static function __callStatic(string $name, array $arguments)
-    {
-        return static::channel()->{$name}(...$arguments);
     }
 }

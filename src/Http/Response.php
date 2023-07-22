@@ -65,6 +65,19 @@ class Response extends \localzet\Server\Protocols\Http\Response
 
     /**
      * @param string $file
+     * @return bool
+     */
+    protected function notModifiedSince(string $file): bool
+    {
+        $ifModifiedSince = App::request()->header('if-modified-since');
+        if ($ifModifiedSince === null || !($mtime = filemtime($file))) {
+            return false;
+        }
+        return $ifModifiedSince === gmdate('D, d M Y H:i:s', $mtime) . ' GMT';
+    }
+
+    /**
+     * @param string $file
      * @param string $downloadName
      * @return $this
      */
@@ -75,19 +88,6 @@ class Response extends \localzet\Server\Protocols\Http\Response
             $this->header('Content-Disposition', "attachment; filename=\"$downloadName\"");
         }
         return $this;
-    }
-
-    /**
-     * @param string $file
-     * @return bool
-     */
-    protected function notModifiedSince(string $file): bool
-    {
-        $ifModifiedSince = App::request()->header('if-modified-since');
-        if ($ifModifiedSince === null || !($mtime = filemtime($file))) {
-            return false;
-        }
-        return $ifModifiedSince === gmdate('D, d M Y H:i:s', $mtime) . ' GMT';
     }
 
     /**

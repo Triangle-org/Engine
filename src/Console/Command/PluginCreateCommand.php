@@ -172,7 +172,7 @@ namespace $namespace;
 
 class Install
 {
-    const FRAMEX_PLUGIN = true;
+    const TRIANGLE_PLUGIN = true;
 
     /**
      * @var array

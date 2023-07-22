@@ -30,12 +30,12 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\MySqlConnection;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Pagination\Paginator;
-use support\database\MongoDB\Connection as MongodbConnection;
 use localzet\Server;
 use localzet\Timer;
 use support\Container;
 use Throwable;
 use Triangle\Engine\Bootstrap;
+use Triangle\MongoDB\Connection as MongodbConnection;
 use function class_exists;
 use function config;
 

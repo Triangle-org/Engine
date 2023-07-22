@@ -27,6 +27,7 @@ namespace Triangle\Engine\Console\Input;
 
 use Triangle\Engine\Console\Exception\InvalidArgumentException;
 use Triangle\Engine\Console\Exception\LogicException;
+use function is_array;
 
 /**
  * Represents a command line argument.
@@ -98,6 +99,16 @@ class InputArgument
     }
 
     /**
+     * Returns the default value.
+     *
+     * @return string|bool|int|float|array|null
+     */
+    public function getDefault()
+    {
+        return $this->default;
+    }
+
+    /**
      * Sets the default value.
      *
      * @param string|bool|int|float|array|null $default
@@ -113,22 +124,12 @@ class InputArgument
         if ($this->isArray()) {
             if (null === $default) {
                 $default = [];
-            } elseif (!\is_array($default)) {
+            } elseif (!is_array($default)) {
                 throw new LogicException('A default value for an array argument must be an array.');
             }
         }
 
         $this->default = $default;
-    }
-
-    /**
-     * Returns the default value.
-     *
-     * @return string|bool|int|float|array|null
-     */
-    public function getDefault()
-    {
-        return $this->default;
     }
 
     /**

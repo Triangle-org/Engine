@@ -76,7 +76,7 @@ use Monolog\Logger;
  */
 class MongoDBHandler extends AbstractProcessingHandler
 {
-    /** @var \MongoDB\Collection */
+    /** @var Collection */
     private Collection $collection;
     /** @var Client|Manager */
     private Manager|Client $manager;

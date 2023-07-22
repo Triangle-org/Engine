@@ -27,6 +27,10 @@ namespace Triangle\Engine\Console\Input;
 
 use Triangle\Engine\Console\Exception\InvalidArgumentException;
 use Triangle\Engine\Console\Exception\InvalidOptionException;
+use function in_array;
+use function is_array;
+use function is_int;
+use function is_string;
 
 /**
  * ArrayInput represents an input provided as an array.
@@ -54,7 +58,7 @@ class ArrayInput extends Input
     public function getFirstArgument()
     {
         foreach ($this->parameters as $param => $value) {
-            if ($param && \is_string($param) && '-' === $param[0]) {
+            if ($param && is_string($param) && '-' === $param[0]) {
                 continue;
             }
 
@@ -72,7 +76,7 @@ class ArrayInput extends Input
         $values = (array)$values;
 
         foreach ($this->parameters as $k => $v) {
-            if (!\is_int($k)) {
+            if (!is_int($k)) {
                 $v = $k;
             }
 
@@ -80,7 +84,7 @@ class ArrayInput extends Input
                 return false;
             }
 
-            if (\in_array($v, $values)) {
+            if (in_array($v, $values)) {
                 return true;
             }
         }
@@ -96,15 +100,15 @@ class ArrayInput extends Input
         $values = (array)$values;
 
         foreach ($this->parameters as $k => $v) {
-            if ($onlyParams && ('--' === $k || (\is_int($k) && '--' === $v))) {
+            if ($onlyParams && ('--' === $k || (is_int($k) && '--' === $v))) {
                 return $default;
             }
 
-            if (\is_int($k)) {
-                if (\in_array($v, $values)) {
+            if (is_int($k)) {
+                if (in_array($v, $values)) {
                     return true;
                 }
-            } elseif (\in_array($k, $values)) {
+            } elseif (in_array($k, $values)) {
                 return $v;
             }
         }
@@ -121,9 +125,9 @@ class ArrayInput extends Input
     {
         $params = [];
         foreach ($this->parameters as $param => $val) {
-            if ($param && \is_string($param) && '-' === $param[0]) {
+            if ($param && is_string($param) && '-' === $param[0]) {
                 $glue = ('-' === $param[1]) ? '=' : ' ';
-                if (\is_array($val)) {
+                if (is_array($val)) {
                     foreach ($val as $v) {
                         $params[] = $param . ('' != $v ? $glue . $this->escapeToken($v) : '');
                     }
@@ -131,7 +135,7 @@ class ArrayInput extends Input
                     $params[] = $param . ('' != $val ? $glue . $this->escapeToken($val) : '');
                 }
             } else {
-                $params[] = \is_array($val) ? implode(' ', array_map([$this, 'escapeToken'], $val)) : $this->escapeToken($val);
+                $params[] = is_array($val) ? implode(' ', array_map([$this, 'escapeToken'], $val)) : $this->escapeToken($val);
             }
         }
 
@@ -155,20 +159,6 @@ class ArrayInput extends Input
                 $this->addArgument($key, $value);
             }
         }
-    }
-
-    /**
-     * Adds a short option value.
-     *
-     * @throws InvalidOptionException When option given doesn't exist
-     */
-    private function addShortOption(string $shortcut, $value)
-    {
-        if (!$this->definition->hasShortcut($shortcut)) {
-            throw new InvalidOptionException(sprintf('The "-%s" option does not exist.', $shortcut));
-        }
-
-        $this->addLongOption($this->definition->getOptionForShortcut($shortcut)->getName(), $value);
     }
 
     /**
@@ -203,6 +193,20 @@ class ArrayInput extends Input
         }
 
         $this->options[$name] = $value;
+    }
+
+    /**
+     * Adds a short option value.
+     *
+     * @throws InvalidOptionException When option given doesn't exist
+     */
+    private function addShortOption(string $shortcut, $value)
+    {
+        if (!$this->definition->hasShortcut($shortcut)) {
+            throw new InvalidOptionException(sprintf('The "-%s" option does not exist.', $shortcut));
+        }
+
+        $this->addLongOption($this->definition->getOptionForShortcut($shortcut)->getName(), $value);
     }
 
     /**

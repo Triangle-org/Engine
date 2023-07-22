@@ -25,10 +25,12 @@
 
 namespace Triangle\Engine\Console\Attribute;
 
+use Attribute;
+
 /**
  * Service tag to autoconfigure commands.
  */
-#[\Attribute(\Attribute::TARGET_CLASS)]
+#[Attribute(Attribute::TARGET_CLASS)]
 class AsCommand
 {
     public function __construct(

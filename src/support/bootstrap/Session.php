@@ -25,9 +25,9 @@
 
 namespace support\bootstrap;
 
+use localzet\Server;
 use localzet\Server\Protocols\Http;
 use localzet\Server\Protocols\Http\Session as SessionBase;
-use localzet\Server;
 use Triangle\Engine\Bootstrap;
 use function config;
 use function property_exists;

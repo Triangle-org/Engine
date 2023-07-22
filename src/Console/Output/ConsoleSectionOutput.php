@@ -28,6 +28,7 @@ namespace Triangle\Engine\Console\Output;
 use Triangle\Engine\Console\Formatter\OutputFormatterInterface;
 use Triangle\Engine\Console\Helper\Helper;
 use Triangle\Engine\Console\Terminal;
+use const PHP_EOL;
 
 /**
  * @author Pierre du Plessis <pdples@gmail.com>
@@ -53,6 +54,17 @@ class ConsoleSectionOutput extends StreamOutput
     }
 
     /**
+     * Overwrites the previous output with a new message.
+     *
+     * @param array|string $message
+     */
+    public function overwrite($message)
+    {
+        $this->clear();
+        $this->writeln($message);
+    }
+
+    /**
      * Clears previous output for this section.
      *
      * @param int $lines Number of lines to clear. If null, then the entire output of this section is cleared
@@ -73,34 +85,6 @@ class ConsoleSectionOutput extends StreamOutput
         $this->lines -= $lines;
 
         parent::doWrite($this->popStreamContentUntilCurrentSection($lines), false);
-    }
-
-    /**
-     * Overwrites the previous output with a new message.
-     *
-     * @param array|string $message
-     */
-    public function overwrite($message)
-    {
-        $this->clear();
-        $this->writeln($message);
-    }
-
-    public function getContent(): string
-    {
-        return implode('', $this->content);
-    }
-
-    /**
-     * @internal
-     */
-    public function addContent(string $input)
-    {
-        foreach (explode(\PHP_EOL, $input) as $lineContent) {
-            $this->lines += ceil($this->getDisplayLength($lineContent) / $this->terminal->getWidth()) ?: 1;
-            $this->content[] = $lineContent;
-            $this->content[] = \PHP_EOL;
-        }
     }
 
     /**
@@ -148,6 +132,23 @@ class ConsoleSectionOutput extends StreamOutput
         }
 
         return implode('', array_reverse($erasedContent));
+    }
+
+    public function getContent(): string
+    {
+        return implode('', $this->content);
+    }
+
+    /**
+     * @internal
+     */
+    public function addContent(string $input)
+    {
+        foreach (explode(PHP_EOL, $input) as $lineContent) {
+            $this->lines += ceil($this->getDisplayLength($lineContent) / $this->terminal->getWidth()) ?: 1;
+            $this->content[] = $lineContent;
+            $this->content[] = PHP_EOL;
+        }
     }
 
     private function getDisplayLength(string $text): int

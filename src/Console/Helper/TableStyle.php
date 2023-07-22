@@ -27,6 +27,10 @@ namespace Triangle\Engine\Console\Helper;
 
 use Triangle\Engine\Console\Exception\InvalidArgumentException;
 use Triangle\Engine\Console\Exception\LogicException;
+use function in_array;
+use const STR_PAD_BOTH;
+use const STR_PAD_LEFT;
+use const STR_PAD_RIGHT;
 
 /**
  * Defines the styles for a Table.
@@ -60,7 +64,17 @@ class TableStyle
     private $cellRowFormat = '%s';
     private $cellRowContentFormat = ' %s ';
     private $borderFormat = '%s';
-    private $padType = \STR_PAD_RIGHT;
+    private $padType = STR_PAD_RIGHT;
+
+    /**
+     * Gets padding character, used for cell padding.
+     *
+     * @return string
+     */
+    public function getPaddingChar()
+    {
+        return $this->paddingChar;
+    }
 
     /**
      * Sets padding character, used for cell padding.
@@ -76,16 +90,6 @@ class TableStyle
         $this->paddingChar = $paddingChar;
 
         return $this;
-    }
-
-    /**
-     * Gets padding character, used for cell padding.
-     *
-     * @return string
-     */
-    public function getPaddingChar()
-    {
-        return $this->paddingChar;
     }
 
     /**
@@ -153,6 +157,16 @@ class TableStyle
     }
 
     /**
+     * Sets default crossing character used for each cross.
+     *
+     * @see {@link setCrossingChars()} for setting each crossing individually.
+     */
+    public function setDefaultCrossingChar(string $char): self
+    {
+        return $this->setCrossingChars($char, $char, $char, $char, $char, $char, $char, $char, $char);
+    }
+
+    /**
      * Sets crossing characters.
      *
      * Example:
@@ -202,16 +216,6 @@ class TableStyle
     }
 
     /**
-     * Sets default crossing character used for each cross.
-     *
-     * @see {@link setCrossingChars()} for setting each crossing individually.
-     */
-    public function setDefaultCrossingChar(string $char): self
-    {
-        return $this->setCrossingChars($char, $char, $char, $char, $char, $char, $char, $char, $char);
-    }
-
-    /**
      * Gets crossing character.
      *
      * @return string
@@ -245,18 +249,6 @@ class TableStyle
     }
 
     /**
-     * Sets header cell format.
-     *
-     * @return $this
-     */
-    public function setCellHeaderFormat(string $cellHeaderFormat)
-    {
-        $this->cellHeaderFormat = $cellHeaderFormat;
-
-        return $this;
-    }
-
-    /**
      * Gets header cell format.
      *
      * @return string
@@ -267,13 +259,13 @@ class TableStyle
     }
 
     /**
-     * Sets row cell format.
+     * Sets header cell format.
      *
      * @return $this
      */
-    public function setCellRowFormat(string $cellRowFormat)
+    public function setCellHeaderFormat(string $cellHeaderFormat)
     {
-        $this->cellRowFormat = $cellRowFormat;
+        $this->cellHeaderFormat = $cellHeaderFormat;
 
         return $this;
     }
@@ -289,13 +281,13 @@ class TableStyle
     }
 
     /**
-     * Sets row cell content format.
+     * Sets row cell format.
      *
      * @return $this
      */
-    public function setCellRowContentFormat(string $cellRowContentFormat)
+    public function setCellRowFormat(string $cellRowFormat)
     {
-        $this->cellRowContentFormat = $cellRowContentFormat;
+        $this->cellRowFormat = $cellRowFormat;
 
         return $this;
     }
@@ -311,13 +303,13 @@ class TableStyle
     }
 
     /**
-     * Sets table border format.
+     * Sets row cell content format.
      *
      * @return $this
      */
-    public function setBorderFormat(string $borderFormat)
+    public function setCellRowContentFormat(string $cellRowContentFormat)
     {
-        $this->borderFormat = $borderFormat;
+        $this->cellRowContentFormat = $cellRowContentFormat;
 
         return $this;
     }
@@ -333,17 +325,13 @@ class TableStyle
     }
 
     /**
-     * Sets cell padding type.
+     * Sets table border format.
      *
      * @return $this
      */
-    public function setPadType(int $padType)
+    public function setBorderFormat(string $borderFormat)
     {
-        if (!\in_array($padType, [\STR_PAD_LEFT, \STR_PAD_RIGHT, \STR_PAD_BOTH], true)) {
-            throw new InvalidArgumentException('Invalid padding type. Expected one of (STR_PAD_LEFT, STR_PAD_RIGHT, STR_PAD_BOTH).');
-        }
-
-        $this->padType = $padType;
+        $this->borderFormat = $borderFormat;
 
         return $this;
     }
@@ -356,6 +344,22 @@ class TableStyle
     public function getPadType()
     {
         return $this->padType;
+    }
+
+    /**
+     * Sets cell padding type.
+     *
+     * @return $this
+     */
+    public function setPadType(int $padType)
+    {
+        if (!in_array($padType, [STR_PAD_LEFT, STR_PAD_RIGHT, STR_PAD_BOTH], true)) {
+            throw new InvalidArgumentException('Invalid padding type. Expected one of (STR_PAD_LEFT, STR_PAD_RIGHT, STR_PAD_BOTH).');
+        }
+
+        $this->padType = $padType;
+
+        return $this;
     }
 
     public function getHeaderTitleFormat(): string

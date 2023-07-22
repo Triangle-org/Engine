@@ -38,19 +38,17 @@ use function trim;
 class ExceptionHandler implements ExceptionHandlerInterface
 {
     /**
+     * @var array
+     */
+    public array $dontReport = [];
+    /**
      * @var LoggerInterface|null
      */
     protected ?LoggerInterface $logger = null;
-
     /**
      * @var bool
      */
     protected bool $debug = false;
-
-    /**
-     * @var array
-     */
-    public array $dontReport = [];
 
     /**
      * ExceptionHandler constructor.
@@ -100,10 +98,24 @@ class ExceptionHandler implements ExceptionHandlerInterface
     }
 
     /**
+     * @param Throwable $e
+     * @return bool
+     */
+    protected function shouldntReport(Throwable $e): bool
+    {
+        foreach ($this->dontReport as $type) {
+            if ($e instanceof $type) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * @param Request $request
      * @param Throwable $exception
      * @return Response
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function render(Request $request, Throwable $exception): Response
     {
@@ -120,20 +132,6 @@ class ExceptionHandler implements ExceptionHandlerInterface
         if ($request->expectsJson()) return responseJson($json);
 
         return responseView($json, 500);
-    }
-
-    /**
-     * @param Throwable $e
-     * @return bool
-     */
-    protected function shouldntReport(Throwable $e): bool
-    {
-        foreach ($this->dontReport as $type) {
-            if ($e instanceof $type) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**

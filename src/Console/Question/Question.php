@@ -25,8 +25,11 @@
 
 namespace Triangle\Engine\Console\Question;
 
+use Traversable;
 use Triangle\Engine\Console\Exception\InvalidArgumentException;
 use Triangle\Engine\Console\Exception\LogicException;
+use function count;
+use function is_array;
 
 /**
  * Represents a Question.
@@ -159,33 +162,6 @@ class Question
     }
 
     /**
-     * Sets values for the autocompleter.
-     *
-     * @return $this
-     *
-     * @throws LogicException
-     */
-    public function setAutocompleterValues(?iterable $values)
-    {
-        if (\is_array($values)) {
-            $values = $this->isAssoc($values) ? array_merge(array_keys($values), array_values($values)) : array_values($values);
-
-            $callback = static function () use ($values) {
-                return $values;
-            };
-        } elseif ($values instanceof \Traversable) {
-            $valueCache = null;
-            $callback = static function () use ($values, &$valueCache) {
-                return $valueCache ?? $valueCache = iterator_to_array($values, false);
-            };
-        } else {
-            $callback = null;
-        }
-
-        return $this->setAutocompleterCallback($callback);
-    }
-
-    /**
      * Gets the callback function used for the autocompleter.
      */
     public function getAutocompleterCallback(): ?callable
@@ -212,15 +188,35 @@ class Question
     }
 
     /**
-     * Sets a validator for the question.
+     * Sets values for the autocompleter.
      *
      * @return $this
+     *
+     * @throws LogicException
      */
-    public function setValidator(callable $validator = null)
+    public function setAutocompleterValues(?iterable $values)
     {
-        $this->validator = $validator;
+        if (is_array($values)) {
+            $values = $this->isAssoc($values) ? array_merge(array_keys($values), array_values($values)) : array_values($values);
 
-        return $this;
+            $callback = static function () use ($values) {
+                return $values;
+            };
+        } elseif ($values instanceof Traversable) {
+            $valueCache = null;
+            $callback = static function () use ($values, &$valueCache) {
+                return $valueCache ?? $valueCache = iterator_to_array($values, false);
+            };
+        } else {
+            $callback = null;
+        }
+
+        return $this->setAutocompleterCallback($callback);
+    }
+
+    protected function isAssoc(array $array)
+    {
+        return (bool)count(array_filter(array_keys($array), 'is_string'));
     }
 
     /**
@@ -231,6 +227,18 @@ class Question
     public function getValidator()
     {
         return $this->validator;
+    }
+
+    /**
+     * Sets a validator for the question.
+     *
+     * @return $this
+     */
+    public function setValidator(callable $validator = null)
+    {
+        $this->validator = $validator;
+
+        return $this;
     }
 
     /**
@@ -266,20 +274,6 @@ class Question
     }
 
     /**
-     * Sets a normalizer for the response.
-     *
-     * The normalizer can be a callable (a string), a closure or a class implementing __invoke.
-     *
-     * @return $this
-     */
-    public function setNormalizer(callable $normalizer)
-    {
-        $this->normalizer = $normalizer;
-
-        return $this;
-    }
-
-    /**
      * Gets the normalizer for the response.
      *
      * The normalizer can ba a callable (a string), a closure or a class implementing __invoke.
@@ -291,9 +285,18 @@ class Question
         return $this->normalizer;
     }
 
-    protected function isAssoc(array $array)
+    /**
+     * Sets a normalizer for the response.
+     *
+     * The normalizer can be a callable (a string), a closure or a class implementing __invoke.
+     *
+     * @return $this
+     */
+    public function setNormalizer(callable $normalizer)
     {
-        return (bool)\count(array_filter(array_keys($array), 'is_string'));
+        $this->normalizer = $normalizer;
+
+        return $this;
     }
 
     public function isTrimmable(): bool

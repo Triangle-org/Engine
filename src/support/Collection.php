@@ -64,22 +64,6 @@ final class Collection
     }
 
     /**
-     * Извлекает элемент
-     *
-     * @param $property
-     *
-     * @return mixed
-     */
-    public function get($property): mixed
-    {
-        if ($this->exists($property)) {
-            return $this->collection->$property;
-        }
-
-        return null;
-    }
-
-    /**
      * Добавить или обновить элемент
      *
      * @param $property
@@ -122,6 +106,22 @@ final class Collection
     public function exists($property): bool
     {
         return property_exists($this->collection, $property);
+    }
+
+    /**
+     * Извлекает элемент
+     *
+     * @param $property
+     *
+     * @return mixed
+     */
+    public function get($property): mixed
+    {
+        if ($this->exists($property)) {
+            return $this->collection->$property;
+        }
+
+        return null;
     }
 
     /**

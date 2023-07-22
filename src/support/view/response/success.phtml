@@ -17,68 +17,70 @@ use localzet\Server;
 <html lang="ru" prefix="og: http://ogp.me/ns#">
 
 <head>
-  <base href="" />
-  <title><?= $name ?></title>
-  <meta charset="utf-8" />
+    <base href=""/>
+    <title><?= $name ?></title>
+    <meta charset="utf-8"/>
 
-  <!-- About App -->
-  <meta name="language" content="RU" />
-  <meta name="robots" content="noindex,nofollow" />
-  <meta name="title" content="<?= $name ?>" />
-  <meta name="viewport" content="<?= $viewport ?>" />
+    <!-- About App -->
+    <meta name="language" content="RU"/>
+    <meta name="robots" content="noindex,nofollow"/>
+    <meta name="title" content="<?= $name ?>"/>
+    <meta name="viewport" content="<?= $viewport ?>"/>
 
-  <!-- About Creator App -->
-  <meta name="owner" content="<?= $owner ?>" />
-  <meta name="designer" content="<?= $designer ?>" />
-  <meta name="author" content="<?= $author ?>" />
-  <meta name="copyright" content="<?= $copyright ?>" />
-  <meta name="reply-to" content="<?= $reply_to ?>" />
+    <!-- About Creator App -->
+    <meta name="owner" content="<?= $owner ?>"/>
+    <meta name="designer" content="<?= $designer ?>"/>
+    <meta name="author" content="<?= $author ?>"/>
+    <meta name="copyright" content="<?= $copyright ?>"/>
+    <meta name="reply-to" content="<?= $reply_to ?>"/>
 
-  <!-- About System -->
-  <meta name="generator" content="Triangle Framework" />
-  <meta name="server" version="Localzet Server <?= Server::getVersion() ?? '' ?>" />
+    <!-- About System -->
+    <meta name="generator" content="Triangle Framework"/>
+    <meta name="server" version="Localzet Server <?= Server::getVersion() ?? '' ?>"/>
 
-  <!-- Cache&Content -->
-  <meta http-equiv="Expires" content="60" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Cache-Control" content="no-cache" />
-  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <!-- Cache&Content -->
+    <meta http-equiv="Expires" content="60"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <meta http-equiv="Cache-Control" content="no-cache"/>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 
-  <!-- Apple Meta Tags -->
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-touch-fullscreen" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-  <meta name="format-detection" content="telephone=no" />
+    <!-- Apple Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-touch-fullscreen" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+    <meta name="format-detection" content="telephone=no"/>
 
-  <!-- SEO -->
-  <link rel="shortcut icon" type="image/svg+xml" href="<?= $logo ?>" />
+    <!-- SEO -->
+    <link rel="shortcut icon" type="image/svg+xml" href="<?= $logo ?>"/>
 
-  <meta name="color-scheme" content="dark light">
-  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#12121200">
-  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff00">
+    <meta name="color-scheme" content="dark light">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#12121200">
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff00">
 
-  <!-- Fonts -->
-  <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Nunito:100,200,300,400,500,600,700,800,900" />
+    <!-- Fonts -->
+    <link rel="stylesheet" type="text/css"
+          href="https://fonts.googleapis.com/css?family=Nunito:100,200,300,400,500,600,700,800,900"/>
 
-  <!--Theme-->
-  <script>
-    var globalDebug = <?= config('app.debug') ? 'true' : 'false' ?>;
-    var AppInfo = <?= json($AppInfo) ?>;
-    <?= config('app.debug') ? 'console.info("Запуск \"" + AppInfo.name + "\" \n", AppInfo);' : '' ?>
-  </script>
+    <!--Theme-->
+    <script>
+        var globalDebug = <?= config('app.debug') ? 'true' : 'false' ?>;
+        var AppInfo = <?= json($AppInfo) ?>;
+        <?= config('app.debug') ? 'console.info("Запуск \"" + AppInfo.name + "\" \n", AppInfo);' : '' ?>
+    </script>
 </head>
 
 <body>
-  <br />
-  <center>
+<br/>
+<center>
     <h1>
-      <?= print_r($data, true) ?>
+        <?= print_r($data, true) ?>
     </h1>
-  </center>
-  <hr />
-  <center>
-    <a href="https://github.com/localzet/server" style="text-decoration: auto;">Localzet Server <?= Server::getVersion() ?? '' ?></a>
-  </center>
+</center>
+<hr/>
+<center>
+    <a href="https://github.com/localzet/server" style="text-decoration: auto;">Localzet
+        Server <?= Server::getVersion() ?? '' ?></a>
+</center>
 </body>
 
 </html>
