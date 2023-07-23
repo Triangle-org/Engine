@@ -33,9 +33,16 @@ class Install
      * @var array
      */
     protected static array $pathRelation = [
-        'master' => 'master',
-        'support/bootstrap.php' => 'support/bootstrap.php',
-        // 'support/helpers.php' => 'support/helpers.php',
+        'master',
+        'support/bootstrap.php',
+        'support/helpers.php',
+//        'support/Request.php',
+//        'support/Response.php',
+    ];
+
+    protected static array $pathRelation_overwrite = [
+        'master',
+        'support/bootstrap.php',
     ];
 
     /**
@@ -53,16 +60,22 @@ class Install
      */
     public static function installByRelation(): void
     {
-        foreach (static::$pathRelation as $source => $dest) {
-            if ($pos = strrpos($dest, '/')) {
-                $parentDir = base_path() . '/' . substr($dest, 0, $pos);
+        foreach (static::$pathRelation as $source) {
+            if ($pos = strrpos($source, '/')) {
+                $parentDir = base_path() . '/' . substr($source, 0, $pos);
                 if (!is_dir($parentDir)) {
                     mkdir($parentDir, 0777, true);
                 }
             }
+
             $sourceFile = __DIR__ . "/$source";
-            copy_dir($sourceFile, base_path() . "/$dest", true);
-            echo "Создан $dest\r\n";
+//            if (in_array($source, static::$pathRelation_overwrite)) {
+                copy_dir($sourceFile, base_path() . "/$source", true);
+//            } else {
+//                copy_dir($sourceFile, base_path() . "/$source");
+//            }
+
+            echo "Создан $source\r\n";
             if (is_file($sourceFile)) {
                 @unlink($sourceFile);
             }
