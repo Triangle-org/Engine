@@ -46,7 +46,7 @@ declare(strict_types=1);
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Triangle\Engine\support\log;
+namespace support\log;
 
 use InvalidArgumentException;
 use MongoDB\Client;
