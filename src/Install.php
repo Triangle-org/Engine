@@ -40,11 +40,6 @@ class Install
 //        'support/Response.php',
     ];
 
-    protected static array $pathRelation_overwrite = [
-        'master',
-        'support/bootstrap.php',
-    ];
-
     /**
      * Install
      * @return void
@@ -55,30 +50,47 @@ class Install
     }
 
     /**
+     * Update
+     * @return void
+     */
+    public static function update(): void
+    {
+        static::installByRelation();
+    }
+
+    /**
      * InstallByRelation
      * @return void
      */
     public static function installByRelation(): void
     {
-        foreach (static::$pathRelation as $source) {
-            if ($pos = strrpos($source, '/')) {
-                $parentDir = base_path() . '/' . substr($source, 0, $pos);
-                if (!is_dir($parentDir)) {
-                    mkdir($parentDir, 0777, true);
+            foreach (static::$pathRelation as $source) {
+                if ($pos = strrpos($source, '/')) {
+                    $parentDir = base_path() . '/' . substr($source, 0, $pos);
+                    if (!is_dir($parentDir)) {
+                        mkdir($parentDir, 0777, true);
+                    }
                 }
-            }
 
-            $sourceFile = __DIR__ . "/$source";
-//            if (in_array($source, static::$pathRelation_overwrite)) {
-                copy_dir($sourceFile, base_path() . "/$source", true);
-//            } else {
-//                copy_dir($sourceFile, base_path() . "/$source");
-//            }
+                $sourceFile = __DIR__ . "/$source";
+                $targetFile = base_path() . "/$source";
 
-            echo "Создан $source\r\n";
-            if (is_file($sourceFile)) {
-                @unlink($sourceFile);
+                self::delFile($targetFile);
+                copy_dir($sourceFile, $targetFile, true);
+                self::delFile($sourceFile);
+
+                echo "Создан $source\r\n";
             }
+    }
+
+    /**
+     * @param string $filepath
+     * @return void
+     */
+    private static function delFile(string $filepath): void
+    {
+        if (is_file($filepath)) {
+            @unlink($filepath);
         }
     }
 

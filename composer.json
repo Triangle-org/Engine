@@ -63,5 +63,16 @@
       "Triangle\\Engine\\": "src/",
       "support\\": "src/support/"
     }
+  },
+  "scripts": {
+    "post-package-install": [
+      "support\\Plugin::install"
+    ],
+    "post-package-update": [
+      "support\\Plugin::update"
+    ],
+    "pre-package-uninstall": [
+      "support\\Plugin::uninstall"
+    ]
   }
 }

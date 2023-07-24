@@ -26,13 +26,8 @@
 namespace Triangle\Engine;
 
 use Fiber;
-use localzet\Server;
-use localzet\Server\Events\Revolt;
-use localzet\Server\Events\Swoole;
-use localzet\Server\Events\Swow;
 use SplObjectStorage;
 use StdClass;
-use Swow\Coroutine;
 use WeakMap;
 use function property_exists;
 
@@ -82,16 +77,11 @@ class Context
     }
 
     /**
-     * @return mixed
+     * @return Fiber|null
      */
-    protected static function getKey(): mixed
+    protected static function getKey(): ?Fiber
     {
-        return match (Server::$eventLoopClass) {
-            Revolt::class => Fiber::getCurrent(),
-            Swoole::class => \Swoole\Coroutine::getContext(),
-            Swow::class => Coroutine::getCurrent(),
-            default => static::$object,
-        };
+        return Fiber::getCurrent();
     }
 
     /**
