@@ -25,7 +25,7 @@
 
 namespace Triangle\Engine;
 
-use Psr\Container\ContainerInterface;
+use Psr\Container\{ContainerExceptionInterface, ContainerInterface, NotFoundExceptionInterface};
 use Triangle\Engine\Exception\NotFoundException;
 use function array_key_exists;
 use function class_exists;
@@ -46,35 +46,45 @@ class Container implements ContainerInterface
     protected array $definitions = [];
 
     /**
-     * Получить
-     * @param string $name
-     * @return mixed
-     * @throws NotFoundException
+     * Находит запись контейнера по ее идентификатору и возвращает его.
+     *
+     * @param string $id Идентификатор записи для поиска.
+     *
+     * @return mixed Запись.
+     * @throws ContainerExceptionInterface Ошибка при получении записи.
+     *
+     * @throws NotFoundExceptionInterface  Для данного идентификатора запись не найдена.
      */
-    public function get(string $name): mixed
+    public function get(string $id): mixed
     {
-        if (!isset($this->instances[$name])) {
-            if (isset($this->definitions[$name])) {
-                $this->instances[$name] = call_user_func($this->definitions[$name], $this);
+        if (!isset($this->instances[$id])) {
+            if (isset($this->definitions[$id])) {
+                $this->instances[$id] = call_user_func($this->definitions[$id], $this);
             } else {
-                if (!class_exists($name)) {
-                    throw new NotFoundException("Класс '$name' не найден");
+                if (!class_exists($id)) {
+                    throw new NotFoundException("Класс '$id' не найден");
                 }
-                $this->instances[$name] = new $name();
+                $this->instances[$id] = new $id();
             }
         }
-        return $this->instances[$name];
+        return $this->instances[$id];
     }
 
     /**
-     * Существует?
-     * @param string $name
+     * Возвращает true, если контейнер может вернуть запись для данного идентификатора.
+     *  В противном случае возвращает false.
+     *
+     * `has($id)`, возвращающее true, не означает, что `get($id)` не вызовет исключение.
+     * Однако это означает, что `get($id)` не будет вызывать `NotFoundExceptionInterface`.
+     *
+     * @param string $id Идентификатор записи для поиска.
+     *
      * @return bool
      */
-    public function has(string $name): bool
+    public function has(string $id): bool
     {
-        return array_key_exists($name, $this->instances)
-            || array_key_exists($name, $this->definitions);
+        return array_key_exists($id, $this->instances)
+            || array_key_exists($id, $this->definitions);
     }
 
     /**

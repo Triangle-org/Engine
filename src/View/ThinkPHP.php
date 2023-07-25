@@ -23,25 +23,24 @@
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace support\view;
+namespace Triangle\Engine\View;
 
+use think\Template;
 use Triangle\Engine\View;
-use Twig\Environment;
-use Twig\Error\LoaderError;
-use Twig\Error\RuntimeError;
-use Twig\Error\SyntaxError;
-use Twig\Loader\FilesystemLoader;
 use function app_path;
 use function array_merge;
 use function base_path;
 use function config;
 use function is_array;
+use function ob_get_clean;
+use function ob_start;
 use function request;
+use function runtime_path;
 
 /**
- * FrameX Twig: Templating adapter (twig/twig)
+ * FrameX ThinkPHP: Templating adapter (topthink/think-template)
  */
-class Twig implements View
+class ThinkPHP implements View
 {
     /**
      * @var array
@@ -72,30 +71,27 @@ class Twig implements View
      * @param string|null $app
      * @param string|null $plugin
      * @return string
-     * @throws LoaderError
-     * @throws RuntimeError
-     * @throws SyntaxError
      */
     public static function render(string $template, array $vars, string $app = null, string $plugin = null): string
     {
-        static $views = [];
         $request = request();
         $plugin = $plugin === null ? ($request->plugin ?? '') : $plugin;
         $app = $app === null ? $request->app : $app;
         $configPrefix = $plugin ? "plugin.$plugin." : '';
         $viewSuffix = config("{$configPrefix}view.options.view_suffix", 'html');
-        $key = "$plugin-$app";
-        if (!isset($views[$key])) {
-            $baseViewPath = $plugin ? base_path() . "/plugin/$plugin/app" : app_path();
-            $viewPath = $app === '' ? "$baseViewPath/view/" : "$baseViewPath/$app/view/";
-            $views[$key] = new Environment(new FilesystemLoader($viewPath), config("{$configPrefix}view.options", []));
-            $extension = config("{$configPrefix}view.extension");
-            if ($extension) {
-                $extension($views[$key]);
-            }
-        }
+        $baseViewPath = $plugin ? base_path() . "/plugin/$plugin/app" : app_path();
+        $viewPath = $app === '' ? "$baseViewPath/view/" : "$baseViewPath/$app/view/";
+        $defaultOptions = [
+            'view_path' => $viewPath,
+            'cache_path' => runtime_path() . '/views/',
+            'view_suffix' => $viewSuffix
+        ];
+        $options = $defaultOptions + config("{$configPrefix}view.options", []);
+        $views = new Template($options);
+        ob_start();
         $vars = array_merge(static::$vars, $vars);
-        $content = $views[$key]->render("$template.$viewSuffix", $vars);
+        $views->fetch($template, $vars);
+        $content = ob_get_clean();
         static::$vars = [];
         return $content;
     }

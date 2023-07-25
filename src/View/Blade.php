@@ -23,7 +23,7 @@
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace support\view;
+namespace Triangle\Engine\View;
 
 use Jenssegers\Blade\Blade as BladeView;
 use Triangle\Engine\View;

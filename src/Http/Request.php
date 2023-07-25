@@ -25,14 +25,11 @@
 
 namespace Triangle\Engine\Http;
 
+use localzet\Server\Connection\TcpConnection;
 use Triangle\Engine\Route\Route;
 use function current;
 use function filter_var;
-use function ip2long;
 use function is_array;
-use const FILTER_FLAG_IPV4;
-use const FILTER_FLAG_NO_PRIV_RANGE;
-use const FILTER_FLAG_NO_RES_RANGE;
 use const FILTER_VALIDATE_IP;
 
 /**
@@ -66,62 +63,10 @@ class Request extends \localzet\Server\Protocols\Http\Request
     public ?Route $route = null;
 
     /**
-     * @param string $name
-     * @param mixed|null $default
-     * @return mixed|null
-     */
-    public function input(string $name, mixed $default = null): mixed
-    {
-        $post = $this->post();
-        if (isset($post[$name])) {
-            return $post[$name];
-        }
-        $get = $this->get();
-        return $get[$name] ?? $default;
-    }
-
-    /**
-     * @param array $keys
-     * @return array
-     */
-    public function only(array $keys): array
-    {
-        $all = $this->all();
-        $result = [];
-        foreach ($keys as $key) {
-            if (isset($all[$key])) {
-                $result[$key] = $all[$key];
-            }
-        }
-        return $result;
-    }
-
-    /**
-     * @return mixed|null
-     */
-    public function all(): mixed
-    {
-        return $this->post() + $this->get();
-    }
-
-    /**
-     * @param array $keys
-     * @return mixed|null
-     */
-    public function except(array $keys): mixed
-    {
-        $all = $this->all();
-        foreach ($keys as $key) {
-            unset($all[$key]);
-        }
-        return $all;
-    }
-
-    /**
      * @param string|null $name
      * @return null|UploadFile[]|UploadFile
      */
-    public function file($name = null): array|UploadFile|null
+    public function file($name = null): mixed
     {
         $files = parent::file($name);
         if (null === $files) {
@@ -225,97 +170,10 @@ class Request extends \localzet\Server\Protocols\Http\Request
     }
 
     /**
-     * @param string $ip
-     * @return bool
+     * @return TcpConnection
      */
-    public static function isIntranetIp(string $ip): bool
+    public function getConnection(): TcpConnection
     {
-        // Не IP.
-        if (!filter_var($ip, FILTER_VALIDATE_IP)) {
-            return false;
-        }
-        // Точно ip Интранета? Для IPv4 FALSE может быть не точным, поэтому нам нужно проверить его вручную ниже.
-        if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
-            return true;
-        }
-        // Ручная проверка IPv4.
-        if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-            return false;
-        }
-
-        // Ручная проверка
-        // $reservedIps = [
-        //     '167772160'  => 184549375,  // 10.0.0.0 -  10.255.255.255
-        //     '3232235520' => 3232301055, // 192.168.0.0 - 192.168.255.255
-        //     '2130706432' => 2147483647, // 127.0.0.0 - 127.255.255.255
-        //     '2886729728' => 2887778303, // 172.16.0.0 -  172.31.255.255
-        // ];
-        $reservedIps = [
-            1681915904 => 1686110207,   // 100.64.0.0 -  100.127.255.255
-            3221225472 => 3221225727,   // 192.0.0.0 - 192.0.0.255
-            3221225984 => 3221226239,   // 192.0.2.0 - 192.0.2.255
-            3227017984 => 3227018239,   // 192.88.99.0 - 192.88.99.255
-            3323068416 => 3323199487,   // 198.18.0.0 - 198.19.255.255
-            3325256704 => 3325256959,   // 198.51.100.0 - 198.51.100.255
-            3405803776 => 3405804031,   // 203.0.113.0 - 203.0.113.255
-            3758096384 => 4026531839,   // 224.0.0.0 - 239.255.255.255
-        ];
-
-        $ipLong = ip2long($ip);
-
-        foreach ($reservedIps as $ipStart => $ipEnd) {
-            if (($ipLong >= $ipStart) && ($ipLong <= $ipEnd)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * @return string
-     */
-    public function url(): string
-    {
-        return '//' . $this->host() . $this->path();
-    }
-
-    /**
-     * @return string
-     */
-    public function fullUrl(): string
-    {
-        return '//' . $this->host() . $this->uri();
-    }
-
-    /**
-     * @return bool
-     */
-    public function expectsJson(): bool
-    {
-        return ($this->isAjax() && !$this->isPjax()) || $this->acceptJson() || strtoupper($this->method()) != 'GET';
-    }
-
-    /**
-     * @return bool
-     */
-    public function isAjax(): bool
-    {
-        return $this->header('X-Requested-With') === 'XMLHttpRequest';
-    }
-
-    /**
-     * @return bool
-     */
-    public function isPjax(): bool
-    {
-        return (bool)$this->header('X-PJAX');
-    }
-
-    /**
-     * @return bool
-     */
-    public function acceptJson(): bool
-    {
-        return str_contains($this->header('accept', ''), 'json');
+        return $this->connection;
     }
 }

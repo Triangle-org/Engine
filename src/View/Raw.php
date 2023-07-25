@@ -23,7 +23,7 @@
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace support\view;
+namespace Triangle\Engine\View;
 
 use Throwable;
 use Triangle\Engine\View;
@@ -104,7 +104,8 @@ class Raw implements View
         $copyright = config('app.copyright', '');
         $reply_to = config('app.reply_to', '');
 
-        $page = last(explode('/', $template) ?? [$template]);
+        $extemplate = explode('/', $template) ?? [$template];
+        $page = end($extemplate);
 
         $AppInfo = [
             'name' => $name,
@@ -152,7 +153,7 @@ class Raw implements View
         $request = request();
         $plugin = $request->plugin ?? '';
         $config_prefix = $plugin ? "plugin.$plugin." : '';
-        $sysview = __DIR__ . "/response/$template.phtml";
+        $sysview = __DIR__ . "/../support/view/response/$template.phtml";
         $view = config("{$config_prefix}view.system.$template", $sysview);
 
         $name = config('app.name', 'Triangle App');
@@ -171,7 +172,8 @@ class Raw implements View
         $copyright = config('app.copyright', '');
         $reply_to = config('app.reply_to', '');
 
-        $page = last(explode('/', $template) ?? [$template]);
+        $extemplate = explode('/', $template) ?? [$template];
+        $page = end($extemplate);
 
         $AppInfo = [
             'name' => $name,

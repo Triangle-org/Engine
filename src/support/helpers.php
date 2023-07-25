@@ -29,14 +29,14 @@ use support\Db;
 use support\Request;
 use support\Response;
 use support\Translation;
-use support\view\Blade;
-use support\view\Raw;
-use support\view\ThinkPHP;
-use support\view\Twig;
 use Triangle\Engine\App;
 use Triangle\Engine\Config;
 use Triangle\Engine\Http\Request as TriangleRequest;
 use Triangle\Engine\Route;
+use Triangle\Engine\View\Blade;
+use Triangle\Engine\View\Raw;
+use Triangle\Engine\View\ThinkPHP;
+use Triangle\Engine\View\Twig;
 use Triangle\MongoDB\Connection;
 use Triangle\MongoDB\Query\Builder;
 use Twig\Error\LoaderError;
@@ -45,27 +45,6 @@ use Twig\Error\SyntaxError;
 
 
 define('BASE_PATH', dirname(__DIR__));
-
-/**
- * @param string|null $connection
- * @param string|null $collection
- * @return Connection|Builder
- * @throws Exception
- */
-function MongoDB(string $connection = NULL, string $collection = NULL): Builder|Connection
-{
-    if (empty($connection)) {
-        $connection = config('database.default', 'default');
-    }
-
-    if (!in_array($connection, array_keys(config('database.connections'))) || config("database.connections.$connection.driver") != 'mongodb') {
-        throw new Exception("MongoDB соединения не существует в конфигурации");
-    }
-
-    /** @var Connection $db */
-    $db = Db::connection($connection);
-    return empty($collection) ? $db : $db->collection($collection);
-}
 
 /**
  * return the program execute directory
@@ -654,7 +633,7 @@ function getRequestIp(): ?string
  *
  * @return boolean
  */
-function validate_ip(string $ip): bool
+function validateIp(string $ip): bool
 {
     if (strtolower($ip) === 'unknown')
         return false;
@@ -679,6 +658,53 @@ function validate_ip(string $ip): bool
             return false;
     }
     return true;
+}
+
+/**
+ * @param string $ip
+ * @return bool
+ */
+function isIntranetIp(string $ip): bool
+{
+    // Не IP.
+    if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+        return false;
+    }
+    // Точно ip Интранета? Для IPv4 FALSE может быть не точным, поэтому нам нужно проверить его вручную ниже.
+    if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+        return true;
+    }
+    // Ручная проверка IPv4.
+    if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+        return false;
+    }
+
+    // Ручная проверка
+    // $reservedIps = [
+    //     '167772160'  => 184549375,  // 10.0.0.0 -  10.255.255.255
+    //     '3232235520' => 3232301055, // 192.168.0.0 - 192.168.255.255
+    //     '2130706432' => 2147483647, // 127.0.0.0 - 127.255.255.255
+    //     '2886729728' => 2887778303, // 172.16.0.0 -  172.31.255.255
+    // ];
+    $reservedIps = [
+        1681915904 => 1686110207,   // 100.64.0.0 -  100.127.255.255
+        3221225472 => 3221225727,   // 192.0.0.0 - 192.0.0.255
+        3221225984 => 3221226239,   // 192.0.2.0 - 192.0.2.255
+        3227017984 => 3227018239,   // 192.88.99.0 - 192.88.99.255
+        3323068416 => 3323199487,   // 198.18.0.0 - 198.19.255.255
+        3325256704 => 3325256959,   // 198.51.100.0 - 198.51.100.255
+        3405803776 => 3405804031,   // 203.0.113.0 - 203.0.113.255
+        3758096384 => 4026531839,   // 224.0.0.0 - 239.255.255.255
+    ];
+
+    $ipLong = ip2long($ip);
+
+    foreach ($reservedIps as $ipStart => $ipEnd) {
+        if (($ipLong >= $ipStart) && ($ipLong <= $ipEnd)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 /**
