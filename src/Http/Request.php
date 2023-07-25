@@ -148,7 +148,7 @@ class Request extends \localzet\Server\Protocols\Http\Request
     public function getRealIp(bool $safeMode = true): string
     {
         $remoteIp = $this->getRemoteIp();
-        if ($safeMode && !static::isIntranetIp($remoteIp)) {
+        if ($safeMode && !isIntranetIp($remoteIp)) {
             return $remoteIp;
         }
         $ip = $this->header('x-real-ip', $this->header(
