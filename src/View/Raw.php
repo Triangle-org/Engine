@@ -153,7 +153,7 @@ class Raw implements View
         $request = request();
         $plugin = $request->plugin ?? '';
         $config_prefix = $plugin ? "plugin.$plugin." : '';
-        $sysview = __DIR__ . "/../support/view/response/$template.phtml";
+        $sysview = __DIR__ . "/../support/view/$template.phtml";
         $view = config("{$config_prefix}view.system.$template", $sysview);
 
         $name = config('app.name', 'Triangle App');
