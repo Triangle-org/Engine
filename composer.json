@@ -49,6 +49,7 @@
     "ext-zend-opcache": "*",
     "localzet/server": "^4.0",
     "triangle/console": ">=1.0",
+    "triangle/webanalyzer": ">=1.0",
     "nikic/fast-route": "^1.3",
     "psr/container": "^1.1.1",
     "php-di/php-di": "^6.4",
@@ -60,7 +61,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Triangle\\Engine\\": "src/",
+      "Triangle\\Engine\\": "src",
       "support\\": "src/support/"
     }
   },
