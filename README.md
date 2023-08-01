@@ -12,7 +12,7 @@
   <a href="https://packagist.org/packages/triangle/engine">
   <img src="https://img.shields.io/packagist/v/triangle/engine?label=%D0%92%D0%B5%D1%80%D1%81%D0%B8%D1%8F" alt="Версия">
 </a>
-  <a href="https://packagist.org/packages/localzet/webauthn">
+  <a href="https://packagist.org/packages/triangle/engine">
   <img src="https://img.shields.io/packagist/dependency-v/triangle/engine/php?label=PHP" alt="Версия PHP">
 </a>
   <a href="https://github.com/Triangle-org/Engine">
