@@ -25,12 +25,6 @@
     "email": "support@localzet.com",
     "source": "https://github.com/Triangle-org/Engine"
   },
-  "funding": [
-    {
-      "type": "other",
-      "url": "https://www.tinkoff.ru/cf/Ad5MBNhodod"
-    }
-  ],
   "suggest": {
     "ext-curl": "For HttpClient",
     "ext-json": "For support JSON",
@@ -49,7 +43,7 @@
     "ext-zend-opcache": "*",
     "localzet/server": "^4.0",
     "triangle/console": ">=1.0",
-    "triangle/webanalyzer": ">=1.0",
+    "localzet/webanalyzer": ">=1.1",
     "nikic/fast-route": "^1.3",
     "psr/container": "^1.1.1",
     "php-di/php-di": "^6.4",
