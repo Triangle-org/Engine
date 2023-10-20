@@ -118,30 +118,6 @@ class Request extends \localzet\Server\Protocols\Http\Request
     }
 
     /**
-     * @return int
-     */
-    public function getRemotePort(): int
-    {
-        return $this->connection->getRemotePort();
-    }
-
-    /**
-     * @return string
-     */
-    public function getLocalIp(): string
-    {
-        return $this->connection->getLocalIp();
-    }
-
-    /**
-     * @return int
-     */
-    public function getLocalPort(): int
-    {
-        return $this->connection->getLocalPort();
-    }
-
-    /**
      * @param bool $safeMode
      * @return string
      */
@@ -159,21 +135,5 @@ class Request extends \localzet\Server\Protocols\Http\Request
             ))
         ));
         return filter_var($ip, FILTER_VALIDATE_IP) ? $ip : $remoteIp;
-    }
-
-    /**
-     * @return string
-     */
-    public function getRemoteIp(): string
-    {
-        return $this->connection->getRemoteIp();
-    }
-
-    /**
-     * @return TcpConnection
-     */
-    public function getConnection(): TcpConnection
-    {
-        return $this->connection;
     }
 }
