@@ -2,7 +2,7 @@
 
 use Triangle\Engine\App;
 
-define('BASE_PATH', dirname(__DIR__));
+define('BASE_PATH', dirname(__DIR__, 2));
 
 /**
  * return the program execute directory
