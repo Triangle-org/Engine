@@ -146,6 +146,22 @@ class App
     }
 
     /**
+     * @return string
+     */
+    public static function publicPath(): string
+    {
+        return static::$publicPath ?? (config('app.public_path') ?: run_path('public'));
+    }
+
+    /**
+     * @return string
+     */
+    public static function appPath(): string
+    {
+        return static::$appPath ?? (BASE_PATH . DIRECTORY_SEPARATOR . 'app');
+    }
+
+    /**
      * @return Server|null
      */
     public static function server(): ?Server
@@ -860,7 +876,7 @@ class App
             if (!$found) {
                 break;
             }
-            $dirs = Util::scanDir($basePath, false);
+            $dirs = scan_dir($basePath, false);
             $found = false;
             foreach ($dirs as $name) {
                 $path = "$basePath/$name";

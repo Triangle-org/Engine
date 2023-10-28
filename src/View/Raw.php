@@ -83,7 +83,7 @@ class Raw implements View
         $view_head = config("{$configPrefix}view.options.view_head", "base");
         $view_footer = config("{$configPrefix}view.options.view_footer", "footer");
         $app = $app === null ? $request->app : $app;
-        $baseViewPath = $plugin ? base_path() . "/plugin/$plugin/app" : app_path();
+        $baseViewPath = $plugin ? base_path("plugin/$plugin/app") : app_path();
         $__template_body__ = $app === '' ? "$baseViewPath/view/$template.$viewSuffix" : "$baseViewPath/$app/view/$template.$viewSuffix";
         $__template_head__ = ($view_global ? app_path() : $baseViewPath) . ($app === '' || $view_global ? "/view/$view_head.$viewSuffix" : "/$app/view/$view_head.$viewSuffix");
         $__template_foot__ = ($view_global ? app_path() : $baseViewPath) . ($app === '' || $view_global ? "/view/$view_footer.$viewSuffix" : "/$app/view/$view_footer.$viewSuffix");

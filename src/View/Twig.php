@@ -86,7 +86,7 @@ class Twig implements View
         $viewSuffix = config("{$configPrefix}view.options.view_suffix", 'html');
         $key = "$plugin-$app";
         if (!isset($views[$key])) {
-            $baseViewPath = $plugin ? base_path() . "/plugin/$plugin/app" : app_path();
+            $baseViewPath = $plugin ? base_path("plugin/$plugin/app") : app_path();
             $viewPath = $app === '' ? "$baseViewPath/view/" : "$baseViewPath/$app/view/";
             $views[$key] = new Environment(new FilesystemLoader($viewPath), config("{$configPrefix}view.options", []));
             $extension = config("{$configPrefix}view.extension");

@@ -79,11 +79,11 @@ class ThinkPHP implements View
         $app = $app === null ? $request->app : $app;
         $configPrefix = $plugin ? "plugin.$plugin." : '';
         $viewSuffix = config("{$configPrefix}view.options.view_suffix", 'html');
-        $baseViewPath = $plugin ? base_path() . "/plugin/$plugin/app" : app_path();
+        $baseViewPath = $plugin ? base_path("plugin/$plugin/app") : app_path();
         $viewPath = $app === '' ? "$baseViewPath/view/" : "$baseViewPath/$app/view/";
         $defaultOptions = [
             'view_path' => $viewPath,
-            'cache_path' => runtime_path() . '/views/',
+            'cache_path' => runtime_path('views/'),
             'view_suffix' => $viewSuffix
         ];
         $options = $defaultOptions + config("{$configPrefix}view.options", []);

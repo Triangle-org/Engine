@@ -25,7 +25,6 @@
 
 namespace Triangle\Engine\Http;
 
-use localzet\Server\Connection\TcpConnection;
 use Triangle\Engine\Route\Route;
 use function current;
 use function filter_var;

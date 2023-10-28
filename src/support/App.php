@@ -33,7 +33,6 @@ use Throwable;
 use Triangle\Engine\Config;
 use Triangle\Engine\Util;
 use function base_path;
-use function call_user_func;
 use function is_dir;
 use function opcache_get_status;
 use function opcache_invalidate;
@@ -67,14 +66,14 @@ class App
             date_default_timezone_set($timezone);
         }
 
-        $runtimeLogsPath = runtime_path() . DIRECTORY_SEPARATOR . 'logs';
+        $runtimeLogsPath = runtime_path('logs');
         if (!file_exists($runtimeLogsPath) || !is_dir($runtimeLogsPath)) {
             if (!mkdir($runtimeLogsPath, 0777, true)) {
                 throw new RuntimeException("Failed to create runtime logs directory. Please check the permission.");
             }
         }
 
-        $runtimeViewsPath = runtime_path() . DIRECTORY_SEPARATOR . 'views';
+        $runtimeViewsPath = runtime_path('views');
         if (!file_exists($runtimeViewsPath) || !is_dir($runtimeViewsPath)) {
             if (!mkdir($runtimeViewsPath, 0777, true)) {
                 throw new RuntimeException("Failed to create runtime views directory. Please check the permission.");
@@ -106,28 +105,18 @@ class App
         }
 
         if ($config['listen']) {
-            $server = new Server($config['listen'], $config['context']);
-            $propertyMap = [
-                'name',
-                'count',
-                'user',
-                'group',
-                'reusePort',
-                'transport',
-                'protocol'
-            ];
-            foreach ($propertyMap as $property) {
-                if (isset($config[$property])) {
-                    $server->$property = $config[$property];
-                }
-            }
-
-            $server->onServerStart = function ($server) {
-                require_once base_path() . '/support/bootstrap.php';
-                $app = new \Triangle\Engine\App(config('app.request_class', Request::class), Log::channel(), app_path(), public_path());
-                $server->onMessage = [$app, 'onMessage'];
-                call_user_func([$app, 'onServerStart'], $server);
-            };
+            server_start(
+                $config['name'],
+                $config + [
+                    'handler' => \Triangle\Engine\App::class,
+                    'constructor' => [
+                        'requestClass' => config('app.request_class', Request::class),
+                        'logger' => Log::channel(),
+                        'appPath' => app_path(),
+                        'publicPath' => public_path(),
+                    ]
+                ]
+            );
         }
 
         // Windows does not support custom processes.
@@ -162,8 +151,8 @@ class App
     public static function loadAllConfig(array $excludes = []): void
     {
         Config::load(config_path(), $excludes);
-        $directory = base_path() . '/plugin';
-        foreach (Util::scanDir($directory, false) as $name) {
+        $directory = base_path('plugin');
+        foreach (scan_dir($directory, false) as $name) {
             $dir = "$directory/$name/config";
             if (is_dir($dir)) {
                 Config::load($dir, $excludes, "plugin.$name");

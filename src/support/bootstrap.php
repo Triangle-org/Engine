@@ -60,7 +60,7 @@ if ($server) {
 }
 
 // Загрузка переменных окружения из файла .env
-if (class_exists('Dotenv\Dotenv') && file_exists(base_path() . '/.env')) {
+if (class_exists('Dotenv\Dotenv') && file_exists(base_path('.env'))) {
     if (method_exists('Dotenv\Dotenv', 'createUnsafeMutable')) {
         Dotenv::createUnsafeMutable(base_path())->load();
     } else {
@@ -86,12 +86,12 @@ foreach (config('autoload.files', []) as $file) {
 }
 
 // Загрузка файлов автозагрузки из папки autoload
-foreach (glob(base_path() . '/autoload/*.php') as $file) {
+foreach (glob(base_path('autoload/*.php')) as $file) {
     include_once($file);
 }
 
 // Загрузка файлов автозагрузки из подпапок папки autoload
-foreach (glob(base_path() . '/autoload/*/*/*.php') as $file) {
+foreach (glob(base_path('autoload/*/*/*.php')) as $file) {
     include_once($file);
 }
 
@@ -251,11 +251,11 @@ foreach (config('plugin', []) as $firm => $projects) {
     }
 }
 
-$directory = base_path() . '/plugin';
+$directory = base_path('plugin');
 $paths = [config_path()];
 
 // Загрузка маршрутов из папок конфигурации плагинов
-foreach (Util::scanDir($directory) as $path) {
+foreach (scan_dir($directory) as $path) {
     if (is_dir($path = "$path/config")) {
         $paths[] = $path;
     }

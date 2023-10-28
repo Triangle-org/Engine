@@ -55,36 +55,36 @@ class LaravelDb implements Bootstrap
             return;
         }
 
-            $config = config('database', []);
-            $connections = $config['connections'] ?? [];
-            if (!$connections) {
-                return;
-            }
+        $config = config('database', []);
+        $connections = $config['connections'] ?? [];
+        if (!$connections) {
+            return;
+        }
 
-            $capsule = new Capsule(IlluminateContainer::getInstance());
+        $capsule = new Capsule(IlluminateContainer::getInstance());
 
-            $capsule->getDatabaseManager()->extend('mongodb', function ($config, $name) {
-                $config['name'] = $name;
-                return new MongodbConnection($config);
-            });
+        $capsule->getDatabaseManager()->extend('mongodb', function ($config, $name) {
+            $config['name'] = $name;
+            return new MongodbConnection($config);
+        });
 
-            $default = $config['default'] ?? false;
-            if ($default) {
-                $defaultConfig = $connections[$config['default']];
-                $capsule->addConnection($defaultConfig);
-            }
+        $default = $config['default'] ?? false;
+        if ($default) {
+            $defaultConfig = $connections[$config['default']];
+            $capsule->addConnection($defaultConfig);
+        }
 
-            foreach ($connections as $name => $config) {
-                $capsule->addConnection($config, $name);
-            }
+        foreach ($connections as $name => $config) {
+            $capsule->addConnection($config, $name);
+        }
 
-            if (class_exists(Dispatcher::class) && !$capsule->getEventDispatcher()) {
-                $capsule->setEventDispatcher(Container::make(Dispatcher::class, [IlluminateContainer::getInstance()]));
-            }
+        if (class_exists(Dispatcher::class) && !$capsule->getEventDispatcher()) {
+            $capsule->setEventDispatcher(Container::make(Dispatcher::class, [IlluminateContainer::getInstance()]));
+        }
 
-            $capsule->setAsGlobal();
+        $capsule->setAsGlobal();
 
-            $capsule->bootEloquent();
+        $capsule->bootEloquent();
 
         // Heartbeat
         if ($server) {
