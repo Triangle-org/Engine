@@ -27,9 +27,6 @@ namespace Triangle\Engine\Session;
 
 use localzet\Server\Protocols\Http\Session\RedisSessionHandler as RedisHandler;
 
-/**
- * Class FileSessionHandler
- */
 class RedisSessionHandler extends RedisHandler
 {
 }

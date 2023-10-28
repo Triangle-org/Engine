@@ -25,8 +25,8 @@
 
 namespace Triangle\Engine\Session;
 
-use localzet\Server\Protocols\Http\Session\FileSessionHandler as FileHandler;
+use localzet\Server\Protocols\Http\Session\MongoSessionHandler as MongoHandler;
 
-class FileSessionHandler extends FileHandler
+class MongoSessionHandler extends MongoHandler
 {
 }
