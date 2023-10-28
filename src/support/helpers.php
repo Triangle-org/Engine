@@ -23,12 +23,7 @@
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use support\Request;
 use support\Translation;
-use Triangle\Engine\App;
-use Triangle\Engine\Config;
-use Triangle\Engine\Http\Request as TriangleRequest;
-use Triangle\Engine\Route;
 
 require_once __DIR__ . '/helpers/dirs.php';
 require_once __DIR__ . '/helpers/formats.php';
@@ -36,7 +31,6 @@ require_once __DIR__ . '/helpers/paths.php';
 require_once __DIR__ . '/helpers/responses.php';
 require_once __DIR__ . '/helpers/server.php';
 require_once __DIR__ . '/helpers/web.php';
-
 
 
 /**

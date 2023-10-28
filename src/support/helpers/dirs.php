@@ -1,12 +1,5 @@
 <?php
 
-use support\Request;
-use support\Translation;
-use Triangle\Engine\App;
-use Triangle\Engine\Config;
-use Triangle\Engine\Http\Request as TriangleRequest;
-use Triangle\Engine\Route;
-
 /**
  * Copy dir
  * @param string $source
