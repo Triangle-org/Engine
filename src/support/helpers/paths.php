@@ -36,7 +36,8 @@ function base_path(false|string $path = ''): string
  */
 function app_path(string $path = ''): string
 {
-    return path_combine(App::appPath(), $path);
+    $appPath = App::appPath();
+    return path_combine($appPath != '' ? $appPath : (BASE_PATH . DIRECTORY_SEPARATOR . 'app'), $path);
 }
 
 /**
@@ -58,7 +59,8 @@ function public_path(string $path = ''): string
 //    if (!$publicPath) {
 //        $publicPath = config('app.public_path') ?: run_path('public');
 //    }
-    return path_combine(App::publicPath(), $path);
+    $publicPath = App::publicPath();
+    return path_combine($publicPath != '' ? $publicPath : (config('app.public_path') ?: run_path('public')), $path);
 }
 
 /**

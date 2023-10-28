@@ -112,7 +112,7 @@ class App
                     'constructor' => [
                         'requestClass' => config('app.request_class', Request::class),
                         'logger' => Log::channel(),
-                        'appPath' => BASE_PATH . DIRECTORY_SEPARATOR . 'app',
+                        'appPath' => app_path(), //BASE_PATH . DIRECTORY_SEPARATOR . 'app',
                         'publicPath' => public_path(),
                     ]
                 ]

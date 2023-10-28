@@ -150,7 +150,7 @@ class App
      */
     public static function publicPath(): string
     {
-        return static::$publicPath ?? (config('app.public_path') ?: run_path('public'));
+        return static::$publicPath; // != '' ? static::$publicPath : (config('app.public_path') ?: run_path('public'));
     }
 
     /**
@@ -158,7 +158,7 @@ class App
      */
     public static function appPath(): string
     {
-        return static::$appPath ?? (BASE_PATH . DIRECTORY_SEPARATOR . 'app');
+        return static::$appPath; // != '' ? static::$appPath : (BASE_PATH . DIRECTORY_SEPARATOR . 'app');
     }
 
     /**
