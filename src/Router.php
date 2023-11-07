@@ -23,7 +23,7 @@
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Triangle\Engine\Router;
+namespace Triangle\Engine;
 
 use FastRoute\Dispatcher;
 use FastRoute\RouteCollector;

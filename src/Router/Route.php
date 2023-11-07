@@ -25,6 +25,7 @@
 
 namespace Triangle\Engine\Router;
 
+use Triangle\Engine\Router;
 use function array_merge;
 use function count;
 use function preg_replace_callback;
