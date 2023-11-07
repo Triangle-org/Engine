@@ -29,9 +29,10 @@ use Symfony\Component\Cache\Adapter\RedisAdapter;
 use Symfony\Component\Cache\Psr16Cache;
 
 /**
- * Class Cache
+ * Класс Cache
+ * Этот класс предоставляет методы для работы с кэшем.
  *
- * Strings methods
+ * Методы:
  * @method static mixed get($key, $default = null)
  * @method static bool set($key, $value, $ttl = null)
  * @method static bool delete($key)
@@ -49,9 +50,10 @@ class Cache
     public static ?Psr16Cache $instance = null;
 
     /**
-     * @param $name
-     * @param $arguments
-     * @return mixed
+     * Магический метод для вызова методов кэша
+     * @param $name Имя метода
+     * @param $arguments Аргументы метода
+     * @return mixed Результат вызова метода
      */
     public static function __callStatic($name, $arguments)
     {
@@ -59,6 +61,7 @@ class Cache
     }
 
     /**
+     * Получить экземпляр кэша
      * @return Psr16Cache|null
      */
     public static function instance(): ?Psr16Cache
