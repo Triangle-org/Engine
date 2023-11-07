@@ -46,6 +46,77 @@ use localzet\Server;
     <link rel="stylesheet" type="text/css"
           href="https://fonts.googleapis.com/css?family=Nunito:100,200,300,400,500,600,700,800,900"/>
 
+    <style>
+        html {
+            /* height: 100%; */
+        }
+
+        body {
+            /* background-color: #0e0e0e; */
+            background-color: #000;
+
+            font-family: Nunito, monospace;
+            font-weight: 600;
+
+            text-align: center;
+            text-decoration: none !important;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        .footer a {
+            text-decoration: none;
+            color: #6e7681;
+            margin: 0 3px;
+            /* white-space: nowrap; */
+            display: inline-block;
+        }
+
+        .footer a b {
+            color: #7b69c8;
+        }
+
+        img {
+            display: block;
+            -webkit-user-select: none;
+            /* margin: calc(48vh - 80px) calc(50vw - 400px); */
+            transition: background-color 300ms;
+
+            max-width: 800px;
+
+            width: 800px;
+            /* height: 160px; */
+        }
+
+        hr {
+            border-color: #7b69c8;
+            border-radius: 50%;
+            width: 100%;
+        }
+
+        /* Медиа-запрос для экранов меньше 800px */
+        @media (max-width: 900px) {
+            img {
+                margin: auto 5%;
+                width: 90%;
+                height: auto;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -56,11 +127,10 @@ use localzet\Server;
         <?= is_string($print) ? $print : print_r($print, true) ?>
     </h1>
 </center>
-<hr/>
-<center>
-    <a href="https://github.com/localzet/server" style="text-decoration: auto;">Localzet
-        Server <?= @Server::getVersion() ?? '' ?></a>
-</center>
+<div class="footer">
+    <hr>
+    <a href="https://github.com/localzet/server">Powered by <b>Localzet Server <?= @Server::getVersion() ?? '' ?></b></a>
+</div>
 </body>
 
 </html>
