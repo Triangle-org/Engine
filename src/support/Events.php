@@ -23,18 +23,18 @@
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Triangle\Engine\Events;
+namespace Triangle\Engine\support;
 
 use Psr\Log\LoggerInterface;
 use support\Log;
 use Throwable;
 
 /**
- * Class Handler
+ * Class Events
  *
  * Класс для работы с событиями.
  */
-class Handler
+class Events
 {
     /**
      * @var array
