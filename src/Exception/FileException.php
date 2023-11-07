@@ -28,8 +28,10 @@ namespace Triangle\Engine\Exception;
 use RuntimeException;
 
 /**
- * Class FileException
+ * Класс FileException
+ * Этот класс представляет собой пользовательское исключение, которое может быть использовано для обработки ошибок, связанных с файлами.
  */
 class FileException extends RuntimeException
 {
 }
+
