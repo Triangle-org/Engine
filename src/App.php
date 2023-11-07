@@ -42,14 +42,12 @@ use ReflectionFunction;
 use ReflectionFunctionAbstract;
 use ReflectionMethod;
 use Throwable;
-use Triangle\Engine\Exception\Handler\ExceptionHandler;
-use Triangle\Engine\Exception\Handler\ExceptionHandlerInterface;
+use Triangle\Engine\Exception\ExceptionHandler;
+use Triangle\Engine\Exception\ExceptionHandlerInterface;
 use Triangle\Engine\Http\Request;
 use Triangle\Engine\Http\Response;
-use Triangle\Engine\Middleware\MiddlewareContainer;
 use Triangle\Engine\Middleware\MiddlewareInterface;
 use Triangle\Engine\Router\Route as RouteObject;
-use Triangle\Engine\Router\Router;
 use function array_merge;
 use function array_pop;
 use function array_reduce;
@@ -111,6 +109,11 @@ class App
     /**
      * @var string
      */
+    protected static string $basePath = '';
+
+    /**
+     * @var string
+     */
     protected static string $publicPath = '';
 
     /**
@@ -121,15 +124,17 @@ class App
     /**
      * @param string $requestClass
      * @param Logger $logger
-     * @param string $appPath
-     * @param string $publicPath
+     * @param string $basePath
+     * @param string|null $appPath
+     * @param string|null $publicPath
      */
-    public function __construct(string $requestClass, Logger $logger, string $appPath, string $publicPath)
+    public function __construct(string $requestClass, Logger $logger, string $basePath, string $appPath = null, string $publicPath = null)
     {
         static::$requestClass = $requestClass;
         static::$logger = $logger;
         static::$publicPath = $publicPath;
         static::$appPath = $appPath;
+        static::$basePath = $basePath;
     }
 
     /**
@@ -153,7 +158,7 @@ class App
      */
     public static function publicPath(): string
     {
-        return static::$publicPath; // != '' ? static::$publicPath : (config('app.public_path') ?: run_path('public'));
+        return static::$publicPath ?? (config('app.public_path') ?: run_path('public'));
     }
 
     /**
@@ -161,7 +166,15 @@ class App
      */
     public static function appPath(): string
     {
-        return static::$appPath; // != '' ? static::$appPath : (BASE_PATH . DIRECTORY_SEPARATOR . 'app');
+        return static::$appPath ?? (config('app.app_path') ?: run_path('public'));
+    }
+
+    /**
+     * @return string
+     */
+    public static function basePath(): string
+    {
+        return static::$basePath ?? BASE_PATH;
     }
 
     /**
@@ -173,24 +186,33 @@ class App
     }
 
     /**
-     * @param TcpConnection|mixed $connection
-     * @param Request|mixed $request
+     * Функция для обработки сообщений.
+     *
+     * @param mixed $connection Соединение TCP.
+     * @param mixed $request Запрос.
      * @return null
      * @throws Throwable
      */
     public function onMessage(mixed $connection, mixed $request): null
     {
         try {
+            // Устанавливаем контекст для соединения и запроса
             Context::set(TcpConnection::class, $connection);
             Context::set(Request::class, $request);
+            // Получаем путь из запроса
             $path = $request->path();
+            // Создаем ключ из метода запроса и пути
             $key = $request->method() . $path;
+            // Если для данного ключа уже есть обратные вызовы
             if (isset(static::$callbacks[$key])) {
+                // Получаем обратные вызовы
                 [$callback, $request->plugin, $request->app, $request->controller, $request->action, $request->route] = static::$callbacks[$key];
+                // Отправляем обратный вызов
                 static::send($connection, $callback($request), $request);
                 return null;
             }
 
+            // Проверяем на небезопасные URI, находим файл или маршрут
             if (
                 static::unsafeUri($connection, $path, $request) ||
                 static::findFile($connection, $path, $key, $request) ||
@@ -199,27 +221,41 @@ class App
                 return null;
             }
 
+            // Парсим контроллер и действие из пути
             $controllerAndAction = static::parseControllerAction($path);
+            // Получаем плагин по пути или из контроллера и действия
             $plugin = $controllerAndAction['plugin'] ?? static::getPluginByPath($path);
+            // Если контроллер и действие не найдены или маршрут по умолчанию отключен
             if (!$controllerAndAction || Router::hasDisableDefaultRoute($plugin)) {
+                // Устанавливаем плагин в запросе
                 $request->plugin = $plugin;
+                // Получаем обратный вызов для отката
                 $callback = static::getFallback($plugin);
+                // Устанавливаем приложение, контроллер и действие в запросе
                 $request->app = $request->controller = $request->action = '';
+                // Отправляем обратный вызов
                 static::send($connection, $callback($request), $request);
                 return null;
             }
+            // Получаем приложение, контроллер и действие
             $app = $controllerAndAction['app'];
             $controller = $controllerAndAction['controller'];
             $action = $controllerAndAction['action'];
+            // Получаем обратный вызов
             $callback = static::getCallback($plugin, $app, [$controller, $action]);
+            // Собираем обратные вызовы
             static::collectCallbacks($key, [$callback, $plugin, $app, $controller, $action, null]);
+            // Получаем обратные вызовы
             [$callback, $request->plugin, $request->app, $request->controller, $request->action, $request->route] = static::$callbacks[$key];
+            // Отправляем обратный вызов
             static::send($connection, $callback($request), $request);
         } catch (Throwable $e) {
+            // Если возникло исключение, отправляем ответ на исключение
             static::send($connection, static::exceptionResponse($e, $request), $request);
         }
         return null;
     }
+
 
     /**
      * @param TcpConnection|mixed $connection
@@ -280,11 +316,13 @@ class App
     }
 
     /**
-     * @param TcpConnection $connection
-     * @param string $path
-     * @param string $key
-     * @param Request|mixed $request
-     * @return bool
+     * Функция для поиска файла.
+     *
+     * @param TcpConnection $connection Соединение TCP.
+     * @param string $path Путь.
+     * @param string $key Ключ.
+     * @param mixed $request Запрос.
+     * @return bool Возвращает true, если файл найден, иначе возвращает false.
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      * @throws ReflectionException
@@ -292,6 +330,7 @@ class App
      */
     protected static function findFile(TcpConnection $connection, string $path, string $key, mixed $request): bool
     {
+        // Если в пути есть процентное кодирование, декодируем его
         if (preg_match('/%[0-9a-f]{2}/i', $path)) {
             $path = urldecode($path);
             if (static::unsafeUri($connection, $path, $request)) {
@@ -299,36 +338,48 @@ class App
             }
         }
 
+        // Разбиваем путь на части
         $pathExplodes = explode('/', trim($path, '/'));
         $plugin = '';
+        // Если путь указывает на плагин
         if (isset($pathExplodes[1]) && $pathExplodes[0] === 'app') {
-            $publicDir = BASE_PATH . "/plugin/$pathExplodes[1]/public";
+            $publicDir = static::$basePath . "/plugin/$pathExplodes[1]/public";
             $plugin = $pathExplodes[1];
             $path = substr($path, strlen("/app/$pathExplodes[1]/"));
         } else {
+            // Иначе используем общедоступную директорию
             $publicDir = static::$publicPath;
         }
+        // Получаем полный путь к файлу
         $file = "$publicDir/$path";
+        // Если файл не существует, возвращаем false
         if (!is_file($file)) {
             return false;
         }
 
+        // Если файл является PHP-файлом
         if (pathinfo($file, PATHINFO_EXTENSION) === 'php') {
+            // Если PHP-файлы не поддерживаются, возвращаем false
             if (!static::config($plugin, 'app.support_php_files', false)) {
                 return false;
             }
+            // Добавляем обратный вызов для выполнения PHP-файла
             static::collectCallbacks($key, [function () use ($file) {
                 return static::execPhpFile($file);
             }, '', '', '', '', null]);
+            // Получаем обратные вызовы
             [, $request->plugin, $request->app, $request->controller, $request->action, $request->route] = static::$callbacks[$key];
+            // Отправляем обратный вызов
             static::send($connection, static::execPhpFile($file), $request);
             return true;
         }
 
+        // Если статические файлы не поддерживаются, возвращаем false
         if (!static::config($plugin, 'static.enable', false)) {
             return false;
         }
 
+        // Добавляем обратный вызов для отправки файла
         static::collectCallbacks($key, [static::getCallback($plugin, '__static__', function ($request) use ($file, $plugin) {
             clearstatcache(true, $file);
             if (!is_file($file)) {
@@ -337,7 +388,9 @@ class App
             }
             return (new Response())->file($file);
         }, null, false), '', '', '', '', null]);
+        // Получаем обратные вызовы
         [$callback, $request->plugin, $request->app, $request->controller, $request->action, $request->route] = static::$callbacks[$key];
+        // Отправляем обратный вызов
         static::send($connection, $callback($request), $request);
         return true;
     }
@@ -385,13 +438,15 @@ class App
     }
 
     /**
-     * @param string $plugin
-     * @param string $app
-     * @param $call
-     * @param array|null $args
-     * @param bool $withGlobalMiddleware
-     * @param RouteObject|null $route
-     * @return callable|Closure
+     * Функция для получения обратного вызова.
+     *
+     * @param string $plugin Плагин.
+     * @param string $app Приложение.
+     * @param mixed $call Вызов.
+     * @param array|null $args Аргументы.
+     * @param bool $withGlobalMiddleware Использовать глобальное промежуточное ПО.
+     * @param RouteObject|null $route Маршрут.
+     * @return callable|Closure Возвращает обратный вызов.
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      * @throws ReflectionException
@@ -400,14 +455,17 @@ class App
     {
         $args = $args === null ? null : array_values($args);
         $middlewares = [];
+        // Если есть маршрут, получаем промежуточное ПО маршрута
         if ($route) {
             $routeMiddlewares = array_reverse($route->getMiddleware());
             foreach ($routeMiddlewares as $className) {
                 $middlewares[] = [$className, 'process'];
             }
         }
-        $middlewares = array_merge($middlewares, MiddlewareContainer::getMiddleware($plugin, $app, $withGlobalMiddleware));
+        // Добавляем глобальное промежуточное ПО
+        $middlewares = array_merge($middlewares, Middleware::getMiddleware($plugin, $app, $withGlobalMiddleware));
 
+        // Создаем экземпляры промежуточного ПО
         foreach ($middlewares as $key => $item) {
             $middleware = $item[0];
             if (is_string($middleware)) {
@@ -421,6 +479,7 @@ class App
             $middlewares[$key][0] = $middleware;
         }
 
+        // Проверяем, нужно ли внедрять зависимости в вызов
         $needInject = static::isNeedInject($call, $args);
         if (is_array($call) && is_string($call[0])) {
             $controllerReuse = static::config($plugin, 'app.controller_reuse', true);
@@ -444,10 +503,12 @@ class App
             }
         }
 
+        // Если нужно внедрить зависимости, внедряем их
         if ($needInject) {
             $call = static::resolveInject($plugin, $call);
         }
 
+        // Если есть промежуточное ПО, создаем цепочку вызовов
         if ($middlewares) {
             $callback = array_reduce($middlewares, function ($carry, $pipe) {
                 return function ($request) use ($carry, $pipe) {
@@ -476,6 +537,7 @@ class App
                 return $response;
             });
         } else {
+            // Если нет промежуточного ПО, создаем обратный вызов
             if ($args === null) {
                 $callback = $call;
             } else {
@@ -486,6 +548,7 @@ class App
         }
         return $callback;
     }
+
 
     /**
      * @param string $plugin
@@ -548,22 +611,22 @@ class App
     }
 
     /**
-     * Return dependent parameters
+     * Функция для получения зависимых параметров.
      *
-     * @param string $plugin
-     * @param Request $request
-     * @param array $args
-     * @param ReflectionFunctionAbstract $reflector
-     * @return array
+     * @param string $plugin Плагин.
+     * @param Request $request Запрос.
+     * @param array $args Аргументы.
+     * @param ReflectionFunctionAbstract $reflector Рефлектор.
+     * @return array Возвращает массив с зависимыми параметрами.
      */
     protected static function resolveMethodDependencies(string $plugin, Request $request, array $args, ReflectionFunctionAbstract $reflector): array
     {
-        // Specification parameter information
+        // Спецификация информации о параметрах
         $args = array_values($args);
         $parameters = [];
-        // An array of reflection classes for loop parameters, with each $parameter representing a reflection object of parameters
+        // Массив классов рефлексии для циклических параметров, каждый $parameter представляет собой объект рефлексии параметров
         foreach ($reflector->getParameters() as $parameter) {
-            // Parameter quota consumption
+            // Потребление квоты параметра
             if ($parameter->hasType()) {
                 $name = $parameter->getType()->getName();
                 switch ($name) {
@@ -578,7 +641,7 @@ class App
                         goto _else;
                     default:
                         if (is_a($request, $name)) {
-                            //Inject Request
+                            // Внедрение Request
                             $parameters[] = $request;
                         } else {
                             $parameters[] = static::container($plugin)->make($name);
@@ -587,19 +650,19 @@ class App
                 }
             } else {
                 _else:
-                // The variable parameter
+                // Переменный параметр
                 if (null !== key($args)) {
                     $parameters[] = current($args);
                 } else {
-                    // Indicates whether the current parameter has a default value.  If yes, return true
+                    // Указывает, имеет ли текущий параметр значение по умолчанию. Если да, возвращает true
                     $parameters[] = $parameter->isDefaultValueAvailable() ? $parameter->getDefaultValue() : null;
                 }
-                // Quota of consumption variables
+                // Потребление квоты переменных
                 next($args);
             }
         }
 
-        // Returns the result of parameters replacement
+        // Возвращает результат замены параметров
         return $parameters;
     }
 
@@ -619,29 +682,39 @@ class App
     }
 
     /**
-     * @param Throwable $e
-     * @param $request
-     * @return Response
+     * Функция для создания ответа на исключение.
+     *
+     * @param Throwable $e Исключение.
+     * @param mixed $request Запрос.
+     * @return Response Возвращает ответ.
      */
     protected static function exceptionResponse(Throwable $e, $request): Response
     {
         try {
+            // Получаем приложение и плагин из запроса
             $app = $request->app ?: '';
             $plugin = $request->plugin ?: '';
+            // Получаем конфигурацию исключений
             $exceptionConfig = static::config($plugin, 'exception');
+            // Получаем класс обработчика исключений по умолчанию
             $defaultException = $exceptionConfig[''] ?? ExceptionHandler::class;
+            // Получаем класс обработчика исключений для приложения
             $exceptionHandlerClass = $exceptionConfig[$app] ?? $defaultException;
 
+            // Создаем экземпляр обработчика исключений
             /** @var ExceptionHandlerInterface $exceptionHandler */
             $exceptionHandler = static::container($plugin)->make($exceptionHandlerClass, [
                 'logger' => static::$logger,
                 'debug' => static::config($plugin, 'app.debug')
             ]);
+            // Отправляем отчет об исключении
             $exceptionHandler->report($e);
+            // Создаем ответ на исключение
             $response = $exceptionHandler->render($request, $e);
             $response->exception($e);
             return $response;
         } catch (Throwable $e) {
+            // Если возникло исключение при обработке исключения, создаем ответ с кодом 500
             $response = new Response(500, [], static::config($plugin ?? '', 'app.debug') ? (string)$e : $e->getMessage());
             $response->exception($e);
             return $response;
@@ -672,11 +745,13 @@ class App
     }
 
     /**
-     * @param TcpConnection $connection
-     * @param string $path
-     * @param string $key
-     * @param Request|mixed $request
-     * @return bool
+     * Функция для поиска маршрута.
+     *
+     * @param TcpConnection $connection Соединение TCP.
+     * @param string $path Путь.
+     * @param string $key Ключ.
+     * @param mixed $request Запрос.
+     * @return bool Возвращает true, если маршрут найден, иначе возвращает false.
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      * @throws ReflectionException
@@ -684,30 +759,40 @@ class App
      */
     protected static function findRoute(TcpConnection $connection, string $path, string $key, mixed $request): bool
     {
+        // Получаем информацию о маршруте
         $routeInfo = Router::dispatch($request->method(), $path);
+        // Если маршрут найден
         if ($routeInfo[0] === Dispatcher::FOUND) {
             $routeInfo[0] = 'route';
             $callback = $routeInfo[1]['callback'];
             $route = clone $routeInfo[1]['route'];
             $app = $controller = $action = '';
             $args = !empty($routeInfo[2]) ? $routeInfo[2] : null;
+            // Если есть аргументы, устанавливаем их для маршрута
             if ($args) {
                 $route->setParams($args);
             }
+            // Если обратный вызов - это массив
             if (is_array($callback)) {
                 $controller = $callback[0];
                 $plugin = static::getPluginByClass($controller);
                 $app = static::getAppByController($controller);
                 $action = static::getRealMethod($controller, $callback[1]) ?? '';
             } else {
+                // Иначе получаем плагин по пути
                 $plugin = static::getPluginByPath($path);
             }
+            // Получаем обратный вызов
             $callback = static::getCallback($plugin, $app, $callback, $args, true, $route);
+            // Собираем обратные вызовы
             static::collectCallbacks($key, [$callback, $plugin, $app, $controller ?: '', $action, $route]);
+            // Получаем обратные вызовы
             [$callback, $request->plugin, $request->app, $request->controller, $request->action, $request->route] = static::$callbacks[$key];
+            // Отправляем обратный вызов
             static::send($connection, $callback($request), $request);
             return true;
         }
+        // Если маршрут не найден, возвращаем false
         return false;
     }
 
@@ -759,58 +844,89 @@ class App
     }
 
     /**
-     * @param string $path
-     * @return string
+     * Функция для получения плагина по пути.
+     *
+     * @param string $path Путь.
+     * @return string Возвращает имя плагина, если он найден, иначе возвращает пустую строку.
      */
     public static function getPluginByPath(string $path): string
     {
+        // Удаляем слэши с начала и конца пути
         $path = trim($path, '/');
+        // Разбиваем путь на части
         $tmp = explode('/', $path, 3);
+        // Если первая часть пути не равна 'app', возвращаем пустую строку
         if ($tmp[0] !== 'app') {
             return '';
         }
+        // Возвращаем вторую часть пути (имя плагина) или пустую строку, если она не существует
         return $tmp[1] ?? '';
     }
 
     /**
-     * @param string $path
-     * @return array|false
+     * Функция для разбора контроллера и действия из пути.
+     *
+     * @param string $path Путь.
+     * @return array|false Возвращает массив с информацией о контроллере и действии, если они найдены, иначе возвращает false.
      * @throws ReflectionException
      */
     protected static function parseControllerAction(string $path): false|array
     {
+        // Удаляем дефисы из пути
         $path = str_replace('-', '', $path);
+
+        // Разбиваем путь на части
         $pathExplode = explode('/', trim($path, '/'));
+
+        // Проверяем, является ли путь плагином
         $isPlugin = isset($pathExplode[1]) && $pathExplode[0] === 'app';
+
+        // Получаем префиксы для конфигурации, пути и класса
         $configPrefix = $isPlugin ? "plugin.$pathExplode[1]." : '';
         $pathPrefix = $isPlugin ? "/app/$pathExplode[1]" : '';
         $classPrefix = $isPlugin ? "plugin\\$pathExplode[1]" : '';
+
+        // Получаем суффикс контроллера из конфигурации
         $suffix = Config::get("{$configPrefix}app.controller_suffix", '');
+
+        // Получаем относительный путь
         $relativePath = trim(substr($path, strlen($pathPrefix)), '/');
         $pathExplode = $relativePath ? explode('/', $relativePath) : [];
 
+        // По умолчанию действие - это 'index'
         $action = 'index';
+
+        // Пытаемся угадать контроллер и действие
         if ($controllerAction = static::guessControllerAction($pathExplode, $action, $suffix, $classPrefix)) {
             return $controllerAction;
         }
+
+        // Если контроллер и действие не найдены и путь состоит из одной части, возвращаем false
         if (count($pathExplode) <= 1) {
             return false;
         }
+
+        // Иначе пытаемся угадать контроллер и действие снова, используя последнюю часть пути как действие
         $action = end($pathExplode);
         unset($pathExplode[count($pathExplode) - 1]);
+
         return static::guessControllerAction($pathExplode, $action, $suffix, $classPrefix);
     }
 
+
     /**
-     * @param $pathExplode
-     * @param $action
-     * @param $suffix
-     * @param $classPrefix
-     * @return array|false
+     * Функция для предположения контроллера и действия.
+     *
+     * @param array $pathExplode Массив с разделенными частями пути.
+     * @param string $action Название действия.
+     * @param string $suffix Суффикс.
+     * @param string $classPrefix Префикс класса.
+     * @return array|false Возвращает массив с информацией о контроллере и действии, если они найдены, иначе возвращает false.
      * @throws ReflectionException
      */
     protected static function guessControllerAction($pathExplode, $action, $suffix, $classPrefix): false|array
     {
+        // Создаем карту возможных путей к контроллеру
         $map[] = trim("$classPrefix\\app\\controller\\" . implode('\\', $pathExplode), '\\');
         foreach ($pathExplode as $index => $section) {
             $tmp = $pathExplode;
@@ -821,32 +937,40 @@ class App
             $map[] = $item . '\\index';
         }
 
+        // Проверяем каждый возможный путь
         foreach ($map as $controllerClass) {
-            // Remove xx\xx\controller
+            // Удаляем xx\xx\controller
             if (str_ends_with($controllerClass, '\\controller')) {
                 continue;
             }
             $controllerClass .= $suffix;
+            // Если контроллер и действие найдены, возвращаем информацию о них
             if ($controllerAction = static::getControllerAction($controllerClass, $action)) {
                 return $controllerAction;
             }
         }
+
+        // Если контроллер или действие не найдены, возвращаем false
         return false;
     }
 
+
     /**
-     * @param string $controllerClass
-     * @param string $action
-     * @return array|false
+     * Функция для получения контроллера и действия.
+     *
+     * @param string $controllerClass Имя класса контроллера.
+     * @param string $action Название действия.
+     * @return array|false Возвращает массив с информацией о контроллере и действии, если они найдены, иначе возвращает false.
      * @throws ReflectionException
      */
     protected static function getControllerAction(string $controllerClass, string $action): false|array
     {
-        // Disable calling magic methods
+        // Отключаем вызов магических методов
         if (str_starts_with($action, '__')) {
             return false;
         }
 
+        // Если класс контроллера и действие найдены, возвращаем информацию о них
         if (($controllerClass = static::getController($controllerClass)) && ($action = static::getAction($controllerClass, $action))) {
             return [
                 'plugin' => static::getPluginByClass($controllerClass),
@@ -855,26 +979,33 @@ class App
                 'action' => $action
             ];
         }
+
+        // Если класс контроллера или действие не найдены, возвращаем false
         return false;
     }
 
     /**
-     * @param string $controllerClass
-     * @return string|false
+     * Функция для получения контроллера.
+     *
+     * @param string $controllerClass Имя класса контроллера.
+     * @return string|false Возвращает имя класса контроллера, если он найден, иначе возвращает false.
      * @throws ReflectionException
      */
     protected static function getController(string $controllerClass): false|string
     {
+        // Если класс контроллера существует, возвращаем его имя
         if (class_exists($controllerClass)) {
             return (new ReflectionClass($controllerClass))->name;
         }
 
+        // Разбиваем полное имя класса на части
         $explodes = explode('\\', strtolower(ltrim($controllerClass, '\\')));
-        $basePath = $explodes[0] === 'plugin' ? BASE_PATH . '/plugin' : static::$appPath;
+        $basePath = $explodes[0] === 'plugin' ? static::$basePath . '/plugin' : static::$appPath;
         unset($explodes[0]);
         $fileName = array_pop($explodes) . '.php';
         $found = true;
 
+        // Ищем соответствующую директорию
         foreach ($explodes as $pathSection) {
             if (!$found) {
                 break;
@@ -891,10 +1022,12 @@ class App
             }
         }
 
+        // Если директория не найдена, возвращаем false
         if (!$found) {
             return false;
         }
 
+        // Ищем файл контроллера в директории
         foreach (scandir($basePath) ?: [] as $name) {
             if (strtolower($name) === $fileName) {
                 require_once "$basePath/$name";
@@ -903,19 +1036,26 @@ class App
                 }
             }
         }
+
+        // Если файл контроллера не найден, возвращаем false
         return false;
     }
 
     /**
-     * @param string $controllerClass
-     * @param string $action
-     * @return string|false
+     * Функция для получения действия контроллера.
+     *
+     * @param string $controllerClass Имя класса контроллера.
+     * @param string $action Название действия.
+     * @return string|false Возвращает название действия, если оно найдено, иначе возвращает false.
      */
     protected static function getAction(string $controllerClass, string $action): false|string
     {
+        // Получаем все методы класса контроллера
         $methods = get_class_methods($controllerClass);
         $action = strtolower($action);
         $found = false;
+
+        // Проверяем, есть ли метод, соответствующий действию
         foreach ($methods as $candidate) {
             if (strtolower($candidate) === $action) {
                 $action = $candidate;
@@ -924,19 +1064,22 @@ class App
             }
         }
 
+        // Если действие найдено, возвращаем его
         if ($found) {
             return $action;
         }
 
-        // Action is not public method
+        // Если действие не является публичным методом, возвращаем false
         if (method_exists($controllerClass, $action)) {
             return false;
         }
 
+        // Если в классе контроллера есть метод __call, возвращаем действие
         if (method_exists($controllerClass, '__call')) {
             return $action;
         }
 
+        // В противном случае возвращаем false
         return false;
     }
 

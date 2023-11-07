@@ -36,7 +36,7 @@ use Triangle\Engine\Http\Response;
  * промежуточному программному обеспечению и, возможно, действуя на его ответ.
  *
  * @see https://www.php-fig.org/psr/psr-15 PSR-15
- * @see https://github.com/php-fig/http-server-middleware HTTP Server MiddlewareManager
+ * @see https://github.com/php-fig/http-server-middleware HTTP Server Middleware
  */
 interface MiddlewareInterface
 {

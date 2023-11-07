@@ -27,7 +27,7 @@ namespace Triangle\Engine\Redis;
 
 use Illuminate\Events\Dispatcher;
 use Illuminate\Redis\Connections\Connection;
-use Illuminate\Redis\RedisManager;
+use Illuminate\Redis\RedisManager as Manager;
 use localzet\Server;
 use localzet\Timer;
 use function class_exists;
@@ -36,7 +36,7 @@ use function in_array;
 
 
 /**
- * Class Handler
+ * Class Events
  *
  * Strings methods
  * @method static int append($key, $value)
@@ -216,7 +216,7 @@ use function in_array;
  * @method static mixed getPersistentID()
  * @method static mixed getAuth()
  */
-class Handler
+class RedisManager
 {
 
     /**
@@ -236,9 +236,9 @@ class Handler
         self::PREDIS_CLIENT
     ];
     /**
-     * @var RedisManager|null
+     * @var Manager|null
      */
-    protected static ?RedisManager $instance = null;
+    protected static ?Manager $instance = null;
 
     /**
      * @param string $name
@@ -270,9 +270,9 @@ class Handler
     }
 
     /**
-     * @return RedisManager|null
+     * @return Manager|null
      */
-    public static function instance(): ?RedisManager
+    public static function instance(): ?Manager
     {
         if (!static::$instance) {
             $config = config('redis');
@@ -282,7 +282,7 @@ class Handler
                 $client = self::PHPREDIS_CLIENT;
             }
 
-            static::$instance = new RedisManager('', $client, $config);
+            static::$instance = new Manager('', $client, $config);
         }
         return static::$instance;
     }

@@ -1,12 +1,11 @@
-
 <?php
 
 use localzet\Server;
 use localzet\Server\Connection\TcpConnection;
+use Triangle\Engine\App;
 use Triangle\Engine\Config;
 use Triangle\Engine\Http\Request;
-use Triangle\Engine\App;
-use Triangle\Engine\Router\Router;
+use Triangle\Engine\Router;
 
 /**
  * @param string|null $key

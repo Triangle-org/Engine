@@ -1,5 +1,7 @@
 <?php
 
+use Triangle\Engine\App;
+
 /**
  * Generate paths based on given information
  * @param string $front

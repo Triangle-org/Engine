@@ -25,13 +25,11 @@
 
 use Dotenv\Dotenv;
 use support\Container;
-use support\Event;
+use support\Events;
 use support\Log;
-use Triangle\Engine\Bootstrap;
+use Triangle\Engine\Bootstrap\BootstrapInterface;
 use Triangle\Engine\Config;
 use Triangle\Engine\Middleware;
-use Triangle\Engine\Route;
-use Triangle\Engine\Util;
 
 $server = $server ?? null;
 
@@ -200,7 +198,7 @@ foreach ($allEvents as $name => $events) {
     ksort($events, SORT_NATURAL);
     foreach ($events as $callbacks) {
         foreach ($callbacks as $callback) {
-            Event::on($name, $callback);
+            Events::on($name, $callback);
         }
     }
 }
@@ -218,7 +216,7 @@ foreach (config('bootstrap', []) as $className) {
         Log::error($log);
         continue;
     }
-    /** @var Bootstrap $className */
+    /** @var BootstrapInterface $className */
     $className::start($server);
 }
 
@@ -235,7 +233,7 @@ foreach (config('plugin', []) as $firm => $projects) {
                 Log::error($log);
                 continue;
             }
-            /** @var Bootstrap $className */
+            /** @var BootstrapInterface $className */
             $className::start($server);
         }
     }
@@ -246,7 +244,7 @@ foreach (config('plugin', []) as $firm => $projects) {
             Log::error($log);
             continue;
         }
-        /** @var Bootstrap $className */
+        /** @var BootstrapInterface $className */
         $className::start($server);
     }
 }

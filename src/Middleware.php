@@ -23,7 +23,7 @@
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Triangle\Engine\Middleware;
+namespace Triangle\Engine;
 
 use RuntimeException;
 use function array_merge;
@@ -32,10 +32,10 @@ use function is_array;
 use function method_exists;
 
 /**
- * Класс MiddlewareManager
+ * Класс Middleware
  * Этот класс представляет собой контейнер для промежуточного ПО (Middleware).
  */
-class MiddlewareManager
+class Middleware
 {
     /**
      * @var array Массив экземпляров промежуточного ПО
