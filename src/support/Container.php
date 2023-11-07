@@ -29,7 +29,9 @@ use Triangle\Engine\App;
 use Triangle\Engine\Config;
 
 /**
- * Class Container
+ * Класс Container
+ * Этот класс предоставляет методы для работы с контейнером зависимостей.
+ *
  * @method static mixed get($name)
  * @method static mixed make($name, array $parameters)
  * @method static bool has($name)
@@ -37,9 +39,10 @@ use Triangle\Engine\Config;
 class Container
 {
     /**
-     * @param string $name
-     * @param array $arguments
-     * @return mixed
+     * Магический метод для вызова методов контейнера
+     * @param string $name Имя метода
+     * @param array $arguments Аргументы метода
+     * @return mixed Результат вызова метода
      */
     public static function __callStatic(string $name, array $arguments)
     {
@@ -48,7 +51,8 @@ class Container
     }
 
     /**
-     * @param string $plugin
+     * Получить экземпляр контейнера
+     * @param string $plugin Плагин, которому принадлежит контейнер (необязательно)
      * @return array|mixed|void|null
      */
     public static function instance(string $plugin = '')
