@@ -49,19 +49,34 @@ class Storage
     /**
      * @throws Exception
      */
+    protected function getSession(): array
+    {
+        return session()->get($this->storeNamespace, []);
+    }
+
+    /**
+     * @throws Exception
+     */
+    protected function setSession(array $data): void
+    {
+        session()->put([$this->storeNamespace => $data]);
+        session()->save();
+    }
+
+    /**
+     * @throws Exception
+     */
     public function set($key, $value): void
     {
         $key = $this->keyPrefix . strtolower($key);
 
         if (is_object($value)) {
-            // We encapsulate as our classes may be defined after session is initialized.
             $value = ['lateObject' => serialize($value)];
         }
 
-        $s = session()->get($this->storeNamespace);
-        $s[$key] = $value;
-        session()->put([$this->storeNamespace => $s]);
-        session()->save();
+        $session = $this->getSession();
+        $session[$key] = $value;
+        $this->setSession($session);
     }
 
     /**
@@ -70,9 +85,10 @@ class Storage
     public function get($key)
     {
         $key = $this->keyPrefix . strtolower($key);
+        $session = $this->getSession();
 
-        if (session()->has($this->storeNamespace) && isset(session()->get($this->storeNamespace)[$key])) {
-            $value = session()->get($this->storeNamespace)[$key];
+        if (isset($session[$key])) {
+            $value = $session[$key];
 
             if (is_array($value) && array_key_exists('lateObject', $value)) {
                 $value = unserialize($value['lateObject']);
@@ -99,16 +115,14 @@ class Storage
     public function delete($key): void
     {
         $key = $this->keyPrefix . strtolower($key);
+        $session = $this->getSession();
 
-        if (session()->has($this->storeNamespace) && isset(session()->get($this->storeNamespace)[$key])) {
-            $tmp = session()->get($this->storeNamespace);
-
-            unset($tmp[$key]);
-
-            session()->put([$this->storeNamespace => $tmp]);
-            session()->save();
+        if (isset($session[$key])) {
+            unset($session[$key]);
+            $this->setSession($session);
         }
     }
+
 
     /**
      * @throws Exception
@@ -116,18 +130,14 @@ class Storage
     public function deleteMatch($key): void
     {
         $key = $this->keyPrefix . strtolower($key);
+        $session = $this->getSession();
 
-        if (session()->has($this->storeNamespace) && count(session()->get($this->storeNamespace))) {
-            $tmp = session()->get($this->storeNamespace);
-
-            foreach ($tmp as $k => $v) {
-                if (strstr($k, $key)) {
-                    unset($tmp[$k]);
-                }
+        foreach ($session as $k => $v) {
+            if (strstr($k, $key)) {
+                unset($session[$k]);
             }
-
-            session()->put([$this->storeNamespace => $tmp]);
-            session()->save();
         }
+
+        $this->setSession($session);
     }
 }
