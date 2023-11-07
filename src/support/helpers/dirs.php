@@ -13,7 +13,7 @@ function copy_dir(string $source, string $dest, bool $overwrite = false): void
         if (!is_dir($dest)) {
             mkdir($dest);
         }
-        $files = scandir($source, SCANDIR_SORT_NONE)[2:];
+        $files = array_slice(scandir($source, SCANDIR_SORT_NONE), 2);
         foreach ($files as $file) {
             copy_dir("$source/$file", "$dest/$file");
         }
