@@ -28,6 +28,11 @@ namespace support;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
+/**
+ * Class Event
+ *
+ * Класс для работы с событиями.
+ */
 class Event
 {
     /**
@@ -51,13 +56,15 @@ class Event
     protected static LoggerInterface $logger;
 
     /**
-     * @param mixed $event_name
-     * @param callable $listener
-     * @return int
+     * Метод для регистрации обработчика события.
+     *
+     * @param string $event_name Имя события.
+     * @param callable $listener Обработчик события.
+     * @return int ID обработчика события.
      */
-    public static function on(mixed $event_name, callable $listener): int
+    public static function on(string $event_name, callable $listener): int
     {
-        $is_prefix_name = $event_name[strlen($event_name) - 1] === '*';
+        $is_prefix_name = str_ends_with($event_name, '*');
         if ($is_prefix_name) {
             static::$prefixEventMap[substr($event_name, 0, -1)][++static::$id] = $listener;
         } else {
@@ -67,11 +74,13 @@ class Event
     }
 
     /**
-     * @param mixed $event_name
-     * @param integer $id
-     * @return int
+     * Метод для удаления обработчика события.
+     *
+     * @param string $event_name Имя события.
+     * @param int $id ID обработчика события.
+     * @return int Результат удаления обработчика события.
      */
-    public static function off(mixed $event_name, int $id): int
+    public static function off(string $event_name, int $id): int
     {
         if (isset(static::$eventMap[$event_name][$id])) {
             unset(static::$eventMap[$event_name][$id]);
@@ -81,12 +90,14 @@ class Event
     }
 
     /**
-     * @param mixed $event_name
-     * @param mixed $data
-     * @param bool $halt
-     * @return array|null|mixed
+     * Метод для вызова события.
+     *
+     * @param string $event_name Имя события.
+     * @param mixed $data Данные для обработчика события.
+     * @param bool $halt Остановить ли выполнение после первого обработчика.
+     * @return mixed Результат вызова события.
      */
-    public static function emit(mixed $event_name, mixed $data, bool $halt = false): mixed
+    public static function emit(string $event_name, mixed $data, bool $halt = false): mixed
     {
         $listeners = static::getListeners($event_name);
         $responses = [];
@@ -113,10 +124,12 @@ class Event
     }
 
     /**
-     * @param mixed $event_name
-     * @return callable[]
+     * Метод для получения обработчиков события.
+     *
+     * @param string $event_name Имя события.
+     * @return callable[] Список обработчиков события.
      */
-    public static function getListeners(mixed $event_name): array
+    public static function getListeners(string $event_name): array
     {
         $listeners = static::$eventMap[$event_name] ?? [];
         foreach (static::$prefixEventMap as $name => $callback_items) {
@@ -129,7 +142,9 @@ class Event
     }
 
     /**
-     * @return array
+     * Метод для получения списка всех обработчиков событий.
+     *
+     * @return array Список всех обработчиков событий.
      */
     public static function list(): array
     {
@@ -149,10 +164,12 @@ class Event
     }
 
     /**
-     * @param mixed $event_name
-     * @return bool
+     * Метод для проверки наличия обработчиков события.
+     *
+     * @param string $event_name Имя события.
+     * @return bool Наличие обработчиков события.
      */
-    public static function hasListener(mixed $event_name): bool
+    public static function hasListener(string $event_name): bool
     {
         return !empty(static::getListeners($event_name));
     }
