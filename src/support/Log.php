@@ -36,6 +36,8 @@ use function is_array;
 /**
  * Class Log
  *
+ * Класс для работы с логами.
+ *
  * @method static void log($level, $message, array $context = [])
  * @method static void debug($message, array $context = [])
  * @method static void info($message, array $context = [])
@@ -54,9 +56,11 @@ class Log
     protected static array $instance = [];
 
     /**
-     * @param string $name
-     * @param array $arguments
-     * @return mixed
+     * Магический метод для вызова методов логгера.
+     *
+     * @param string $name Имя метода.
+     * @param array $arguments Аргументы метода.
+     * @return mixed Результат вызова метода.
      */
     public static function __callStatic(string $name, array $arguments)
     {
@@ -64,9 +68,11 @@ class Log
     }
 
     /**
-     * @param string $name
-     * @param array $localConfig
-     * @return Logger
+     * Метод для получения экземпляра логгера.
+     *
+     * @param string $name Имя канала логгера.
+     * @param array $localConfig Локальная конфигурация логгера.
+     * @return Logger Экземпляр логгера.
      */
     public static function channel(string $name = 'default', array $localConfig = []): Logger
     {
@@ -81,8 +87,10 @@ class Log
     }
 
     /**
-     * @param array $config
-     * @return array
+     * Метод для создания обработчиков логгера.
+     *
+     * @param array $config Конфигурация обработчиков.
+     * @return array Список обработчиков.
      */
     protected static function handlers(array $config): array
     {
@@ -100,10 +108,12 @@ class Log
     }
 
     /**
-     * @param string $class
-     * @param array $constructor
-     * @param array $formatterConfig
-     * @return HandlerInterface
+     * Метод для создания обработчика логгера.
+     *
+     * @param string $class Класс обработчика.
+     * @param array $constructor Конструктор обработчика.
+     * @param array $formatterConfig Конфигурация форматтера.
+     * @return HandlerInterface Обработчик логгера.
      */
     protected static function handler(string $class, array $constructor, array $formatterConfig): HandlerInterface
     {
@@ -124,8 +134,10 @@ class Log
     }
 
     /**
-     * @param array $config
-     * @return array
+     * Метод для создания процессоров логгера.
+     *
+     * @param array $config Конфигурация процессоров.
+     * @return array Список процессоров.
      */
     protected static function processors(array $config): array
     {
