@@ -37,6 +37,9 @@ use function substr;
 
 /**
  * Class Translation
+ *
+ * Класс для работы с переводами.
+ *
  * @method static string trans(?string $id, array $parameters = [], string $domain = null, string $locale = null)
  * @method static void setLocale(string $locale)
  * @method static string getLocale()
@@ -50,9 +53,11 @@ class Translation
     protected static array $instance = [];
 
     /**
-     * @param string $name
-     * @param array $arguments
-     * @return mixed
+     * Магический метод для вызова методов переводчика.
+     *
+     * @param string $name Имя метода.
+     * @param array $arguments Аргументы метода.
+     * @return mixed Результат вызова метода.
      * @throws NotFoundException
      */
     public static function __callStatic(string $name, array $arguments)
@@ -63,15 +68,16 @@ class Translation
     }
 
     /**
-     * @param string $plugin
-     * @return Translator
+     * Метод для получения экземпляра переводчика.
+     *
+     * @param string $plugin Имя плагина.
+     * @return Translator Экземпляр переводчика.
      * @throws NotFoundException
      */
     public static function instance(string $plugin = ''): Translator
     {
         if (!isset(static::$instance[$plugin])) {
             $config = config($plugin ? "plugin.$plugin.translation" : 'translation', []);
-            // Phar support. Compatible with the 'realpath' function in the phar file.
             if (!$translationsPath = get_realpath($config['path'])) {
                 throw new NotFoundException("File {$config['path']} not found");
             }
