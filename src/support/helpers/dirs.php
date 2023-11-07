@@ -33,7 +33,7 @@ function scan_dir(string $basePath, bool $withBasePath = true): array
     if (!is_dir($basePath)) {
         return [];
     }
-    $paths = scandir($basePath, SCANDIR_SORT_NONE)[2:];
+    $paths = array_slice(scandir($basePath, SCANDIR_SORT_NONE), 2);
     return $withBasePath ? array_map(fn($path) => $basePath . DIRECTORY_SEPARATOR . $path, $paths) : $paths;
 }
 
@@ -45,13 +45,14 @@ function scan_dir(string $basePath, bool $withBasePath = true): array
 function remove_dir(string $dir): bool
 {
     if (is_link($dir) || is_file($dir)) {
-        return unlink($dir);
+        return file_exists($dir) && unlink($dir);
     }
-    $files = scandir($dir, SCANDIR_SORT_NONE)[2:];
+    $files = array_slice(scandir($dir, SCANDIR_SORT_NONE), 2);
     foreach ($files as $file) {
-        (is_dir("$dir/$file") && !is_link($dir)) ? remove_dir("$dir/$file") : unlink("$dir/$file");
+        $path = $dir . DIRECTORY_SEPARATOR . $file;
+        is_dir($path) && !is_link($path) ? remove_dir($path) : file_exists($path) && unlink($path);
     }
-    return rmdir($dir);
+    return file_exists($dir) && rmdir($dir);
 }
 
 /**
