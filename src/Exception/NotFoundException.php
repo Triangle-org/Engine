@@ -29,8 +29,10 @@ use Exception;
 use Psr\Container\NotFoundExceptionInterface;
 
 /**
- * Class NotFoundException
+ * Класс NotFoundException
+ * Этот класс представляет собой пользовательское исключение, которое может быть использовано для обработки ошибок, связанных с отсутствием каких-либо ресурсов.
  */
 class NotFoundException extends Exception implements NotFoundExceptionInterface
 {
 }
+
