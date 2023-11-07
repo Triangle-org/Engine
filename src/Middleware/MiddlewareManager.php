@@ -32,10 +32,10 @@ use function is_array;
 use function method_exists;
 
 /**
- * Класс MiddlewareContainer
+ * Класс MiddlewareManager
  * Этот класс представляет собой контейнер для промежуточного ПО (Middleware).
  */
-class MiddlewareContainer
+class MiddlewareManager
 {
     /**
      * @var array Массив экземпляров промежуточного ПО
