@@ -31,7 +31,6 @@ use function app_path;
 use function array_merge;
 use function base_path;
 use function config;
-use function request;
 use function runtime_path;
 
 /**

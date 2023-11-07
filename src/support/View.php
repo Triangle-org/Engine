@@ -27,7 +27,6 @@ namespace support;
 
 use Triangle\Engine\App;
 use function config;
-use function request;
 
 /**
  * Class View

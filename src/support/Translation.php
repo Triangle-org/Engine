@@ -33,7 +33,6 @@ use function config;
 use function get_realpath;
 use function glob;
 use function pathinfo;
-use function request;
 use function substr;
 
 /**

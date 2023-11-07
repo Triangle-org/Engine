@@ -33,7 +33,6 @@ use function base_path;
 use function config;
 use function ob_get_clean;
 use function ob_start;
-use function request;
 use function runtime_path;
 
 /**

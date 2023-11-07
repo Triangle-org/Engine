@@ -32,7 +32,6 @@ use function extract;
 use function ob_end_clean;
 use function ob_get_clean;
 use function ob_start;
-use function request;
 
 /**
  * Класс Raw
