@@ -26,72 +26,59 @@
 namespace Triangle\Engine\View;
 
 use think\Template;
-use Triangle\Engine\View;
+use Triangle\Engine\App;
 use function app_path;
 use function array_merge;
 use function base_path;
 use function config;
-use function is_array;
 use function ob_get_clean;
 use function ob_start;
 use function request;
 use function runtime_path;
 
 /**
- * FrameX ThinkPHP: Templating adapter (topthink/think-template)
+ * Класс ThinkPHP
+ * Этот класс представляет собой адаптер шаблонизатора (topthink/think-template) и наследует от абстрактного класса AbstractView.
+ * Он также реализует интерфейс ViewInterface.
  */
-class ThinkPHP implements View
+class ThinkPHP extends AbstractView implements ViewInterface
 {
     /**
-     * @var array
-     */
-    protected static array $vars = [];
-
-    /**
-     * @param array|string $name
-     * @param mixed|null $value
-     */
-    public static function assign(array|string $name, mixed $value = null, $merge_recursive = false): void
-    {
-        if ($merge_recursive) {
-            array_merge_recursive(static::$vars, is_array($name) ? $name : [$name => $value]);
-        } else {
-            static::$vars = array_merge(static::$vars, is_array($name) ? $name : [$name => $value]);
-        }
-    }
-
-    public static function vars(): array
-    {
-        return static::$vars;
-    }
-
-    /**
-     * @param string $template
-     * @param array $vars
-     * @param string|null $app
-     * @param string|null $plugin
-     * @return string
+     * Рендеринг представления.
+     * @param string $template Шаблон для рендеринга
+     * @param array $vars Переменные, которые должны быть доступны в шаблоне
+     * @param string|null $app Приложение, которому принадлежит шаблон (необязательно)
+     * @param string|null $plugin Плагин, которому принадлежит шаблон (необязательно)
+     * @return string Результат рендеринга
      */
     public static function render(string $template, array $vars, string $app = null, string $plugin = null): string
     {
-        $request = request();
+        $request = App::request();
+
+        $app = $app === null ? ($request->app ?? '') : $app;
         $plugin = $plugin === null ? ($request->plugin ?? '') : $plugin;
-        $app = $app === null ? $request->app : $app;
+
         $configPrefix = $plugin ? "plugin.$plugin." : '';
-        $viewSuffix = config("{$configPrefix}view.options.view_suffix", 'html');
         $baseViewPath = $plugin ? base_path("plugin/$plugin/app") : app_path();
+        $viewSuffix = config("{$configPrefix}view.options.view_suffix", 'html');
+
         $viewPath = $app === '' ? "$baseViewPath/view/" : "$baseViewPath/$app/view/";
         $defaultOptions = [
             'view_path' => $viewPath,
             'cache_path' => runtime_path('views/'),
             'view_suffix' => $viewSuffix
         ];
+
         $options = $defaultOptions + config("{$configPrefix}view.options", []);
         $views = new Template($options);
+
         ob_start();
+
         $vars = array_merge(static::$vars, $vars);
         $views->fetch($template, $vars);
+
         $content = ob_get_clean();
+
         static::$vars = [];
         return $content;
     }

@@ -42,11 +42,14 @@ use ReflectionFunction;
 use ReflectionFunctionAbstract;
 use ReflectionMethod;
 use Throwable;
-use Triangle\Engine\Exception\ExceptionHandler;
-use Triangle\Engine\Exception\ExceptionHandlerInterface;
+use Triangle\Engine\Exception\Handler\ExceptionHandler;
+use Triangle\Engine\Exception\Handler\ExceptionHandlerInterface;
 use Triangle\Engine\Http\Request;
 use Triangle\Engine\Http\Response;
-use Triangle\Engine\Route\Route as RouteObject;
+use Triangle\Engine\Middleware\MiddlewareContainer;
+use Triangle\Engine\Middleware\MiddlewareInterface;
+use Triangle\Engine\Router\Route as RouteObject;
+use Triangle\Engine\Router\Router;
 use function array_merge;
 use function array_pop;
 use function array_reduce;
@@ -198,7 +201,7 @@ class App
 
             $controllerAndAction = static::parseControllerAction($path);
             $plugin = $controllerAndAction['plugin'] ?? static::getPluginByPath($path);
-            if (!$controllerAndAction || Route::hasDisableDefaultRoute($plugin)) {
+            if (!$controllerAndAction || Router::hasDisableDefaultRoute($plugin)) {
                 $request->plugin = $plugin;
                 $callback = static::getFallback($plugin);
                 $request->app = $request->controller = $request->action = '';
@@ -270,8 +273,8 @@ class App
      */
     protected static function getFallback(string $plugin = ''): Closure
     {
-        // when route, controller and action not found, try to use Route::fallback
-        return Route::getFallback($plugin) ?: function () {
+        // when route, controller and action not found, try to use Router::fallback
+        return Router::getFallback($plugin) ?: function () {
             return not_found();
         };
     }
@@ -403,7 +406,7 @@ class App
                 $middlewares[] = [$className, 'process'];
             }
         }
-        $middlewares = array_merge($middlewares, Middleware::getMiddleware($plugin, $app, $withGlobalMiddleware));
+        $middlewares = array_merge($middlewares, MiddlewareContainer::getMiddleware($plugin, $app, $withGlobalMiddleware));
 
         foreach ($middlewares as $key => $item) {
             $middleware = $item[0];
@@ -681,7 +684,7 @@ class App
      */
     protected static function findRoute(TcpConnection $connection, string $path, string $key, mixed $request): bool
     {
-        $routeInfo = Route::dispatch($request->method(), $path);
+        $routeInfo = Router::dispatch($request->method(), $path);
         if ($routeInfo[0] === Dispatcher::FOUND) {
             $routeInfo[0] = 'route';
             $callback = $routeInfo[1]['callback'];

@@ -23,44 +23,28 @@
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace support;
+namespace Triangle\Engine\Exception\Handler;
 
-use Triangle\Engine\App;
-use function config;
-use function request;
+use Throwable;
+use Triangle\Engine\Http\Request;
+use Triangle\Engine\Http\Response;
 
-/**
- * Class View
- *
- * Класс для работы с представлениями.
- */
-class View
+interface ExceptionHandlerInterface
 {
     /**
-     * Метод для присвоения значения переменной представления.
-     *
-     * @param mixed $name Имя переменной.
-     * @param mixed|null $value Значение переменной.
+     * Отчет об исключении
+     * Этот метод вызывается для обработки исключения.
+     * @param Throwable $exception Исключение, которое нужно обработать
      * @return void
      */
-    public static function assign(mixed $name, mixed $value = null): void
-    {
-        $request = App::request();
-        $plugin = $request->plugin ?? '';
-        $handler = config($plugin ? "plugin.$plugin.view.handler" : 'view.handler');
-        $handler::assign($name, $value);
-    }
+    public function report(Throwable $exception): void;
 
     /**
-     * Метод для получения всех переменных представления.
-     *
-     * @return array Массив переменных представления.
+     * Рендеринг исключения
+     * Этот метод вызывается для отображения исключения пользователю.
+     * @param Request $request Текущий HTTP-запрос
+     * @param Throwable $exception Исключение, которое нужно отобразить
+     * @return Response Ответ, который следует отправить пользователю
      */
-    public static function vars(): array
-    {
-        $request = App::request();
-        $plugin = $request->plugin ?? '';
-        $handler = config($plugin ? "plugin.$plugin.view.handler" : 'view.handler');
-        return $handler::vars();
-    }
+    public function render(Request $request, Throwable $exception): Response;
 }

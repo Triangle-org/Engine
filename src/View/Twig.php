@@ -25,7 +25,7 @@
 
 namespace Triangle\Engine\View;
 
-use Triangle\Engine\View;
+use Triangle\Engine\App;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -35,43 +35,22 @@ use function app_path;
 use function array_merge;
 use function base_path;
 use function config;
-use function is_array;
 use function request;
 
 /**
- * FrameX Twig: Templating adapter (twig/twig)
+ * Класс Twig
+ * Этот класс представляет собой адаптер шаблонизатора (twig/twig) и наследует от абстрактного класса AbstractView.
+ * Он также реализует интерфейс ViewInterface.
  */
-class Twig implements View
+class Twig extends AbstractView implements ViewInterface
 {
     /**
-     * @var array
-     */
-    protected static array $vars = [];
-
-    /**
-     * @param array|string $name
-     * @param mixed|null $value
-     */
-    public static function assign(array|string $name, mixed $value = null, $merge_recursive = false): void
-    {
-        if ($merge_recursive) {
-            array_merge_recursive(static::$vars, is_array($name) ? $name : [$name => $value]);
-        } else {
-            static::$vars = array_merge(static::$vars, is_array($name) ? $name : [$name => $value]);
-        }
-    }
-
-    public static function vars(): array
-    {
-        return static::$vars;
-    }
-
-    /**
-     * @param string $template
-     * @param array $vars
-     * @param string|null $app
-     * @param string|null $plugin
-     * @return string
+     * Рендеринг представления.
+     * @param string $template Шаблон для рендеринга
+     * @param array $vars Переменные, которые должны быть доступны в шаблоне
+     * @param string|null $app Приложение, которому принадлежит шаблон (необязательно)
+     * @param string|null $plugin Плагин, которому принадлежит шаблон (необязательно)
+     * @return string Результат рендеринга
      * @throws LoaderError
      * @throws RuntimeError
      * @throws SyntaxError
@@ -79,23 +58,29 @@ class Twig implements View
     public static function render(string $template, array $vars, string $app = null, string $plugin = null): string
     {
         static $views = [];
-        $request = request();
+        $request = App::request();
+
+        $app = $app === null ? ($request->app ?? '') : $app;
         $plugin = $plugin === null ? ($request->plugin ?? '') : $plugin;
-        $app = $app === null ? $request->app : $app;
+
         $configPrefix = $plugin ? "plugin.$plugin." : '';
+        $baseViewPath = $plugin ? base_path("plugin/$plugin/app") : app_path();
         $viewSuffix = config("{$configPrefix}view.options.view_suffix", 'html');
+
         $key = "$plugin-$app";
         if (!isset($views[$key])) {
-            $baseViewPath = $plugin ? base_path("plugin/$plugin/app") : app_path();
             $viewPath = $app === '' ? "$baseViewPath/view/" : "$baseViewPath/$app/view/";
             $views[$key] = new Environment(new FilesystemLoader($viewPath), config("{$configPrefix}view.options", []));
+
             $extension = config("{$configPrefix}view.extension");
             if ($extension) {
                 $extension($views[$key]);
             }
         }
+
         $vars = array_merge(static::$vars, $vars);
         $content = $views[$key]->render("$template.$viewSuffix", $vars);
+
         static::$vars = [];
         return $content;
     }

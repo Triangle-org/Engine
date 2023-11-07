@@ -25,14 +25,15 @@
 
 namespace Triangle\Engine\Http;
 
-use Triangle\Engine\Route\Route;
+use Triangle\Engine\Router\Route;
 use function current;
 use function filter_var;
 use function is_array;
 use const FILTER_VALIDATE_IP;
 
 /**
- * Class Request
+ * Класс Request
+ * Этот класс представляет собой пользовательский запрос, который наследует от базового класса Http\Request.
  */
 class Request extends \localzet\Server\Protocols\Http\Request
 {
@@ -62,8 +63,9 @@ class Request extends \localzet\Server\Protocols\Http\Request
     public ?Route $route = null;
 
     /**
-     * @param string|null $name
-     * @return null|UploadFile[]|UploadFile
+     * Получить файл из запроса
+     * @param string|null $name Имя файла
+     * @return null|File[]|File
      */
     public function file($name = null): mixed
     {
@@ -91,7 +93,8 @@ class Request extends \localzet\Server\Protocols\Http\Request
     }
 
     /**
-     * @param array $files
+     * Разобрать массив файлов
+     * @param array $files Массив файлов
      * @return array
      */
     protected function parseFiles(array $files): array
@@ -108,22 +111,24 @@ class Request extends \localzet\Server\Protocols\Http\Request
     }
 
     /**
-     * @param array $file
-     * @return UploadFile
+     * Разобрать файл
+     * @param array $file Файл
+     * @return File
      */
-    protected function parseFile(array $file): UploadFile
+    protected function parseFile(array $file): File
     {
-        return new UploadFile($file['tmp_name'], $file['name'], $file['type'], $file['error']);
+        return new File($file['tmp_name'], $file['name'], $file['type'], $file['error']);
     }
 
     /**
-     * @param bool $safeMode
+     * Получить реальный IP-адрес клиента
+     * @param bool $safeMode Безопасный режим
      * @return string
      */
     public function getRealIp(bool $safeMode = true): string
     {
         $remoteIp = $this->getRemoteIp();
-        if ($safeMode && !isIntranetIp($remoteIp)) {
+        if ($safeMode && !$this->isIntranet()) {
             return $remoteIp;
         }
         $ip = $this->header('x-real-ip', $this->header(
@@ -134,5 +139,55 @@ class Request extends \localzet\Server\Protocols\Http\Request
             ))
         ));
         return filter_var($ip, FILTER_VALIDATE_IP) ? $ip : $remoteIp;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isIntranet(): bool
+    {
+        $ip = $this->getRemoteIp();
+
+        // Не IP.
+        if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+            return false;
+        }
+        // Точно ip Интранета? Для IPv4 FALSE может быть не точным, поэтому нам нужно проверить его вручную ниже.
+        if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+            return true;
+        }
+        // Ручная проверка IPv4.
+        if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            return false;
+        }
+
+        // Ручная проверка
+        // $reservedIps = [
+        //     '167772160'  => 184549375,  // 10.0.0.0 -  10.255.255.255
+        //     '3232235520' => 3232301055, // 192.168.0.0 - 192.168.255.255
+        //     '2130706432' => 2147483647, // 127.0.0.0 - 127.255.255.255
+        //     '2886729728' => 2887778303, // 172.16.0.0 -  172.31.255.255
+        // ];
+
+        $reservedIps = [
+            1681915904 => 1686110207,   // 100.64.0.0 -  100.127.255.255
+            3221225472 => 3221225727,   // 192.0.0.0 - 192.0.0.255
+            3221225984 => 3221226239,   // 192.0.2.0 - 192.0.2.255
+            3227017984 => 3227018239,   // 192.88.99.0 - 192.88.99.255
+            3323068416 => 3323199487,   // 198.18.0.0 - 198.19.255.255
+            3325256704 => 3325256959,   // 198.51.100.0 - 198.51.100.255
+            3405803776 => 3405804031,   // 203.0.113.0 - 203.0.113.255
+            3758096384 => 4026531839,   // 224.0.0.0 - 239.255.255.255
+        ];
+
+        $ipLong = ip2long($ip);
+
+        foreach ($reservedIps as $ipStart => $ipEnd) {
+            if (($ipLong >= $ipStart) && ($ipLong <= $ipEnd)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

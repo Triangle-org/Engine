@@ -23,44 +23,21 @@
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace support;
+namespace Triangle\Engine\Bootstrap;
 
-use Triangle\Engine\App;
-use function config;
-use function request;
+use localzet\Server;
 
 /**
- * Class View
- *
- * Класс для работы с представлениями.
+ * Интерфейс BootstrapInterface.
  */
-class View
+interface BootstrapInterface
 {
     /**
-     * Метод для присвоения значения переменной представления.
+     * Запускает приложение.
      *
-     * @param mixed $name Имя переменной.
-     * @param mixed|null $value Значение переменной.
+     * @param Server|null $server
+     *
      * @return void
      */
-    public static function assign(mixed $name, mixed $value = null): void
-    {
-        $request = App::request();
-        $plugin = $request->plugin ?? '';
-        $handler = config($plugin ? "plugin.$plugin.view.handler" : 'view.handler');
-        $handler::assign($name, $value);
-    }
-
-    /**
-     * Метод для получения всех переменных представления.
-     *
-     * @return array Массив переменных представления.
-     */
-    public static function vars(): array
-    {
-        $request = App::request();
-        $plugin = $request->plugin ?? '';
-        $handler = config($plugin ? "plugin.$plugin.view.handler" : 'view.handler');
-        return $handler::vars();
-    }
+    public static function start(?Server $server): void;
 }

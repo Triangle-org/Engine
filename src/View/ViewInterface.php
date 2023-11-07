@@ -23,44 +23,20 @@
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace support;
-
-use Triangle\Engine\App;
-use function config;
-use function request;
+namespace Triangle\Engine\View;
 
 /**
- * Class View
- *
- * Класс для работы с представлениями.
+ * Интерфейс ViewInterface
+ * Этот интерфейс определяет методы, которые должны быть реализованы в классах представления.
  */
-class View
+interface ViewInterface
 {
     /**
-     * Метод для присвоения значения переменной представления.
-     *
-     * @param mixed $name Имя переменной.
-     * @param mixed|null $value Значение переменной.
-     * @return void
+     * Рендеринг представления.
+     * @param string $template Шаблон для рендеринга
+     * @param array $vars Переменные, которые должны быть доступны в шаблоне
+     * @param string|null $app Приложение, которому принадлежит шаблон (необязательно)
+     * @return string Результат рендеринга
      */
-    public static function assign(mixed $name, mixed $value = null): void
-    {
-        $request = App::request();
-        $plugin = $request->plugin ?? '';
-        $handler = config($plugin ? "plugin.$plugin.view.handler" : 'view.handler');
-        $handler::assign($name, $value);
-    }
-
-    /**
-     * Метод для получения всех переменных представления.
-     *
-     * @return array Массив переменных представления.
-     */
-    public static function vars(): array
-    {
-        $request = App::request();
-        $plugin = $request->plugin ?? '';
-        $handler = config($plugin ? "plugin.$plugin.view.handler" : 'view.handler');
-        return $handler::vars();
-    }
+    public static function render(string $template, array $vars, string $app = null): string;
 }

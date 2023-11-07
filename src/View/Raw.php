@@ -26,113 +26,81 @@
 namespace Triangle\Engine\View;
 
 use Throwable;
-use Triangle\Engine\View;
-use function app_path;
-use function array_merge;
-use function base_path;
+use Triangle\Engine\App;
 use function config;
 use function extract;
-use function is_array;
 use function ob_end_clean;
 use function ob_get_clean;
 use function ob_start;
 use function request;
 
 /**
- * FrameX Raw: PHP Templating engine
+ * Класс Raw
+ * Этот класс представляет собой движок шаблонизации PHP и наследует от абстрактного класса AbstractView.
+ * Он также реализует интерфейс ViewInterface.
  */
-class Raw implements View
+class Raw extends AbstractView implements ViewInterface
 {
     /**
-     * @var array
-     */
-    protected static array $vars = [];
-
-    /**
-     * @param array|string $name
-     * @param mixed|null $value
-     */
-    public static function assign(array|string $name, mixed $value = null, $merge_recursive = false): void
-    {
-        if ($merge_recursive) {
-            array_merge_recursive(static::$vars, is_array($name) ? $name : [$name => $value]);
-        } else {
-            static::$vars = array_merge(static::$vars, is_array($name) ? $name : [$name => $value]);
-        }
-    }
-
-    public static function vars(): array
-    {
-        return static::$vars;
-    }
-
-    /**
-     * @param string $template
-     * @param array $vars
-     * @param string|null $app
-     * @param string|null $plugin
-     * @return string
+     * Рендеринг представления.
+     * @param string $template Шаблон для рендеринга
+     * @param array $vars Переменные, которые должны быть доступны в шаблоне
+     * @param string|null $app Приложение, которому принадлежит шаблон (необязательно)
+     * @param string|null $plugin Плагин, которому принадлежит шаблон (необязательно)
+     * @return string Результат рендеринга
+     * @throws Throwable
      */
     public static function render(string $template, array $vars, string $app = null, string $plugin = null): string
     {
-        $request = request();
-        $plugin = $plugin === null ? ($request->plugin ?? '') : $plugin;
         $configPrefix = $plugin ? "plugin.$plugin." : '';
-        $view_global = config("{$configPrefix}view.options.view_global", false);
-        $viewSuffix = config("{$configPrefix}view.options.view_suffix", 'html');
-        $view_head = config("{$configPrefix}view.options.view_head", "base");
-        $view_footer = config("{$configPrefix}view.options.view_footer", "footer");
-        $app = $app === null ? $request->app : $app;
-        $baseViewPath = $plugin ? base_path("plugin/$plugin/app") : app_path();
-        $__template_body__ = $app === '' ? "$baseViewPath/view/$template.$viewSuffix" : "$baseViewPath/$app/view/$template.$viewSuffix";
-        $__template_head__ = ($view_global ? app_path() : $baseViewPath) . ($app === '' || $view_global ? "/view/$view_head.$viewSuffix" : "/$app/view/$view_head.$viewSuffix");
-        $__template_foot__ = ($view_global ? app_path() : $baseViewPath) . ($app === '' || $view_global ? "/view/$view_footer.$viewSuffix" : "/$app/view/$view_footer.$viewSuffix");
 
-        $name = config('app.name', 'Triangle App');
-        $description = config('app.description', 'Simple web application on Triangle Engine');
-        $keywords = config('app.keywords', '');
-        $viewport = config('app.viewport', 'width=device-width, initial-scale=1');
+        foreach (config("{$configPrefix}view.options.pre_renders", []) as $render) {
+            if (isset($render['template'])) {
+                static::assign(@$render['vars'] ?? []);
+                static::addPreRender(
+                    $render['template'],
+                    @$render['app'] ?? null,
+                    @$render['plugin'] ?? null,
+                );
+            }
+        }
 
-        $domain = config('app.domain', 'https://' . $request->host(true));
-        $canonical = config('app.canonical', $request->url());
-        $assets = config('app.assets', '/');
-        $logo = config('app.logo', '/favicon.svg');
+        foreach (config("{$configPrefix}view.options.post_renders", []) as $render) {
+            if (isset($render['template'])) {
+                static::assign(@$render['vars'] ?? []);
+                static::addPostRender(
+                    $render['template'],
+                    @$render['app'] ?? null,
+                    @$render['plugin'] ?? null,
+                );
+            }
+        }
 
-        $owner = config('app.owner', '');
-        $designer = config('app.designer', '');
-        $author = config('app.author', '');
-        $copyright = config('app.copyright', '');
-        $reply_to = config('app.reply_to', '');
-
-        $extemplate = explode('/', $template) ?? [$template];
-        $page = end($extemplate);
-
-        $AppInfo = [
-            'name' => $name,
-            'description' => $description,
-            'keywords' => $keywords,
-            'viewport' => $viewport,
-
-            'owner' => $owner,
-            'designer' => $designer,
-            'author' => $author,
-            'copyright' => $copyright,
-            'reply_to' => $reply_to,
-
-            'domain' => $domain,
-            'canonical' => $canonical,
-            'assets' => $assets,
-            'logo' => $logo,
+        $preRenders = static::getPreRenders();
+        $curRender = [
+            'template' => $template,
+            'app' => $app,
+            'plugin' => $plugin
         ];
+        $postRenders = static::getPostRenders();
 
+        extract(config("{$configPrefix}view.options.vars", []));
         extract(static::$vars);
         extract($vars);
         ob_start();
 
         try {
-            if (file_exists($__template_head__)) include $__template_head__;
-            include $__template_body__;
-            if (file_exists($__template_foot__)) include $__template_foot__;
+            foreach ($preRenders as $render) {
+                $file = static::build($render);
+                if (file_exists($file)) include $file;
+            }
+
+            include static::build($curRender);
+
+            foreach ($postRenders as $render) {
+                $file = static::build($render);
+                if (file_exists($file)) include $file;
+            }
         } catch (Throwable $e) {
             static::$vars = [];
             ob_end_clean();
@@ -144,54 +112,21 @@ class Raw implements View
     }
 
     /**
-     * @param string $template error/success
-     * @param array $vars
-     * @return false|string
+     * Рендеринг системного представления.
+     * @param string $template Шаблон для рендеринга
+     * @param array $vars Переменные, которые должны быть доступны в шаблоне
+     * @return false|string Результат рендеринга
      */
     public static function renderSys(string $template, array $vars): false|string
     {
-        $request = request();
+        $request = App::request();
         $plugin = $request->plugin ?? '';
-        $config_prefix = $plugin ? "plugin.$plugin." : '';
-        $sysview = __DIR__ . "/../support/view/$template.phtml";
-        $view = config("{$config_prefix}view.system.$template", $sysview);
+        $configPrefix = $plugin ? "plugin.$plugin." : '';
 
-        $name = config('app.name', 'Triangle App');
-        $description = config('app.description', 'Simple web application on Triangle Engine');
-        $keywords = config('app.keywords', '');
-        $viewport = config('app.viewport', 'width=device-width, initial-scale=1');
-
-        $domain = config('app.domain', 'https://' . $request->host(true));
-        $canonical = config('app.canonical', $request->url());
-        $assets = config('app.assets', '/');
-        $logo = config('app.logo', '/favicon.svg');
-
-        $owner = config('app.owner', '');
-        $designer = config('app.designer', '');
-        $author = config('app.author', '');
-        $copyright = config('app.copyright', '');
-        $reply_to = config('app.reply_to', '');
-
-        $extemplate = explode('/', $template) ?? [$template];
-        $page = end($extemplate);
-
-        $AppInfo = [
-            'name' => $name,
-            'description' => $description,
-            'keywords' => $keywords,
-            'viewport' => $viewport,
-
-            'owner' => $owner,
-            'designer' => $designer,
-            'author' => $author,
-            'copyright' => $copyright,
-            'reply_to' => $reply_to,
-
-            'domain' => $domain,
-            'canonical' => $canonical,
-            'assets' => $assets,
-            'logo' => $logo,
-        ];
+        $view = config(
+            "{$configPrefix}templates.system.$template",
+            __DIR__ . "/templates/$template.phtml"
+        );
 
         extract(static::$vars);
         extract($vars);

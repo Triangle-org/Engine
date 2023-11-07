@@ -27,6 +27,7 @@ namespace support;
 
 use Symfony\Component\Cache\Adapter\RedisAdapter;
 use Symfony\Component\Cache\Psr16Cache;
+use Triangle\Engine\Redis\Handler;
 
 /**
  * Класс Cache
@@ -67,7 +68,7 @@ class Cache
     public static function instance(): ?Psr16Cache
     {
         if (!static::$instance) {
-            $adapter = new RedisAdapter(Redis::connection()->client());
+            $adapter = new RedisAdapter(Handler::connection()->client());
             self::$instance = new Psr16Cache($adapter);
         }
         return static::$instance;

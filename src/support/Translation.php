@@ -26,6 +26,7 @@
 namespace support;
 
 use Symfony\Component\Translation\Translator;
+use Triangle\Engine\App;
 use Triangle\Engine\Exception\NotFoundException;
 use function basename;
 use function config;
@@ -62,7 +63,7 @@ class Translation
      */
     public static function __callStatic(string $name, array $arguments)
     {
-        $request = request();
+        $request = App::request();
         $plugin = $request->plugin ?? '';
         return static::instance($plugin)->{$name}(...$arguments);
     }
