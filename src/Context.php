@@ -32,7 +32,8 @@ use WeakMap;
 use function property_exists;
 
 /**
- * Class Context
+ * Класс Context
+ * Этот класс предоставляет методы для работы с контекстом выполнения.
  */
 class Context
 {
@@ -48,7 +49,8 @@ class Context
     protected static StdClass $object;
 
     /**
-     * @param string|null $key
+     * Получить значение из контекста
+     * @param string|null $key Ключ значения
      * @return mixed
      */
     public static function get(string $key = null): mixed
@@ -61,6 +63,7 @@ class Context
     }
 
     /**
+     * Получить объект контекста
      * @return StdClass
      */
     protected static function getObject(): StdClass
@@ -77,6 +80,7 @@ class Context
     }
 
     /**
+     * Получить ключ контекста
      * @return Fiber|null
      */
     protected static function getKey(): ?Fiber
@@ -85,8 +89,9 @@ class Context
     }
 
     /**
-     * @param string $key
-     * @param $value
+     * Установить значение в контекст
+     * @param string $key Ключ значения
+     * @param $value Значение
      * @return void
      */
     public static function set(string $key, $value): void
@@ -96,7 +101,8 @@ class Context
     }
 
     /**
-     * @param string $key
+     * Удалить значение из контекста
+     * @param string $key Ключ значения
      * @return void
      */
     public static function delete(string $key): void
@@ -106,7 +112,8 @@ class Context
     }
 
     /**
-     * @param string $key
+     * Проверить наличие значения в контексте
+     * @param string $key Ключ значения
      * @return bool
      */
     public static function has(string $key): bool
@@ -116,6 +123,7 @@ class Context
     }
 
     /**
+     * Уничтожить контекст
      * @return void
      */
     public static function destroy(): void
