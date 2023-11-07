@@ -27,6 +27,24 @@ namespace support;
 
 class Plugin
 {
+    protected static function getInstallFunction(string $namespace): ?callable
+    {
+        $installFunction = "\\{$namespace}Install::install";
+        return is_callable($installFunction) ? $installFunction : null;
+    }
+
+    protected static function getUpdateFunction(string $namespace): ?callable
+    {
+        $updateFunction = "\\{$namespace}Install::update";
+        return is_callable($updateFunction) ? $updateFunction : null;
+    }
+
+    protected static function getUninstallFunction(string $namespace): ?callable
+    {
+        $uninstallFunction = "\\{$namespace}Install::uninstall";
+        return is_callable($uninstallFunction) ? $uninstallFunction : null;
+    }
+
     /**
      * Install.
      * @param mixed $event
@@ -41,8 +59,8 @@ class Plugin
             if (!defined($pluginConst)) {
                 continue;
             }
-            $installFunction = "\\{$namespace}Install::install";
-            if (is_callable($installFunction)) {
+            $installFunction = static::getInstallFunction($namespace);
+            if ($installFunction) {
                 $installFunction(true);
             }
         }
@@ -91,13 +109,13 @@ class Plugin
             if (!defined($pluginConst)) {
                 continue;
             }
-            $updateFunction = "\\{$namespace}Install::update";
-            if (is_callable($updateFunction)) {
+            $updateFunction = static::getUpdateFunction($namespace);
+            if ($updateFunction) {
                 $updateFunction();
                 continue;
             }
-            $installFunction = "\\{$namespace}Install::install";
-            if (is_callable($installFunction)) {
+            $installFunction = static::getInstallFunction($namespace);
+            if ($installFunction) {
                 $installFunction(false);
             }
         }
@@ -117,8 +135,8 @@ class Plugin
             if (!defined($pluginConst)) {
                 continue;
             }
-            $uninstallFunction = "\\{$namespace}Install::uninstall";
-            if (is_callable($uninstallFunction)) {
+            $uninstallFunction = static::getUninstallFunction($namespace);
+            if ($uninstallFunction) {
                 $uninstallFunction();
             }
         }
