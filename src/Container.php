@@ -31,11 +31,10 @@ use function array_key_exists;
 use function class_exists;
 
 /**
- * Class Container
+ * Класс Container
  */
 class Container implements ContainerInterface
 {
-
     /**
      * @var array
      */
