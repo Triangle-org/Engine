@@ -32,7 +32,8 @@ use function gmdate;
 
 
 /**
- * Class Response
+ * Класс Response
+ * Этот класс представляет собой пользовательский ответ, который наследует от базового класса Http\Response.
  */
 class Response extends \localzet\Server\Protocols\Http\Response
 {
@@ -41,6 +42,13 @@ class Response extends \localzet\Server\Protocols\Http\Response
      */
     protected ?Throwable $exception = null;
 
+    /**
+     * Конструктор класса Response.
+     *
+     * @param int $status Статус-код HTTP
+     * @param array $headers Заголовки HTTP
+     * @param string $body Тело ответа
+     */
     function __construct(
         $status = 200,
         $headers = array(),
@@ -52,7 +60,8 @@ class Response extends \localzet\Server\Protocols\Http\Response
     }
 
     /**
-     * @param string $file
+     * Отправить файл в ответе
+     * @param string $file Путь к файлу
      * @return $this
      */
     public function file(string $file): Response
@@ -64,7 +73,8 @@ class Response extends \localzet\Server\Protocols\Http\Response
     }
 
     /**
-     * @param string $file
+     * Проверить, был ли файл изменен с момента последнего запроса
+     * @param string $file Путь к файлу
      * @return bool
      */
     protected function notModifiedSince(string $file): bool
@@ -77,8 +87,9 @@ class Response extends \localzet\Server\Protocols\Http\Response
     }
 
     /**
-     * @param string $file
-     * @param string $downloadName
+     * Загрузить файл
+     * @param string $file Путь к файлу
+     * @param string $downloadName Имя файла для загрузки
      * @return $this
      */
     public function download(string $file, string $downloadName = ''): Response
@@ -91,7 +102,8 @@ class Response extends \localzet\Server\Protocols\Http\Response
     }
 
     /**
-     * @param Throwable|null $exception
+     * Получить или установить исключение
+     * @param Throwable|null $exception Исключение для установки
      * @return Throwable|null
      */
     public function exception(Throwable $exception = null): ?Throwable
@@ -102,3 +114,4 @@ class Response extends \localzet\Server\Protocols\Http\Response
         return $this->exception;
     }
 }
+
