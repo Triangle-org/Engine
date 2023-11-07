@@ -28,11 +28,18 @@ namespace support;
 use function config;
 use function request;
 
+/**
+ * Class View
+ *
+ * Класс для работы с представлениями.
+ */
 class View
 {
     /**
-     * @param mixed $name
-     * @param mixed|null $value
+     * Метод для присвоения значения переменной представления.
+     *
+     * @param mixed $name Имя переменной.
+     * @param mixed|null $value Значение переменной.
      * @return void
      */
     public static function assign(mixed $name, mixed $value = null): void
@@ -43,7 +50,12 @@ class View
         $handler::assign($name, $value);
     }
 
-    public static function vars()
+    /**
+     * Метод для получения всех переменных представления.
+     *
+     * @return array Массив переменных представления.
+     */
+    public static function vars(): array
     {
         $request = request();
         $plugin = $request->plugin ?? '';
