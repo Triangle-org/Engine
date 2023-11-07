@@ -41,7 +41,6 @@ use function str_replace;
 
 class Config
 {
-
     /**
      * @var array
      */
