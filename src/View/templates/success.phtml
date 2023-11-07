@@ -18,21 +18,12 @@ use localzet\Server;
 
 <head>
     <base href=""/>
-    <title><?= $name ?></title>
+    <title>Triangle Web</title>
     <meta charset="utf-8"/>
 
     <!-- About App -->
     <meta name="language" content="RU"/>
     <meta name="robots" content="noindex,nofollow"/>
-    <meta name="title" content="<?= $name ?>"/>
-    <meta name="viewport" content="<?= $viewport ?>"/>
-
-    <!-- About Creator App -->
-    <meta name="owner" content="<?= $owner ?>"/>
-    <meta name="designer" content="<?= $designer ?>"/>
-    <meta name="author" content="<?= $author ?>"/>
-    <meta name="copyright" content="<?= $copyright ?>"/>
-    <meta name="reply-to" content="<?= $reply_to ?>"/>
 
     <!-- About System -->
     <meta name="generator" content="Triangle Framework"/>
@@ -44,14 +35,8 @@ use localzet\Server;
     <meta http-equiv="Cache-Control" content="no-cache"/>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 
-    <!-- Apple Meta Tags -->
-    <meta name="apple-mobile-web-app-capable" content="yes"/>
-    <meta name="apple-touch-fullscreen" content="yes"/>
-    <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
-    <meta name="format-detection" content="telephone=no"/>
-
     <!-- SEO -->
-    <link rel="shortcut icon" type="image/svg+xml" href="<?= $logo ?>"/>
+    <link rel="shortcut icon" type="image/svg+xml" href="//cdn.localzet.com/public/media/localzet.svg"/>
 
     <meta name="color-scheme" content="dark light">
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#12121200">
@@ -61,19 +46,14 @@ use localzet\Server;
     <link rel="stylesheet" type="text/css"
           href="https://fonts.googleapis.com/css?family=Nunito:100,200,300,400,500,600,700,800,900"/>
 
-    <!--Theme-->
-    <script>
-        var globalDebug = <?= config('app.debug') ? 'true' : 'false' ?>;
-        var AppInfo = <?= json($AppInfo) ?>;
-        <?= config('app.debug') ? 'console.info("Запуск \"" + AppInfo.name + "\" \n", AppInfo);' : '' ?>
-    </script>
 </head>
 
 <body>
 <br/>
 <center>
     <h1>
-        <?= print_r($data, true) ?>
+        <?php $print = $error ?? $data ?? 'Ошибка'; ?>
+        <?= is_string($print) ? $print : print_r($print, true) ?>
     </h1>
 </center>
 <hr/>

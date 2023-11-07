@@ -30,6 +30,7 @@ use support\Log;
 use Triangle\Engine\Bootstrap\BootstrapInterface;
 use Triangle\Engine\Config;
 use Triangle\Engine\Middleware;
+use Triangle\Engine\Router;
 
 $server = $server ?? null;
 
@@ -258,4 +259,4 @@ foreach (scan_dir($directory) as $path) {
         $paths[] = $path;
     }
 }
-Route::load($paths);
+Router::load($paths);
