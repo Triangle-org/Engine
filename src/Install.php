@@ -39,17 +39,6 @@ class Install
     protected static array $pathRelation = [
         'master',
         'support/bootstrap.php',
-        'support/helpers.php',
-
-        'support/helpers/dirs.php',
-        'support/helpers/formats.php',
-        'support/helpers/paths.php',
-        'support/helpers/responses.php',
-        'support/helpers/server.php',
-        'support/helpers/web.php',
-
-//        'support/Request.php',
-//        'support/Response.php',
     ];
 
     /**
@@ -77,15 +66,15 @@ class Install
     public static function installByRelation(): void
     {
         foreach (static::$pathRelation as $source) {
+            $sourceFile = __DIR__ . "/$source";
+            $targetFile = base_path($source);
+
             if ($pos = strrpos($source, '/')) {
                 $parentDir = base_path(substr($source, 0, $pos));
                 if (!is_dir($parentDir)) {
                     mkdir($parentDir, 0777, true);
                 }
             }
-
-            $sourceFile = __DIR__ . "/$source";
-            $targetFile = base_path($source);
 
             self::delFile($targetFile);
             copy_dir($sourceFile, $targetFile, true);
