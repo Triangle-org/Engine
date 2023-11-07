@@ -23,7 +23,7 @@
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Triangle\Engine\support;
+namespace support;
 
 use Psr\Log\LoggerInterface;
 use support\Log;
