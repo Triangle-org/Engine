@@ -23,18 +23,19 @@
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Triangle\Engine\Exception\Handler;
+namespace Triangle\Engine\Exception;
 
 use Psr\Log\LoggerInterface;
 use Throwable;
-use Triangle\Engine\Exception\BusinessException;
 use Triangle\Engine\Http\Request;
 use Triangle\Engine\Http\Response;
 use function nl2br;
+use function Triangle\Engine\Exception\Handler\responseJson;
+use function Triangle\Engine\Exception\Handler\responseView;
 use function trim;
 
 /**
- * Class Handler
+ * Class Events
  */
 class ExceptionHandler implements ExceptionHandlerInterface
 {

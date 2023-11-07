@@ -23,7 +23,7 @@
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Triangle\Engine\Exception\Handler;
+namespace Triangle\Engine\Exception;
 
 use Throwable;
 use Triangle\Engine\Http\Request;
