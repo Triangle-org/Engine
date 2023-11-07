@@ -25,6 +25,10 @@
 
 namespace Triangle\Engine;
 
+/**
+ * Класс Install
+ * Этот класс предназначен для установки и обновления плагина.
+ */
 class Install
 {
     const TRIANGLE_PLUGIN = true;
@@ -49,7 +53,7 @@ class Install
     ];
 
     /**
-     * Install
+     * Установка плагина
      * @return void
      */
     public static function install(): void
@@ -58,7 +62,7 @@ class Install
     }
 
     /**
-     * Update
+     * Обновление плагина
      * @return void
      */
     public static function update(): void
@@ -67,7 +71,7 @@ class Install
     }
 
     /**
-     * InstallByRelation
+     * Установка плагина по связи
      * @return void
      */
     public static function installByRelation(): void
@@ -92,7 +96,8 @@ class Install
     }
 
     /**
-     * @param string $filepath
+     * Удаление файла
+     * @param string $filepath Путь к файлу
      * @return void
      */
     private static function delFile(string $filepath): void
@@ -103,7 +108,7 @@ class Install
     }
 
     /**
-     * Uninstall
+     * Удаление плагина
      * @return void
      */
     public static function uninstall()
