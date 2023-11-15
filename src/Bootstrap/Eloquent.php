@@ -30,12 +30,16 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\MySqlConnection;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Pagination\CursorPaginator;
+use Illuminate\Pagination\Cursor;
 use localzet\Server;
 use localzet\Timer;
 use support\Container;
 use Throwable;
 use Triangle\Engine\App;
-use Triangle\MongoDB\Connection as MongodbConnection;
+use Triangle\MongoDB\Connection as TriangleMongodbConnection;
+use MongoDB\Laravel\Connection as LaravelMongodbConnection;
+
 use function class_exists;
 use function config;
 
@@ -73,8 +77,9 @@ class Eloquent implements BootstrapInterface
         // Расширяем функциональность для MongoDB.
         $capsule->getDatabaseManager()->extend('mongodb', function ($config, $name) {
             $config['name'] = $name;
-            return new MongodbConnection($config);
+            return class_exists(LaravelMongodbConnection::class) ? new LaravelMongodbConnection($config) : new TriangleMongodbConnection($config);
         });
+
 
         // Добавляем соединения.
         $default = $config['default'] ?? false;
@@ -133,6 +138,11 @@ class Eloquent implements BootstrapInterface
                 $page = (int)($request->input($pageName, 1));
                 return $page > 0 ? $page : 1;
             });
+            if (class_exists(CursorPaginator::class)) {
+                CursorPaginator::currentCursorResolver(function ($cursorName = 'cursor') {
+                    return Cursor::fromEncoded(request()->input($cursorName));
+                });
+            }
         }
     }
 }
