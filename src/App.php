@@ -199,14 +199,18 @@ class App
             // Устанавливаем контекст для соединения и запроса
             Context::set(TcpConnection::class, $connection);
             Context::set(Request::class, $request);
+
             // Получаем путь из запроса
             $path = $request->path();
+
             // Создаем ключ из метода запроса и пути
             $key = $request->method() . $path;
+
             // Если для данного ключа уже есть обратные вызовы
             if (isset(static::$callbacks[$key])) {
                 // Получаем обратные вызовы
                 [$callback, $request->plugin, $request->app, $request->controller, $request->action, $request->route] = static::$callbacks[$key];
+
                 // Отправляем обратный вызов
                 static::send($connection, $callback($request), $request);
                 return null;
@@ -223,30 +227,40 @@ class App
 
             // Парсим контроллер и действие из пути
             $controllerAndAction = static::parseControllerAction($path);
+
             // Получаем плагин по пути или из контроллера и действия
             $plugin = $controllerAndAction['plugin'] ?? static::getPluginByPath($path);
+
             // Если контроллер и действие не найдены или маршрут по умолчанию отключен
             if (!$controllerAndAction || Router::hasDisableDefaultRoute($plugin)) {
                 // Устанавливаем плагин в запросе
                 $request->plugin = $plugin;
+
                 // Получаем обратный вызов для отката
                 $callback = static::getFallback($plugin);
+
                 // Устанавливаем приложение, контроллер и действие в запросе
                 $request->app = $request->controller = $request->action = '';
+
                 // Отправляем обратный вызов
                 static::send($connection, $callback($request), $request);
                 return null;
             }
+
             // Получаем приложение, контроллер и действие
             $app = $controllerAndAction['app'];
             $controller = $controllerAndAction['controller'];
             $action = $controllerAndAction['action'];
+
             // Получаем обратный вызов
             $callback = static::getCallback($plugin, $app, [$controller, $action]);
+
             // Собираем обратные вызовы
             static::collectCallbacks($key, [$callback, $plugin, $app, $controller, $action, null]);
+
             // Получаем обратные вызовы
             [$callback, $request->plugin, $request->app, $request->controller, $request->action, $request->route] = static::$callbacks[$key];
+
             // Отправляем обратный вызов
             static::send($connection, $callback($request), $request);
         } catch (Throwable $e) {
@@ -341,6 +355,7 @@ class App
         // Разбиваем путь на части
         $pathExplodes = explode('/', trim($path, '/'));
         $plugin = '';
+
         // Если путь указывает на плагин
         if (isset($pathExplodes[1]) && $pathExplodes[0] === 'app') {
             $publicDir = static::$basePath . "/plugin/$pathExplodes[1]/public";
@@ -350,8 +365,10 @@ class App
             // Иначе используем общедоступную директорию
             $publicDir = static::$publicPath;
         }
+
         // Получаем полный путь к файлу
         $file = "$publicDir/$path";
+
         // Если файл не существует, возвращаем false
         if (!is_file($file)) {
             return false;
@@ -363,12 +380,15 @@ class App
             if (!static::config($plugin, 'app.support_php_files', false)) {
                 return false;
             }
+
             // Добавляем обратный вызов для выполнения PHP-файла
             static::collectCallbacks($key, [function () use ($file) {
                 return static::execPhpFile($file);
             }, '', '', '', '', null]);
+
             // Получаем обратные вызовы
             [, $request->plugin, $request->app, $request->controller, $request->action, $request->route] = static::$callbacks[$key];
+
             // Отправляем обратный вызов
             static::send($connection, static::execPhpFile($file), $request);
             return true;
@@ -457,7 +477,7 @@ class App
         $middlewares = [];
         // Если есть маршрут, получаем промежуточное ПО маршрута
         if ($route) {
-            $routeMiddlewares = array_reverse($route->getMiddleware());
+            $routeMiddlewares = $route->getMiddleware();
             foreach ($routeMiddlewares as $className) {
                 $middlewares[] = [$className, 'process'];
             }
@@ -588,6 +608,7 @@ class App
         if (!$firstParameter->hasType()) {
             return count($args) > count($reflectionParameters);
         }
+
         if (!is_a(static::$requestClass, $firstParameter->getType()->getName())) {
             return true;
         }
@@ -875,6 +896,11 @@ class App
         // Удаляем дефисы из пути
         $path = str_replace('-', '', $path);
 
+        static $cache = [];
+        if (isset($cache[$path])) {
+            return $cache[$path];
+        }
+
         // Разбиваем путь на части
         $pathExplode = explode('/', trim($path, '/'));
 
@@ -897,20 +923,25 @@ class App
         $action = 'index';
 
         // Пытаемся угадать контроллер и действие
-        if ($controllerAction = static::guessControllerAction($pathExplode, $action, $suffix, $classPrefix)) {
-            return $controllerAction;
+        if (!$controllerAction = static::guessControllerAction($pathExplode, $action, $suffix, $classPrefix)) {
+            // Если контроллер и действие не найдены и путь состоит из одной части, возвращаем false
+            if (count($pathExplode) <= 1) {
+                return false;
+            }
+
+            $action = end($pathExplode);
+            unset($pathExplode[count($pathExplode) - 1]);
+            $controllerAction = static::guessControllerAction($pathExplode, $action, $suffix, $classPrefix);
         }
 
-        // Если контроллер и действие не найдены и путь состоит из одной части, возвращаем false
-        if (count($pathExplode) <= 1) {
-            return false;
+        if ($controllerAction && !isset($path[256])) {
+            $cache[$path] = $controllerAction;
+            if (count($cache) > 1024) {
+                unset($cache[key($cache)]);
+            }
         }
 
-        // Иначе пытаемся угадать контроллер и действие снова, используя последнюю часть пути как действие
-        $action = end($pathExplode);
-        unset($pathExplode[count($pathExplode) - 1]);
-
-        return static::guessControllerAction($pathExplode, $action, $suffix, $classPrefix);
+        return $controllerAction;
     }
 
 
