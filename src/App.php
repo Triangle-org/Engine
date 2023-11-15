@@ -280,9 +280,6 @@ class App
      */
     protected static function send(mixed $connection, mixed $response, mixed $request): void
     {
-        if ($response === null) {
-            return;
-        }
         $keepAlive = $request->header('connection');
         Context::destroy();
         if (($keepAlive === null && $request->protocolVersion() === '1.1')
