@@ -98,6 +98,11 @@ class Router
     protected array $routes = [];
 
     /**
+     * @var Router[]
+     */
+    protected array $children = [];
+
+    /**
      * Добавить маршрут PATCH
      * @param string $path Путь маршрута
      * @param callable|mixed $callback Обработчик маршрута
@@ -125,6 +130,23 @@ class Router
         }
         static::$instance?->collect($route);
         return $route;
+    }
+
+    /**
+     * @param Router $route
+     * @return void
+     */
+    public function addChild(Router $route)
+    {
+        $this->children[] = $route;
+    }
+
+    /**
+     * @return Router[]
+     */
+    public function getChildren()
+    {
+        return $this->children;
     }
 
     /**
@@ -215,10 +237,12 @@ class Router
 
         $previousGroupPrefix = static::$groupPrefix;
         static::$groupPrefix = $previousGroupPrefix . $path;
+        $previousInstance = static::$instance;
         $instance = static::$instance = new static;
         static::$collector->addGroup($path, $callback);
-        static::$instance = null;
         static::$groupPrefix = $previousGroupPrefix;
+        static::$instance = $previousInstance;
+        $previousInstance?->addChild($instance);
         return $instance;
     }
 
@@ -455,6 +479,9 @@ class Router
     {
         foreach ($this->routes as $route) {
             $route->middleware($middleware);
+        }
+        foreach ($this->getChildren() as $child) {
+            $child->middleware($middleware);
         }
         return $this;
     }
