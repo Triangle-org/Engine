@@ -68,7 +68,7 @@ class ThinkPHP extends AbstractView implements ViewInterface
             'view_suffix' => $viewSuffix
         ];
 
-        $options = $defaultOptions + config("{$configPrefix}view.options", []);
+        $options = array_merge($defaultOptions, config("{$configPrefix}view.options", []));
         $views = new Template($options);
 
         ob_start();
