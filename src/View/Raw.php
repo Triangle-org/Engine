@@ -123,7 +123,7 @@ class Raw extends AbstractView implements ViewInterface
         $configPrefix = $plugin ? "plugin.$plugin." : '';
 
         $view = config(
-            "{$configPrefix}templates.system.$template",
+            "{$configPrefix}view.templates.system.$template",
             __DIR__ . "/templates/$template.phtml"
         );
 
