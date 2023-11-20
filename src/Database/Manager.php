@@ -39,6 +39,6 @@ use Closure;
  * @method static void rollBack($toLevel = null)
  * @method static void commit()
  */
-class Manager extends Illuminate\Database\Capsule\Manager
+class Manager extends \Illuminate\Database\Capsule\Manager
 {
 }
