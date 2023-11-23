@@ -72,9 +72,9 @@ class Route
      * Конструктор маршрута.
      * @param array $methods HTTP-методы
      * @param string $path Путь маршрута
-     * @param callable $callback Обработчик маршрута
+     * @param callable|mixed $callback Обработчик маршрута
      */
-    public function __construct(array $methods, string $path, callable $callback)
+    public function __construct(array $methods, string $path, mixed $callback)
     {
         $this->methods = $methods;
         $this->path = $path;
