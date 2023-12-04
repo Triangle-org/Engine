@@ -48,7 +48,7 @@ class Install
      */
     public static function install(): void
     {
-        static::installByRelation();
+        static::installByRelation(true);
     }
 
     /**
@@ -57,14 +57,15 @@ class Install
      */
     public static function update(): void
     {
-        static::installByRelation();
+        static::installByRelation(false);
     }
 
     /**
      * Установка плагина по связи
+     * @param bool $install
      * @return void
      */
-    public static function installByRelation(): void
+    public static function installByRelation(bool $install = false): void
     {
         foreach (static::$pathRelation as $source) {
             $sourceFile = __DIR__ . "/$source";
@@ -77,7 +78,7 @@ class Install
                 }
             }
 
-            // self::delFile($targetFile);
+            $install && self::delFile($targetFile);
             copy_dir($sourceFile, $targetFile, true);
             self::delFile($sourceFile);
 
