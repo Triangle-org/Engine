@@ -47,15 +47,17 @@ class BusinessException extends Exception
     public function render(Request $request): ?Response
     {
         $json = [
-            'debug' => (string)config('app.debug', false),
             'status' => $this->getCode() ?? 500,
             'error' => $this->getMessage(),
-            'data' => config('app.debug', false) ? nl2br((string)$this) : $this->getMessage(),
         ];
-        config('app.debug', false) && $json['traces'] = (string)$this;
+
+        if (config('app.debug')) {
+            $json['debug'] = config('app.debug');
+            $json['traces'] = nl2br((string)$this);
+        }
 
         if ($request->expectsJson()) return responseJson($json);
 
-        return response($json, 500);
+        return responseView($json, 500);
     }
 }

@@ -133,13 +133,13 @@ class ExceptionHandler implements ExceptionHandlerInterface
         }
 
         $json = [
-            'debug' => $this->debug,
             'status' => $exception->getCode() ?: 500,
-            'error' => $exception->getMessage(),
+            'error' => $this->debug ? $exception->getMessage() : "Внутренняя ошибка",
         ];
 
-        $this->debug && $json['traces'] = nl2br((string)$exception);
-
+        if ($this->debug ) {
+            $json['traces'] = nl2br((string)$exception);
+        }
         // Ответ JSON
         if ($request->expectsJson()) return responseJson($json);
 
