@@ -57,7 +57,7 @@ class Install
      */
     public static function update(): void
     {
-        static::installByRelation(false);
+        static::installByRelation();
     }
 
     /**

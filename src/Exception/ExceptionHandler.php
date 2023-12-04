@@ -30,8 +30,6 @@ use Throwable;
 use Triangle\Engine\Http\Request;
 use Triangle\Engine\Http\Response;
 use function nl2br;
-use function Triangle\Engine\Exception\Handler\responseJson;
-use function Triangle\Engine\Exception\Handler\responseView;
 use function trim;
 
 /**
@@ -137,7 +135,7 @@ class ExceptionHandler implements ExceptionHandlerInterface
             'error' => $this->debug ? $exception->getMessage() : "Внутренняя ошибка",
         ];
 
-        if ($this->debug ) {
+        if ($this->debug) {
             $json['traces'] = nl2br((string)$exception);
         }
         // Ответ JSON

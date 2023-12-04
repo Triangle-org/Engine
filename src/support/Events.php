@@ -26,7 +26,6 @@
 namespace support;
 
 use Psr\Log\LoggerInterface;
-use support\Log;
 use Throwable;
 
 /**

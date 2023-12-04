@@ -29,7 +29,7 @@ class Plugin
 {
     protected static function getFunction(string $namespace, string $type): ?callable
     {
-        $function = "\\{$namespace}Install::{$type}";
+        $function = "\\{$namespace}Install::$type";
         return is_callable($function) ? $function : null;
     }
 

@@ -51,7 +51,6 @@ use Triangle\Engine\Router\Route as RouteObject;
 use function array_merge;
 use function array_pop;
 use function array_reduce;
-use function array_reverse;
 use function array_splice;
 use function array_values;
 use function class_exists;

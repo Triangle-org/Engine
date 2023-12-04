@@ -29,17 +29,16 @@ use Illuminate\Container\Container as IlluminateContainer;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\MySqlConnection;
 use Illuminate\Events\Dispatcher;
-use Illuminate\Pagination\Paginator;
-use Illuminate\Pagination\CursorPaginator;
 use Illuminate\Pagination\Cursor;
+use Illuminate\Pagination\CursorPaginator;
+use Illuminate\Pagination\Paginator;
 use localzet\Server;
 use localzet\Timer;
+use MongoDB\Laravel\Connection as LaravelMongodbConnection;
 use support\Container;
 use Throwable;
 use Triangle\Engine\App;
 use Triangle\MongoDB\Connection as TriangleMongodbConnection;
-use MongoDB\Laravel\Connection as LaravelMongodbConnection;
-
 use function class_exists;
 use function config;
 

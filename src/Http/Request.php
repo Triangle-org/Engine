@@ -65,9 +65,9 @@ class Request extends \localzet\Server\Protocols\Http\Request
     /**
      * Получить файл из запроса
      * @param string|null $name Имя файла
-     * @return null|File[]|File
+     * @return \File|File[]|null
      */
-    public function file($name = null): mixed
+    public function file($name = null): array|\File|null
     {
         $files = parent::file($name);
         if (null === $files) {

@@ -30,6 +30,7 @@ use Illuminate\Redis\Connections\Connection;
 use Illuminate\Redis\RedisManager as Manager;
 use localzet\Server;
 use localzet\Timer;
+use Redis;
 use function class_exists;
 use function config;
 use function in_array;
@@ -191,7 +192,7 @@ use function in_array;
  * Generic methods
  * @method static mixed rawCommand(...$commandAndArgs)
  * Transactions methods
- * @method static \Redis multi()
+ * @method static Redis multi()
  * @method static mixed exec()
  * @method static mixed discard()
  * @method static mixed watch($keys)
