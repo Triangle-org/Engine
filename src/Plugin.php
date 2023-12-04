@@ -60,7 +60,7 @@ class Plugin
      */
     protected static function findHelper(): void
     {
-        $file = __DIR__ . '/../../../../support/helpers/autoload.php';
+        $file = __DIR__ . '/../../../../support/helpers.php';
         if (is_file($file)) {
             require_once $file;
         }

@@ -57,10 +57,7 @@
     "psr-4": {
       "Triangle\\Engine\\": "src",
       "support\\": "src/support/"
-    },
-    "files": [
-      "src/Functions/autoload.php"
-    ]
+    }
   },
   "scripts": {
     "post-package-install": [

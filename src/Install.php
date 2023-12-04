@@ -39,6 +39,7 @@ class Install
     protected static array $pathRelation = [
         'master',
         'support/bootstrap.php',
+        'support/helpers.php',
     ];
 
     /**
@@ -76,7 +77,7 @@ class Install
                 }
             }
 
-            self::delFile($targetFile);
+            // self::delFile($targetFile);
             copy_dir($sourceFile, $targetFile, true);
             self::delFile($sourceFile);
 
