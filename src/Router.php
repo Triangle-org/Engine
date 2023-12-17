@@ -251,37 +251,67 @@ class Router
      * @param string $name Имя ресурса
      * @param string $controller Контроллер ресурса
      * @param array $options Опции ресурса
+     * @param string $prefix Префикс для имени
      * @return void
      */
-    public static function resource(string $name, string $controller, array $options = []): void
+    public static function resource(string $name, string $controller, array $options = [], string $prefix = ''): void
     {
         $name = trim($name, '/');
         if (is_array($options) && !empty($options)) {
             $diffOptions = array_diff($options, ['index', 'create', 'store', 'update', 'show', 'edit', 'destroy', 'recovery']);
             if (!empty($diffOptions)) {
                 foreach ($diffOptions as $action) {
-                    static::any("/$name/{$action}[/{id}]", [$controller, $action])->name("$name.$action");
+                    static::any("/$name/{$action}[/{id}]", [$controller, $action])->name("$prefix$name.$action");
                 }
             }
-            // Регистрация маршрутизации вызовет маршрутизацию для того, чтобы вызвать маршрутизацию, поэтому не применяет регистрацию цикла.
-            if (in_array('index', $options)) static::get("/$name", [$controller, 'index'])->name("$name.index");
-            if (in_array('create', $options)) static::get("/$name/create", [$controller, 'create'])->name("$name.create");
-            if (in_array('store', $options)) static::post("/$name", [$controller, 'store'])->name("$name.store");
-            if (in_array('update', $options)) static::put("/$name/{id}", [$controller, 'update'])->name("$name.update");
-            if (in_array('show', $options)) static::get("/$name/{id}", [$controller, 'show'])->name("$name.show");
-            if (in_array('edit', $options)) static::get("/$name/{id}/edit", [$controller, 'edit'])->name("$name.edit");
-            if (in_array('destroy', $options)) static::delete("/$name/{id}", [$controller, 'destroy'])->name("$name.destroy");
-            if (in_array('recovery', $options)) static::put("/$name/{id}/recovery", [$controller, 'recovery'])->name("$name.recovery");
+
+            // Отображение списка ресурсов
+            if (in_array('index', $options)) static::get("/$name", [$controller, 'index'])->name("$prefix$name.index");
+
+            // Отображение конкретного ресурса
+            if (in_array('show', $options)) static::get("/$name/{id}", [$controller, 'show'])->name("$prefix$name.show");
+
+
+            // Отображение формы для создания нового ресурса
+            if (in_array('create', $options)) static::get("/$name/create", [$controller, 'create'])->name("$prefix$name.create");
+
+            // Создание нового ресурса
+            if (in_array('store', $options)) static::post("/$name", [$controller, 'store'])->name("$prefix$name.store");
+
+
+            // Отображение формы для обновления существующего ресурса
+            if (in_array('edit', $options)) static::get("/$name/{id}/edit", [$controller, 'edit'])->name("$prefix$name.edit");
+
+            // Обновление существующего ресурса
+            if (in_array('update', $options)) static::put("/$name/{id}", [$controller, 'update'])->name("$prefix$name.update");
+
+
+            // Удаление существующего ресурса
+            if (in_array('destroy', $options)) static::delete("/$name/{id}", [$controller, 'destroy'])->name("$prefix$name.destroy");
         } else {
-            // Автоматически регистрироваться для всех общих маршрутов, когда пусто
-            if (method_exists($controller, 'index')) static::get("/$name", [$controller, 'index'])->name("$name.index");
-            if (method_exists($controller, 'create')) static::get("/$name/create", [$controller, 'create'])->name("$name.create");
-            if (method_exists($controller, 'store')) static::post("/$name", [$controller, 'store'])->name("$name.store");
-            if (method_exists($controller, 'update')) static::put("/$name/{id}", [$controller, 'update'])->name("$name.update");
-            if (method_exists($controller, 'show')) static::get("/$name/{id}", [$controller, 'show'])->name("$name.show");
-            if (method_exists($controller, 'edit')) static::get("/$name/{id}/edit", [$controller, 'edit'])->name("$name.edit");
-            if (method_exists($controller, 'destroy')) static::delete("/$name/{id}", [$controller, 'destroy'])->name("$name.destroy");
-            if (method_exists($controller, 'recovery')) static::put("/$name/{id}/recovery", [$controller, 'recovery'])->name("$name.recovery");
+            // Отображение списка ресурсов
+            if (method_exists($controller, 'index')) static::get("/$name", [$controller, 'index'])->name("$prefix$name.index");
+
+            // Отображение конкретного ресурса
+            if (method_exists($controller, 'show')) static::get("/$name/{id}", [$controller, 'show'])->name("$prefix$name.show");
+
+
+            // Отображение формы для создания нового ресурса
+            if (method_exists($controller, 'create')) static::get("/$name/create", [$controller, 'create'])->name("$prefix$name.create");
+
+            // Создание нового ресурса
+            if (method_exists($controller, 'store')) static::post("/$name", [$controller, 'store'])->name("$prefix$name.store");
+
+
+            // Отображение формы для обновления существующего ресурса
+            if (method_exists($controller, 'edit')) static::get("/$name/{id}/edit", [$controller, 'edit'])->name("$prefix$name.edit");
+
+            // Обновление существующего ресурса
+            if (method_exists($controller, 'update')) static::put("/$name/{id}", [$controller, 'update'])->name("$prefix$name.update");
+
+
+            // Удаление существующего ресурса
+            if (method_exists($controller, 'destroy')) static::delete("/$name/{id}", [$controller, 'destroy'])->name("$prefix$name.destroy");
         }
     }
 
