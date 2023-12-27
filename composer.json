@@ -56,7 +56,8 @@
   "autoload": {
     "psr-4": {
       "Triangle\\Engine\\": "src",
-      "support\\": "src/support/"
+      "support\\": "src/support/",
+      "Support\\": "src/support/"
     }
   },
   "scripts": {

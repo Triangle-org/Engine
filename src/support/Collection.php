@@ -1,6 +1,6 @@
 <?php
 
-namespace Triangle\Engine\support;
+namespace support;
 
 /**
  * Гибкая коллекция данных.
