@@ -32,14 +32,20 @@ use function class_exists;
 
 /**
  * Класс Container
+ * Этот класс реализует интерфейс ContainerInterface и предоставляет методы для работы с контейнером зависимостей.
  */
 class Container implements ContainerInterface
 {
     /**
+     * Массив для хранения экземпляров зарегистрированных зависимостей.
+     *
      * @var array
      */
     protected array $instances = [];
+
     /**
+     * Массив для хранения определений зависимостей.
+     *
      * @var array
      */
     protected array $definitions = [];
@@ -50,9 +56,7 @@ class Container implements ContainerInterface
      * @param string $id Идентификатор записи для поиска.
      *
      * @return mixed Запись.
-     * @throws ContainerExceptionInterface Ошибка при получении записи.
-     *
-     * @throws NotFoundExceptionInterface  Для данного идентификатора запись не найдена.
+     * @throws NotFoundExceptionInterface  Если для данного идентификатора запись не найдена.
      */
     public function get(string $id): mixed
     {
@@ -87,11 +91,13 @@ class Container implements ContainerInterface
     }
 
     /**
-     * Собрать
-     * @param string $name
-     * @param array $constructor
-     * @return mixed
-     * @throws NotFoundException
+     * Создает новый экземпляр класса с заданными параметрами конструктора.
+     *
+     * @param string $name Имя класса.
+     * @param array $constructor Параметры конструктора.
+     *
+     * @return mixed Новый экземпляр класса.
+     * @throws NotFoundException Если класс не найден.
      */
     public function make(string $name, array $constructor = []): mixed
     {
@@ -102,8 +108,10 @@ class Container implements ContainerInterface
     }
 
     /**
-     * Добавить определения
-     * @param array $definitions
+     * Добавляет определения в контейнер.
+     *
+     * @param array $definitions Определения для добавления.
+     *
      * @return $this
      */
     public function addDefinitions(array $definitions): Container

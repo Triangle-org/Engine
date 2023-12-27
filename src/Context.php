@@ -34,19 +34,14 @@ use function property_exists;
 /**
  * Класс Context
  * Этот класс предоставляет методы для работы с контекстом выполнения.
+ * Подробнее о контекстах выполнения можно прочитать здесь.
  */
 class Context
 {
-
     /**
      * @var WeakMap|SplObjectStorage|null
      */
     protected static WeakMap|null|SplObjectStorage $objectStorage = null;
-
-    /**
-     * @var StdClass
-     */
-    protected static StdClass $object;
 
     /**
      * Получить значение из контекста
@@ -70,7 +65,6 @@ class Context
     {
         if (!static::$objectStorage) {
             static::$objectStorage = class_exists(WeakMap::class) ? new WeakMap() : new SplObjectStorage();
-            static::$object = new StdClass;
         }
         $key = static::getKey();
         if (!isset(static::$objectStorage[$key])) {
@@ -91,10 +85,10 @@ class Context
     /**
      * Установить значение в контекст
      * @param string $key Ключ значения
-     * @param $value Значение
+     * @param mixed $value Значение
      * @return void
      */
-    public static function set(string $key, $value): void
+    public static function set(string $key, mixed $value): void
     {
         $obj = static::getObject();
         $obj->$key = $value;

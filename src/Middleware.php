@@ -60,8 +60,7 @@ class Middleware
                 if (method_exists($class, 'process')) {
                     static::$instances[$plugin][$app][] = [$class, 'process'];
                 } else {
-                    // @todo Log
-                    echo "Промежуточный $class::process не существует\n";
+                    throw new RuntimeException("Промежуточный $class::process не существует");
                 }
             }
         }

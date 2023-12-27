@@ -25,16 +25,17 @@
 
 namespace support;
 
+use Exception;
 use Triangle\Engine\App;
 use Triangle\Engine\Config;
 
 /**
  * Класс Container
- * Этот класс предоставляет методы для работы с контейнером зависимостей.
+ * Этот класс предоставляет статические методы для работы с контейнером зависимостей.
  *
- * @method static mixed get($name)
- * @method static mixed make($name, array $parameters)
- * @method static bool has($name)
+ * @method static mixed get(string $name)
+ * @method static mixed make(string $name, array $parameters = [])
+ * @method static bool has(string $name)
  */
 class Container
 {
@@ -43,11 +44,17 @@ class Container
      * @param string $name Имя метода
      * @param array $arguments Аргументы метода
      * @return mixed Результат вызова метода
+     * @throws Exception Если метод не существует
      */
     public static function __callStatic(string $name, array $arguments)
     {
         $plugin = App::getPluginByClass($name);
-        return static::instance($plugin)->{$name}(...$arguments);
+        $container = static::instance($plugin);
+        if (!method_exists($container, $name)) {
+            throw new Exception("Метод $name не существует в контейнере");
+        }
+
+        return call_user_func_array([$container, $name], $arguments);
     }
 
     /**
