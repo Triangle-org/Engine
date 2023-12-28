@@ -71,7 +71,7 @@ class ExceptionHandler implements ExceptionHandlerInterface
      */
     public function report(Throwable $exception): void
     {
-        if ($this->shouldnt($exception, $this->dontReport)) {
+        if ($this->shouldnt($exception, config('exception.dont_report') ?: $this->dontReport)) {
             return;
         }
 

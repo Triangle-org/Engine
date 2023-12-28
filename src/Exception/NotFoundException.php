@@ -25,14 +25,13 @@
 
 namespace Triangle\Engine\Exception;
 
-use Exception;
 use Psr\Container\NotFoundExceptionInterface;
 
 /**
  * Класс NotFoundException
  * Этот класс представляет собой пользовательское исключение, которое может быть использовано для обработки ошибок, связанных с отсутствием каких-либо ресурсов.
  */
-class NotFoundException extends Exception implements NotFoundExceptionInterface
+class NotFoundException extends BusinessException implements ExceptionInterface, NotFoundExceptionInterface
 {
 }
 
