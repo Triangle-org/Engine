@@ -33,28 +33,34 @@ use Triangle\Engine\Redis\RedisManager;
  * Класс Cache
  * Этот класс предоставляет методы для работы с кэшем.
  *
+ * @link https://www.php-fig.org/psr/psr-16/
+ *
  * Методы:
- * @method static mixed get($key, $default = null)
- * @method static bool set($key, $value, $ttl = null)
- * @method static bool delete($key)
- * @method static bool clear()
- * @method static iterable getMultiple($keys, $default = null)
- * @method static bool setMultiple($values, $ttl = null)
- * @method static bool deleteMultiple($keys)
- * @method static bool has($key)
+ * @method static mixed get($key, $default = null) Получает значение из кэша по ключу.
+ * @method static bool set($key, $value, $ttl = null) Сохраняет значение в кэше по ключу.
+ * @method static bool delete($key) Удаляет значение из кэша по ключу.
+ * @method static bool clear() Очищает весь кэш.
+ * @method static iterable getMultiple($keys, $default = null) Получает несколько значений из кэша по массиву ключей.
+ * @method static bool setMultiple($values, $ttl = null) Сохраняет несколько значений в кэше.
+ * @method static bool deleteMultiple($keys) Удаляет несколько значений из кэша по массиву ключей.
+ * @method static bool has($key) Проверяет, есть ли значение в кэше по ключу.
  */
 class Cache
 {
     /**
-     * @var Psr16Cache|null
+     * @var Psr16Cache|null $instance Экземпляр кэша.
      */
     public static ?Psr16Cache $instance = null;
 
     /**
-     * Магический метод для вызова методов кэша
-     * @param $name Имя метода
-     * @param $arguments Аргументы метода
-     * @return mixed Результат вызова метода
+     * Магический метод для вызова методов кэша.
+     *
+     * @param string $name Имя метода.
+     * @param array $arguments Аргументы метода.
+     *
+     * @return mixed Результат вызова метода.
+     *
+     * @link https://www.php.net/manual/ru/language.oop5.overloading.php#object.callstatic
      */
     public static function __callStatic($name, $arguments)
     {
@@ -62,8 +68,12 @@ class Cache
     }
 
     /**
-     * Получить экземпляр кэша
+     * Получить экземпляр кэша.
+     * Если экземпляр кэша еще не создан, он будет создан и сохранен в статическом свойстве $instance.
+     *
      * @return Psr16Cache|null
+     *
+     * @link https://www.php-fig.org/psr/psr-16/
      */
     public static function instance(): ?Psr16Cache
     {
