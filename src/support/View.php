@@ -29,18 +29,22 @@ use Triangle\Engine\App;
 use function config;
 
 /**
- * Class View
+ * Класс View
+ * Этот класс предоставляет статические методы для работы с представлениями.
  *
- * Класс для работы с представлениями.
+ * @link https://symfony.com/doc/current/templates.html
  */
 class View
 {
     /**
      * Метод для присвоения значения переменной представления.
+     * Этот метод используется для передачи данных из вашего приложения в представление.
      *
      * @param mixed $name Имя переменной.
      * @param mixed|null $value Значение переменной.
      * @return void
+     *
+     * @link https://symfony.com/doc/current/templates.html#template-variables
      */
     public static function assign(mixed $name, mixed $value = null): void
     {
@@ -52,8 +56,11 @@ class View
 
     /**
      * Метод для получения всех переменных представления.
+     * Этот метод возвращает массив всех переменных, которые были переданы в представление.
      *
      * @return array Массив переменных представления.
+     *
+     * @link https://symfony.com/doc/current/templates.html#template-variables
      */
     public static function vars(): array
     {
