@@ -38,20 +38,27 @@ use function is_array;
  *
  * Класс для работы с логами.
  *
- * @method static void log($level, $message, array $context = [])
- * @method static void debug($message, array $context = [])
- * @method static void info($message, array $context = [])
- * @method static void notice($message, array $context = [])
- * @method static void warning($message, array $context = [])
- * @method static void error($message, array $context = [])
- * @method static void critical($message, array $context = [])
- * @method static void alert($message, array $context = [])
- * @method static void emergency($message, array $context = [])
+/**
+ * Класс Log
+ * Этот класс предоставляет статические методы для работы с логированием.
+ *
+ * @link https://www.php-fig.org/psr/psr-3/
+ *
+ * Методы:
+ * @method static void log($level, $message, array $context = []) Записывает лог на указанном уровне.
+ * @method static void debug($message, array $context = []) Записывает отладочный лог.
+ * @method static void info($message, array $context = []) Записывает информационный лог.
+ * @method static void notice($message, array $context = []) Записывает лог уровня "notice".
+ * @method static void warning($message, array $context = []) Записывает предупреждающий лог.
+ * @method static void error($message, array $context = []) Записывает лог ошибки.
+ * @method static void critical($message, array $context = []) Записывает критический лог.
+ * @method static void alert($message, array $context = []) Записывает лог уровня "alert".
+ * @method static void emergency($message, array $context = []) Записывает лог уровня "emergency".
  */
 class Log
 {
     /**
-     * @var array
+     * @var array $instance Экземпляры логгера для каждого канала.
      */
     protected static array $instance = [];
 
@@ -61,6 +68,8 @@ class Log
      * @param string $name Имя метода.
      * @param array $arguments Аргументы метода.
      * @return mixed Результат вызова метода.
+     *
+     * @link https://www.php.net/manual/ru/language.oop5.overloading.php#object.callstatic
      */
     public static function __callStatic(string $name, array $arguments)
     {
@@ -73,6 +82,8 @@ class Log
      * @param string $name Имя канала логгера.
      * @param array $localConfig Локальная конфигурация логгера.
      * @return Logger Экземпляр логгера.
+     *
+     * @link https://github.com/Seldaek/monolog
      */
     public static function channel(string $name = 'default', array $localConfig = []): Logger
     {
@@ -91,6 +102,8 @@ class Log
      *
      * @param array $config Конфигурация обработчиков.
      * @return array Список обработчиков.
+     *
+     * @link https://github.com/Seldaek/monolog
      */
     protected static function handlers(array $config): array
     {
@@ -114,6 +127,8 @@ class Log
      * @param array $constructor Конструктор обработчика.
      * @param array $formatterConfig Конфигурация форматтера.
      * @return HandlerInterface Обработчик логгера.
+     *
+     * @link https://github.com/Seldaek/monolog
      */
     protected static function handler(string $class, array $constructor, array $formatterConfig): HandlerInterface
     {
@@ -138,6 +153,8 @@ class Log
      *
      * @param array $config Конфигурация процессоров.
      * @return array Список процессоров.
+     *
+     * @link https://github.com/Seldaek/monolog
      */
     protected static function processors(array $config): array
     {
