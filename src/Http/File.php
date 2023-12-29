@@ -41,31 +41,33 @@ use function umask;
  * Класс File
  * Этот класс представляет собой пользовательский файл, который был загружен.
  * Он наследует от базового класса SplFileInfo и добавляет дополнительные свойства и методы, специфичные для загруженных файлов.
+ *
+ * @link https://www.php.net/manual/en/class.splfileinfo.php
  */
 class File extends SplFileInfo
 {
     /**
-     * @var string|null
+     * @var string|null $uploadName Имя файла, указанное клиентом при загрузке.
      */
     protected ?string $uploadName = null;
 
     /**
-     * @var string|null
+     * @var string|null $uploadMimeType MIME-тип файла, указанный клиентом при загрузке.
      */
     protected ?string $uploadMimeType = null;
 
     /**
-     * @var int|null
+     * @var int|null $uploadErrorCode Код ошибки, возникшей при загрузке файла.
      */
     protected ?int $uploadErrorCode = null;
 
     /**
      * Конструктор класса File.
      *
-     * @param string $fileName Имя файла на сервере
-     * @param string $uploadName Имя файла, указанное клиентом
-     * @param string $uploadMimeType MIME-тип файла
-     * @param int $uploadErrorCode Код ошибки загрузки
+     * @param string $fileName Имя файла на сервере.
+     * @param string $uploadName Имя файла, указанное клиентом.
+     * @param string $uploadMimeType MIME-тип файла.
+     * @param int $uploadErrorCode Код ошибки загрузки.
      */
     public function __construct(string $fileName, string $uploadName, string $uploadMimeType, int $uploadErrorCode)
     {
@@ -76,7 +78,8 @@ class File extends SplFileInfo
     }
 
     /**
-     * Получить имя файла, указанное клиентом
+     * Получить имя файла, указанное клиентом.
+     *
      * @return string|null
      */
     public function getUploadName(): ?string
@@ -85,7 +88,8 @@ class File extends SplFileInfo
     }
 
     /**
-     * Получить MIME-тип файла
+     * Получить MIME-тип файла.
+     *
      * @return string|null
      */
     public function getUploadMimeType(): ?string
@@ -94,7 +98,8 @@ class File extends SplFileInfo
     }
 
     /**
-     * Получить расширение файла
+     * Получить расширение файла.
+     *
      * @return string
      */
     public function getUploadExtension(): string
@@ -103,7 +108,8 @@ class File extends SplFileInfo
     }
 
     /**
-     * Получить код ошибки загрузки
+     * Получить код ошибки загрузки.
+     *
      * @return int|null
      */
     public function getUploadErrorCode(): ?int
@@ -112,7 +118,8 @@ class File extends SplFileInfo
     }
 
     /**
-     * Проверить, является ли загрузка файла действительной
+     * Проверить, является ли загрузка файла действительной.
+     *
      * @return bool
      */
     public function isValid(): bool
@@ -121,10 +128,11 @@ class File extends SplFileInfo
     }
 
     /**
-     * Перемещение файла
-     * @param string $destination Путь назначения
-     * @return File Возвращает новый объект File для перемещенного файла
-     * @throws FileException Если возникает ошибка при перемещении файла
+     * Перемещение файла.
+     *
+     * @param string $destination Путь назначения.
+     * @return File Возвращает новый объект File для перемещенного файла.
+     * @throws FileException Если возникает ошибка при перемещении файла.
      */
     public function move(string $destination): File
     {
