@@ -33,18 +33,26 @@ use Triangle\Engine\Config;
  * Класс Container
  * Этот класс предоставляет статические методы для работы с контейнером зависимостей.
  *
- * @method static mixed get(string $name)
- * @method static mixed make(string $name, array $parameters = [])
- * @method static bool has(string $name)
+ * @link https://www.php-fig.org/psr/psr-11/
+ *
+ * Методы:
+ * @method static mixed get(string $name) Получает значение из контейнера по ключу.
+ * @method static mixed make(string $name, array $parameters = []) Создает новый экземпляр класса, указанного в $name, с переданными параметрами.
+ * @method static bool has(string $name) Проверяет, есть ли значение в контейнере по ключу.
  */
 class Container
 {
     /**
-     * Магический метод для вызова методов контейнера
-     * @param string $name Имя метода
-     * @param array $arguments Аргументы метода
-     * @return mixed Результат вызова метода
-     * @throws Exception Если метод не существует
+     * Магический метод для вызова методов контейнера.
+     *
+     * @param string $name Имя метода.
+     * @param array $arguments Аргументы метода.
+     *
+     * @return mixed Результат вызова метода.
+     *
+     * @throws Exception Если метод не существует в контейнере.
+     *
+     * @link https://www.php.net/manual/ru/language.oop5.overloading.php#object.callstatic
      */
     public static function __callStatic(string $name, array $arguments)
     {
@@ -58,9 +66,14 @@ class Container
     }
 
     /**
-     * Получить экземпляр контейнера
-     * @param string $plugin Плагин, которому принадлежит контейнер (необязательно)
+     * Получить экземпляр контейнера.
+     * Если экземпляр контейнера еще не создан, он будет создан и сохранен в статическом свойстве $instance.
+     *
+     * @param string $plugin Плагин, которому принадлежит контейнер (необязательно).
+     *
      * @return array|mixed|void|null
+     *
+     * @link https://www.php-fig.org/psr/psr-11/
      */
     public static function instance(string $plugin = '')
     {
