@@ -28,16 +28,21 @@ namespace Triangle\Engine\Database;
 use Closure;
 
 /**
- * Class Handler
- * @method static array select(string $query, $bindings = [], $useReadPdo = true)
- * @method static int insert(string $query, $bindings = [])
- * @method static int update(string $query, $bindings = [])
- * @method static int delete(string $query, $bindings = [])
- * @method static bool statement(string $query, $bindings = [])
- * @method static mixed transaction(Closure $callback, $attempts = 1)
- * @method static void beginTransaction()
- * @method static void rollBack($toLevel = null)
- * @method static void commit()
+ * Класс Manager
+ * Этот класс предоставляет статические методы для работы с базой данных.
+ *
+ * @link https://laravel.com/docs/8.x/database
+ *
+ * Методы:
+ * @method static array select(string $query, $bindings = [], $useReadPdo = true) Выполняет SELECT-запрос в базе данных и возвращает результат.
+ * @method static int insert(string $query, $bindings = []) Выполняет INSERT-запрос в базе данных и возвращает количество затронутых строк.
+ * @method static int update(string $query, $bindings = []) Выполняет UPDATE-запрос в базе данных и возвращает количество затронутых строк.
+ * @method static int delete(string $query, $bindings = []) Выполняет DELETE-запрос в базе данных и возвращает количество затронутых строк.
+ * @method static bool statement(string $query, $bindings = []) Выполняет SQL-запрос в базе данных и возвращает true в случае успеха и false в случае неудачи.
+ * @method static mixed transaction(Closure $callback, $attempts = 1) Выполняет транзакцию в базе данных.
+ * @method static void beginTransaction() Начинает транзакцию в базе данных.
+ * @method static void rollBack($toLevel = null) Откатывает транзакцию в базе данных.
+ * @method static void commit() Фиксирует транзакцию в базе данных.
  */
 class Manager extends \Illuminate\Database\Capsule\Manager
 {
