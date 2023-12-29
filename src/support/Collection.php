@@ -3,39 +3,43 @@
 namespace support;
 
 /**
- * Гибкая коллекция данных.
+ * Класс Collection представляет собой гибкую коллекцию данных.
+ * Это означает, что он может хранить различные типы данных, такие как строки, числа, массивы и объекты.
  */
 final class Collection
 {
     /**
-     * Коллекция данных
+     * Коллекция данных.
+     * Это свойство хранит все данные, которые были добавлены в коллекцию.
      *
-     * @var array
+     * @var object|null $collection
      */
-    protected array $collection = [];
+    protected ?object $collection = null;
 
     /**
-     * Создает новую коллекцию.
+     * Конструктор класса Collection.
+     * Этот метод принимает необязательный аргумент $data, который будет приведен к объекту и сохранен в свойстве $collection.
      *
      * @param mixed $data Начальные данные для коллекции, которые будут приведены к массиву.
      */
     public function __construct(mixed $data = null)
     {
-        $this->collection = (array)$data;
+        $this->collection = (object)$data;
     }
 
     /**
-     * Получает всю коллекцию в виде массива
+     * Метод toArray возвращает всю коллекцию данных в виде массива.
      *
      * @return array Вся коллекция данных в виде массива.
      */
     public function toArray(): array
     {
-        return $this->collection;
+        return (array)$this->collection;
     }
 
     /**
-     * Получает элемент
+     * Метод get возвращает значение указанного свойства из коллекции.
+     * Если свойство не существует, метод возвращает null.
      *
      * @param string $property Имя свойства для получения.
      *
@@ -43,22 +47,29 @@ final class Collection
      */
     public function get(string $property): mixed
     {
-        return $this->collection[$property] ?? null;
+        if ($this->exists($property)) {
+            return $this->collection->$property;
+        }
+
+        return null;
     }
 
     /**
-     * Добавляет или обновляет элемент
+     * Метод set добавляет новое свойство в коллекцию или обновляет существующее.
      *
      * @param string $property Имя свойства для установки.
      * @param mixed $value Значение для установки.
      */
     public function set(string $property, mixed $value): void
     {
-        $this->collection[$property] = $value;
+        if ($property) {
+            $this->collection->$property = $value;
+        }
     }
 
     /**
-     * Фильтрует коллекцию по свойству.
+     * Метод filter возвращает новую коллекцию, которая содержит только элементы, соответствующие указанному свойству.
+     * Если свойство не существует, метод возвращает пустую коллекцию.
      *
      * @param string $property Свойство для фильтрации.
      *
@@ -66,13 +77,21 @@ final class Collection
      */
     public function filter(string $property): Collection
     {
-        return new Collection(array_filter($this->collection, function ($key) use ($property) {
-            return $key === $property;
-        }, ARRAY_FILTER_USE_KEY));
+        if ($this->exists($property)) {
+            $data = $this->get($property);
+
+            if (!is_a($data, 'Collection')) {
+                $data = new Collection($data);
+            }
+
+            return $data;
+        }
+
+        return new Collection([]);
     }
 
     /**
-     * Проверяет, существует ли элемент в коллекции
+     * Метод exists проверяет, существует ли указанное свойство в коллекции.
      *
      * @param string $property Свойство для проверки на существование.
      *
@@ -80,46 +99,58 @@ final class Collection
      */
     public function exists(string $property): bool
     {
-        return array_key_exists($property, $this->collection);
+        return property_exists($this->collection, $property);
     }
 
     /**
-     * Определяет, пуста ли коллекция
+     * Метод isEmpty проверяет, пуста ли коллекция.
      *
      * @return bool True, если коллекция пуста, false в противном случае.
      */
     public function isEmpty(): bool
     {
-        return empty($this->collection);
+        return !(bool)$this->count();
     }
 
     /**
-     * Считает все элементы в коллекции
+     * Метод count возвращает количество элементов в коллекции.
      *
      * @return int Количество элементов в коллекции.
      */
     public function count(): int
     {
-        return count($this->collection);
+        return count($this->properties());
     }
 
     /**
-     * Возвращает все имена свойств элементов
+     * Метод properties возвращает массив, содержащий имена всех свойств в коллекции.
      *
      * @return array Массив имен всех свойств в коллекции.
      */
     public function properties(): array
     {
-        return array_keys($this->collection);
+        $properties = [];
+
+        foreach ($this->collection as $key => $value) {
+            $properties[] = $key;
+        }
+
+        return $properties;
     }
 
     /**
-     * Возвращает все значения элементов
+     * Метод values возвращает массив, содержащий все значения в коллекции.
      *
      * @return array Массив всех значений в коллекции.
      */
     public function values(): array
     {
-        return array_values($this->collection);
+        $values = [];
+
+        foreach ($this->collection as $value) {
+            $values[] = $value;
+        }
+
+        return $values;
     }
 }
