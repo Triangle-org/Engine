@@ -34,20 +34,22 @@ use function gmdate;
 /**
  * Класс Response
  * Этот класс представляет собой пользовательский ответ, который наследует от базового класса Http\Response.
+ *
+ * @link https://www.php.net/manual/en/class.httpresponse.php
  */
 class Response extends \localzet\Server\Protocols\Http\Response
 {
     /**
-     * @var Throwable|null
+     * @var Throwable|null $exception Исключение, связанное с ответом.
      */
     protected ?Throwable $exception = null;
 
     /**
      * Конструктор класса Response.
      *
-     * @param int $status Статус-код HTTP
-     * @param array $headers Заголовки HTTP
-     * @param string $body Тело ответа
+     * @param int $status Статус-код HTTP.
+     * @param array $headers Заголовки HTTP.
+     * @param string $body Тело ответа.
      */
     function __construct(
         $status = 200,
@@ -60,8 +62,9 @@ class Response extends \localzet\Server\Protocols\Http\Response
     }
 
     /**
-     * Отправить файл в ответе
-     * @param string $file Путь к файлу
+     * Отправить файл в ответе.
+     *
+     * @param string $file Путь к файлу.
      * @return $this
      */
     public function file(string $file): Response
@@ -73,8 +76,9 @@ class Response extends \localzet\Server\Protocols\Http\Response
     }
 
     /**
-     * Проверить, был ли файл изменен с момента последнего запроса
-     * @param string $file Путь к файлу
+     * Проверить, был ли файл изменен с момента последнего запроса.
+     *
+     * @param string $file Путь к файлу.
      * @return bool
      */
     protected function notModifiedSince(string $file): bool
@@ -87,9 +91,10 @@ class Response extends \localzet\Server\Protocols\Http\Response
     }
 
     /**
-     * Загрузить файл
-     * @param string $file Путь к файлу
-     * @param string $downloadName Имя файла для загрузки
+     * Загрузить файл.
+     *
+     * @param string $file Путь к файлу.
+     * @param string $downloadName Имя файла для загрузки.
      * @return $this
      */
     public function download(string $file, string $downloadName = ''): Response
@@ -102,8 +107,9 @@ class Response extends \localzet\Server\Protocols\Http\Response
     }
 
     /**
-     * Получить или установить исключение
-     * @param Throwable|null $exception Исключение для установки
+     * Получить или установить исключение.
+     *
+     * @param Throwable|null $exception Исключение для установки.
      * @return Throwable|null
      */
     public function exception(Throwable $exception = null): ?Throwable
