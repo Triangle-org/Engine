@@ -73,24 +73,28 @@ use Monolog\Logger;
  * В приведенном выше примере используется клиентская библиотека MongoDB PHP; однако также поддерживается
  * класс MongoDB\Driver\Handler из расширения ext-mongodb.
  *
+ * @link https://github.com/Seldaek/monolog
  * @author      Ivan Zorin <creator@localzet.com>
  * @author      Jordi Boggiano <j.boggiano@seld.be>
  */
 class MongoDBHandler extends AbstractProcessingHandler
 {
-    /** @var Collection */
+    /** @var Collection $collection Коллекция MongoDB для записи логов. */
     private Collection $collection;
-    /** @var Client|Manager */
+    /** @var Client|Manager $manager Клиент или менеджер MongoDB. */
     private Manager|Client $manager;
-    /** @var string */
+    /** @var string $namespace Пространство имен MongoDB. */
     private string $namespace;
 
     /**
      * Конструктор.
      *
-     * @param Client|Manager $mongodb Клиент библиотеки MongoDB или драйвера
-     * @param string $database Имя базы данных
-     * @param string $collection Имя коллекции
+     * @param Client|Manager $mongodb Клиент библиотеки MongoDB или драйвера.
+     * @param string $database Имя базы данных.
+     * @param string $collection Имя коллекции.
+     * @param int $level Уровень логирования.
+     * @param bool $bubble Булево значение, указывающее, должен ли обработчик позволить обработке следующим обработчикам.
+     * @throws InvalidArgumentException Если переданный клиент не является экземпляром MongoDB\Client или MongoDB\Driver\Manager.
      */
     public function __construct($mongodb, string $database, string $collection, $level = Logger::DEBUG, bool $bubble = true)
     {
@@ -109,8 +113,9 @@ class MongoDBHandler extends AbstractProcessingHandler
     }
 
     /**
-     * Записать лог
-     * @param array $record Запись лога
+     * Записать лог.
+     *
+     * @param array $record Запись лога.
      */
     protected function write(array $record): void
     {
@@ -126,7 +131,8 @@ class MongoDBHandler extends AbstractProcessingHandler
     }
 
     /**
-     * Получить форматтер по умолчанию
+     * Получить форматтер по умолчанию.
+     *
      * @return FormatterInterface
      */
     protected function getDefaultFormatter(): FormatterInterface
