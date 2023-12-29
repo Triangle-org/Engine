@@ -36,19 +36,21 @@ use function pathinfo;
 use function substr;
 
 /**
- * Class Translation
+ * Класс Translation
+ * Этот класс предоставляет статические методы для работы с переводами.
  *
- * Класс для работы с переводами.
+ * @link https://symfony.com/doc/current/translation.html
  *
- * @method static string trans(?string $id, array $parameters = [], string $domain = null, string $locale = null)
- * @method static void setLocale(string $locale)
- * @method static string getLocale()
+ * Методы:
+ * @method static string trans(?string $id, array $parameters = [], string $domain = null, string $locale = null) Переводит сообщение.
+ * @method static void setLocale(string $locale) Устанавливает локаль для перевода.
+ * @method static string getLocale() Получает текущую локаль для перевода.
  */
 class Translation
 {
 
     /**
-     * @var Translator[]
+     * @var Translator[] $instance Экземпляры переводчика для каждого плагина.
      */
     protected static array $instance = [];
 
@@ -58,7 +60,9 @@ class Translation
      * @param string $name Имя метода.
      * @param array $arguments Аргументы метода.
      * @return mixed Результат вызова метода.
-     * @throws NotFoundException
+     * @throws NotFoundException Если файл перевода не найден.
+     *
+     * @link https://www.php.net/manual/ru/language.oop5.overloading.php#object.callstatic
      */
     public static function __callStatic(string $name, array $arguments)
     {
@@ -72,7 +76,9 @@ class Translation
      *
      * @param string $plugin Имя плагина.
      * @return Translator Экземпляр переводчика.
-     * @throws NotFoundException
+     * @throws NotFoundException Если файл перевода не найден.
+     *
+     * @link https://symfony.com/doc/current/translation.html
      */
     public static function instance(string $plugin = ''): Translator
     {
