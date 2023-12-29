@@ -34,37 +34,40 @@ use const FILTER_VALIDATE_IP;
 /**
  * Класс Request
  * Этот класс представляет собой пользовательский запрос, который наследует от базового класса Http\Request.
+ *
+ * @link https://www.php.net/manual/en/class.httprequest.php
  */
 class Request extends \localzet\Server\Protocols\Http\Request
 {
     /**
-     * @var string|null
+     * @var string|null $plugin Имя плагина, связанного с запросом.
      */
     public ?string $plugin = null;
 
     /**
-     * @var string|null
+     * @var string|null $app Имя приложения, связанного с запросом.
      */
     public ?string $app = null;
 
     /**
-     * @var string|null
+     * @var string|null $controller Имя контроллера, связанного с запросом.
      */
     public ?string $controller = null;
 
     /**
-     * @var string|null
+     * @var string|null $action Имя действия, связанного с запросом.
      */
     public ?string $action = null;
 
     /**
-     * @var Route|null
+     * @var Route|null $route Маршрут, связанный с запросом.
      */
     public ?Route $route = null;
 
     /**
-     * Получить файл из запроса
-     * @param string|null $name Имя файла
+     * Получить файл из запроса.
+     *
+     * @param string|null $name Имя файла.
      * @return \File|File[]|null
      */
     public function file($name = null): array|\File|null
@@ -93,8 +96,9 @@ class Request extends \localzet\Server\Protocols\Http\Request
     }
 
     /**
-     * Разобрать массив файлов
-     * @param array $files Массив файлов
+     * Разобрать массив файлов.
+     *
+     * @param array $files Массив файлов.
      * @return array
      */
     protected function parseFiles(array $files): array
@@ -111,8 +115,9 @@ class Request extends \localzet\Server\Protocols\Http\Request
     }
 
     /**
-     * Разобрать файл
-     * @param array $file Файл
+     * Разобрать файл.
+     *
+     * @param array $file Файл.
      * @return File
      */
     protected function parseFile(array $file): File
@@ -121,8 +126,9 @@ class Request extends \localzet\Server\Protocols\Http\Request
     }
 
     /**
-     * Получить реальный IP-адрес клиента
-     * @param bool $safeMode Безопасный режим
+     * Получить реальный IP-адрес клиента.
+     *
+     * @param bool $safeMode Безопасный режим.
      * @return string
      */
     public function getRealIp(bool $safeMode = true): string
@@ -139,55 +145,5 @@ class Request extends \localzet\Server\Protocols\Http\Request
             ))
         ));
         return filter_var($ip, FILTER_VALIDATE_IP) ? $ip : $remoteIp;
-    }
-
-    /**
-     * @return bool
-     */
-    protected function isIntranet(): bool
-    {
-        $ip = $this->getRemoteIp();
-
-        // Не IP.
-        if (!filter_var($ip, FILTER_VALIDATE_IP)) {
-            return false;
-        }
-        // Точно ip Интранета? Для IPv4 FALSE может быть не точным, поэтому нам нужно проверить его вручную ниже.
-        if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
-            return true;
-        }
-        // Ручная проверка IPv4.
-        if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-            return false;
-        }
-
-        // Ручная проверка
-        // $reservedIps = [
-        //     '167772160'  => 184549375,  // 10.0.0.0 -  10.255.255.255
-        //     '3232235520' => 3232301055, // 192.168.0.0 - 192.168.255.255
-        //     '2130706432' => 2147483647, // 127.0.0.0 - 127.255.255.255
-        //     '2886729728' => 2887778303, // 172.16.0.0 -  172.31.255.255
-        // ];
-
-        $reservedIps = [
-            1681915904 => 1686110207,   // 100.64.0.0 -  100.127.255.255
-            3221225472 => 3221225727,   // 192.0.0.0 - 192.0.0.255
-            3221225984 => 3221226239,   // 192.0.2.0 - 192.0.2.255
-            3227017984 => 3227018239,   // 192.88.99.0 - 192.88.99.255
-            3323068416 => 3323199487,   // 198.18.0.0 - 198.19.255.255
-            3325256704 => 3325256959,   // 198.51.100.0 - 198.51.100.255
-            3405803776 => 3405804031,   // 203.0.113.0 - 203.0.113.255
-            3758096384 => 4026531839,   // 224.0.0.0 - 239.255.255.255
-        ];
-
-        $ipLong = ip2long($ip);
-
-        foreach ($reservedIps as $ipStart => $ipEnd) {
-            if (($ipLong >= $ipStart) && ($ipLong <= $ipEnd)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }
