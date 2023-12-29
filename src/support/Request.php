@@ -28,9 +28,13 @@ namespace support;
 use AllowDynamicProperties;
 
 /**
- * Class Request
+ * Класс Request
+ * Этот класс наследует функциональность от класса \Triangle\Engine\Http\Request и может быть расширен для обработки HTTP-запросов в вашем приложении.
+ *
+ * @link https://www.php-fig.org/psr/psr-7/
  */
 #[AllowDynamicProperties]
 class Request extends \Triangle\Engine\Http\Request
 {
 }
+
