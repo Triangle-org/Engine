@@ -268,23 +268,20 @@ class Router
             // Отображение списка ресурсов
             if (in_array('index', $options)) static::get("/$name", [$controller, 'index'])->name("$prefix$name.index");
 
-            // Отображение конкретного ресурса
-            if (in_array('show', $options)) static::get("/$name/{id}", [$controller, 'show'])->name("$prefix$name.show");
-
+            // Создание нового ресурса
+            if (in_array('store', $options)) static::post("/$name", [$controller, 'store'])->name("$prefix$name.store");
 
             // Отображение формы для создания нового ресурса
             if (in_array('create', $options)) static::get("/$name/create", [$controller, 'create'])->name("$prefix$name.create");
 
-            // Создание нового ресурса
-            if (in_array('store', $options)) static::post("/$name", [$controller, 'store'])->name("$prefix$name.store");
-
-
             // Отображение формы для обновления существующего ресурса
             if (in_array('edit', $options)) static::get("/$name/{id}/edit", [$controller, 'edit'])->name("$prefix$name.edit");
 
+            // Отображение конкретного ресурса
+            if (in_array('show', $options)) static::get("/$name/{id}", [$controller, 'show'])->name("$prefix$name.show");
+
             // Обновление существующего ресурса
             if (in_array('update', $options)) static::put("/$name/{id}", [$controller, 'update'])->name("$prefix$name.update");
-
 
             // Удаление существующего ресурса
             if (in_array('destroy', $options)) static::delete("/$name/{id}", [$controller, 'destroy'])->name("$prefix$name.destroy");
@@ -292,23 +289,20 @@ class Router
             // Отображение списка ресурсов
             if (method_exists($controller, 'index')) static::get("/$name", [$controller, 'index'])->name("$prefix$name.index");
 
-            // Отображение конкретного ресурса
-            if (method_exists($controller, 'show')) static::get("/$name/{id}", [$controller, 'show'])->name("$prefix$name.show");
-
+            // Создание нового ресурса
+            if (method_exists($controller, 'store')) static::post("/$name", [$controller, 'store'])->name("$prefix$name.store");
 
             // Отображение формы для создания нового ресурса
             if (method_exists($controller, 'create')) static::get("/$name/create", [$controller, 'create'])->name("$prefix$name.create");
 
-            // Создание нового ресурса
-            if (method_exists($controller, 'store')) static::post("/$name", [$controller, 'store'])->name("$prefix$name.store");
-
-
             // Отображение формы для обновления существующего ресурса
             if (method_exists($controller, 'edit')) static::get("/$name/{id}/edit", [$controller, 'edit'])->name("$prefix$name.edit");
 
+            // Отображение конкретного ресурса
+            if (method_exists($controller, 'show')) static::get("/$name/{id}", [$controller, 'show'])->name("$prefix$name.show");
+
             // Обновление существующего ресурса
             if (method_exists($controller, 'update')) static::put("/$name/{id}", [$controller, 'update'])->name("$prefix$name.update");
-
 
             // Удаление существующего ресурса
             if (method_exists($controller, 'destroy')) static::delete("/$name/{id}", [$controller, 'destroy'])->name("$prefix$name.destroy");
