@@ -137,41 +137,41 @@ class App
     }
 
     /**
-     * @return TcpConnection
+     * @return TcpConnection|null
      */
-    public static function connection(): TcpConnection
+    public static function connection(): TcpConnection|null
     {
         return Context::get(TcpConnection::class);
     }
 
     /**
-     * @return Request|\support\Request
+     * @return Request|null
      */
-    public static function request(): \support\Request|Request
+    public static function request(): Request|null
     {
         return Context::get(Request::class);
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public static function publicPath(): string
+    public static function publicPath(): ?string
     {
         return static::$publicPath ?? (config('app.public_path') ?: run_path('public'));
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public static function appPath(): string
+    public static function appPath(): ?string
     {
         return static::$appPath ?? (config('app.app_path') ?: run_path('public'));
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public static function basePath(): string
+    public static function basePath(): ?string
     {
         return static::$basePath ?? BASE_PATH;
     }
