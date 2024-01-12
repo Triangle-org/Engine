@@ -124,26 +124,4 @@ class Request extends \localzet\Server\Protocols\Http\Request
     {
         return new File($file['tmp_name'], $file['name'], $file['type'], $file['error']);
     }
-
-    /**
-     * Получить реальный IP-адрес клиента.
-     *
-     * @param bool $safeMode Безопасный режим.
-     * @return string
-     */
-    public function getRealIp(bool $safeMode = true): string
-    {
-        $remoteIp = $this->getRemoteIp();
-        if ($safeMode && !$this->isIntranet()) {
-            return $remoteIp;
-        }
-        $ip = $this->header('x-real-ip', $this->header(
-            'x-forwarded-for',
-            $this->header('client-ip', $this->header(
-                'x-client-ip',
-                $this->header('via', $remoteIp)
-            ))
-        ));
-        return filter_var($ip, FILTER_VALIDATE_IP) ? $ip : $remoteIp;
-    }
 }

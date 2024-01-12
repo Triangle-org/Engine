@@ -75,30 +75,15 @@ class ExceptionHandler implements ExceptionHandlerInterface
             return;
         }
 
-        $logs = '';
-        if ($request = request()) {
-            $logs = $request->getRealIp() . ' ' . $request->method() . ' ' . trim($request->fullUrl(), '/');
-        }
-        $this->logger->error($logs . PHP_EOL . $exception);
+        $context = [];
 
-        // New report (Mongo) :)
-        // 
-        // $this->_logger->error($exception->getMessage(), [
-        //     'debug' => $this->_debug,
-        //     'ip' => $request->getRealIp(),
-        //     'method' => $request->method(),
-        //     'post' => $request->post(),
-        //     'get' => $request->get(),
-        //     'url' => \trim($request->fullUrl(), '/'),
-        //     'exception' => [
-        //         'code' => $exception->getCode() ?? 0,
-        //         'file' => $exception->getFile(),
-        //         'line' => $exception->getLine(),
-        //         'message' => $exception->getMessage(),
-        //         'previous' => $exception->getPrevious(),
-        //         'trace' => $exception->getTrace(),
-        //     ]
-        // ]);
+        try {
+            if ($request = request()) {
+                $context['request'] = $request->toArray();
+            }
+        } catch (Throwable) {}
+
+        $this->logger->error($exception->getMessage(), $context);
     }
 
     /**
