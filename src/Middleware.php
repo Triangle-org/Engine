@@ -56,6 +56,14 @@ class Middleware
             if (!is_array($middlewares)) {
                 throw new RuntimeException('Некорректная конфигурация промежуточного ПО');
             }
+            if ($app === '@') {
+                $plugin = '';
+            }
+            if (str_contains($app, 'plugin.')) {
+                $explode = explode('.', $app, 4);
+                $plugin = $explode[1];
+                $app = $explode[2] ?? '';
+            }
             foreach ($middlewares as $class) {
                 if (method_exists($class, 'process')) {
                     static::$instances[$plugin][$app][] = [$class, 'process'];
@@ -77,12 +85,14 @@ class Middleware
     public static function getMiddleware(string $plugin, string $app, bool $withGlobal = true): mixed
     {
         // Глобальное промежуточное ПО
-        $globalMiddleware = $withGlobal && isset(static::$instances[$plugin]['']) ? static::$instances[$plugin][''] : [];
+        $globalMiddleware = static::$instances['']['@'] ?? [];
+        $appGlobalMiddleware = $withGlobal && isset(static::$instances[$plugin]['']) ? static::$instances[$plugin][''] : [];
+
         if ($app === '') {
-            return array_reverse($globalMiddleware);
+            return array_reverse(array_merge($globalMiddleware, $appGlobalMiddleware));
         }
         // Промежуточное ПО для приложения
         $appMiddleware = static::$instances[$plugin][$app] ?? [];
-        return array_reverse(array_merge($globalMiddleware, $appMiddleware));
+        return array_reverse(array_merge($globalMiddleware, $appGlobalMiddleware, $appMiddleware));
     }
 }
