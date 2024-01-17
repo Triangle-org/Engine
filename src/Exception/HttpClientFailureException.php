@@ -25,6 +25,8 @@
 
 namespace Triangle\Engine\Exception;
 
-class HttpClientFailureException extends \UnexpectedValueException implements ExceptionInterface
+use UnexpectedValueException;
+
+class HttpClientFailureException extends UnexpectedValueException implements ExceptionInterface
 {
 }

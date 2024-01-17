@@ -27,9 +27,7 @@ namespace Triangle\Engine\Http;
 
 use Triangle\Engine\Router\Route;
 use function current;
-use function filter_var;
 use function is_array;
-use const FILTER_VALIDATE_IP;
 
 /**
  * Класс Request

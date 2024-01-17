@@ -25,7 +25,7 @@
 
 namespace Triangle\Engine;
 
-use Psr\Container\{ContainerExceptionInterface, ContainerInterface, NotFoundExceptionInterface};
+use Psr\Container\{ContainerInterface, NotFoundExceptionInterface};
 use Triangle\Engine\Exception\NotFoundException;
 use function array_key_exists;
 use function class_exists;

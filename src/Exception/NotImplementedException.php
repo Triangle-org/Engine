@@ -25,6 +25,8 @@
 
 namespace Triangle\Engine\Exception;
 
-class NotImplementedException extends \UnexpectedValueException implements ExceptionInterface
+use UnexpectedValueException;
+
+class NotImplementedException extends UnexpectedValueException implements ExceptionInterface
 {
 }

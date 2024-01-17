@@ -25,6 +25,7 @@
 
 namespace Triangle\Engine\Exception;
 
+use RuntimeException;
 use Throwable;
 use Triangle\Engine\Http\Request;
 use Triangle\Engine\Http\Response;
@@ -34,7 +35,7 @@ use function nl2br;
  * Класс BusinessException
  * Этот класс представляет собой пользовательское исключение, которое может быть использовано для обработки ошибок бизнес-логики.
  */
-class BusinessException extends \RuntimeException implements ExceptionInterface
+class BusinessException extends RuntimeException implements ExceptionInterface
 {
     /**
      * Рендеринг исключения

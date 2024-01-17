@@ -30,7 +30,6 @@ use Throwable;
 use Triangle\Engine\Http\Request;
 use Triangle\Engine\Http\Response;
 use function nl2br;
-use function trim;
 
 /**
  * Class Events
@@ -81,7 +80,8 @@ class ExceptionHandler implements ExceptionHandlerInterface
             if ($request = request()) {
                 $context['request'] = $request->toArray();
             }
-        } catch (Throwable) {}
+        } catch (Throwable) {
+        }
 
         $this->logger->error($exception->getMessage(), $context);
     }
