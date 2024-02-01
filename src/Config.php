@@ -86,6 +86,18 @@ class Config
     }
 
     /**
+     * This deprecated method will certainly be removed in the future.
+     * @param string $configPath
+     * @param array $excludeFile
+     * @return void
+     * @deprecated
+     */
+    public static function reload(string $configPath, array $excludeFile = [])
+    {
+        static::load($configPath, $excludeFile);
+    }
+
+    /**
      * Загрузить из папки
      * @param string $configPath
      * @param array $excludeFile
