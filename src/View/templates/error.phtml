@@ -1,105 +1,93 @@
-<?php
-
-/**
- * @package     Triangle Web
- * @link        https://github.com/Triangle-org
- *
- * @copyright   2018-2024 Localzet Group
- * @license     https://mit-license.org MIT
- */
-
-use localzet\Server;
-
-?>
-
 <!DOCTYPE html>
-
-<html lang="ru" prefix="og: http://ogp.me/ns#">
+<html lang="ru" dir="ltr">
 
 <head>
     <base href=""/>
-    <title>Triangle Web</title>
+    <title>Ошибка - Triangle Web</title>
     <meta charset="utf-8"/>
 
     <!-- About App -->
+    <meta name="title" content="Ошибка - Triangle Web"/>
     <meta name="language" content="RU"/>
     <meta name="robots" content="noindex,nofollow"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
     <!-- About System -->
-    <meta name="generator" content="Triangle Framework"/>
-    <meta name="server" version="Localzet Server <?= Server::getVersion() ?? '' ?>"/>
-
-    <!-- Cache&Content -->
-    <meta http-equiv="Expires" content="60"/>
-    <meta http-equiv="Pragma" content="no-cache"/>
-    <meta http-equiv="Cache-Control" content="no-cache"/>
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta name="application-name" content="Triangle Web">
+    <meta name="generator" content="Triangle Framework">
 
     <!-- SEO -->
-    <link rel="shortcut icon" type="image/svg+xml" href="//cdn.localzet.com/public/media/localzet.svg"/>
+    <link rel="icon" type="image/svg+xml" href="https://cdn.localzet.com/assets/media/localzet.svg"/>
 
     <meta name="color-scheme" content="dark light">
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#12121200">
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff00">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#121212">
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
 
     <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" type="text/css"
-          href="https://fonts.googleapis.com/css?family=Nunito:100,200,300,400,500,600,700,800,900"/>
+          href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&display=swap"/>
 
     <style>
-        html {
-            /* height: 100%; */
-        }
-
         body {
-            /* background-color: #0e0e0e; */
             background-color: #000;
-
             font-family: Nunito, monospace;
             font-weight: 600;
-
             text-align: center;
-            text-decoration: none !important;
-
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
             height: 100vh;
             margin: 0;
             overflow: hidden;
         }
 
-        .footer {
-            position: fixed;
-            bottom: 0;
+        main {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        main img {
+            display: block;
+            -webkit-user-select: none;
+            transition: background-color 300ms;
+            max-width: 300px;
+            width: 300px;
+        }
+
+        main h1 {
+            text-align: start;
+            font-size: 1.6rem;
+            word-wrap: break-word;
+            max-width: 90vw;
+            width: fit-content;
+        }
+
+        footer {
             width: 100%;
-            text-align: center;
             margin-bottom: 5px;
         }
 
-        .footer a {
-            text-decoration: none;
+        footer nav {
+            display: flex;
+            justify-content: space-between;
+            text-align: center;
+            margin: 0 10px;
+        }
+
+        footer nav a {
+            text-decoration: none !important;
             color: #6e7681;
             margin: 0 3px;
-            /* white-space: nowrap; */
             display: inline-block;
         }
 
-        .footer a b {
+        footer nav a b {
             color: #f1416c;
-        }
-
-        img {
-            display: block;
-            -webkit-user-select: none;
-            /* margin: calc(48vh - 80px) calc(50vw - 400px); */
-            transition: background-color 300ms;
-
-            max-width: 800px;
-
-            width: 800px;
-            /* height: 160px; */
         }
 
         hr {
@@ -108,30 +96,62 @@ use localzet\Server;
             width: 100%;
         }
 
-        /* Медиа-запрос для экранов меньше 800px */
+        pre {
+            margin: 0;
+        }
+
+        details {
+            cursor: pointer;
+        }
+
+        details[open] {
+            text-align: start;
+            width: 90vw;
+        }
+
         @media (max-width: 900px) {
-            img {
+            main img {
                 margin: auto 5%;
-                width: 90%;
+                width: 80%;
                 height: auto;
             }
         }
     </style>
+    <script>
+        window.onload = function() {
+            var details = document.querySelector('details');
+            var main = document.querySelector('main');
+            details.addEventListener('toggle', function() {
+                if (details.open) {
+                    main.style.justifyContent = 'flex-start';
+                } else {
+                    main.style.justifyContent = 'center';
+                }
+            });
+        };
+    </script>
 </head>
 
 <body>
-<br/>
-<center>
+<main>
+    <?php $print = $error ?? $data ?? 'Ошибка'; ?>
     <h1>
-        <?php $print = $error ?? $data ?? 'Ошибка'; ?>
-        <?= is_string($print) ? $print : print_r($print, true) ?>
+        <pre><?= is_string($print) ? $print : json($print) ?></pre>
     </h1>
-</center>
-<div class="footer">
+    <?php if (isset($traces)) : ?>
+        <details>
+            <?= $traces ?>
+        </details>
+    <?php endif; ?>
+</main>
+<footer>
     <hr>
-    <a href="https://github.com/localzet/server">Powered by <b>Localzet
-            Server <?= @Server::getVersion() ?? '' ?></b></a>
-</div>
+    <nav>
+        <a href="https://github.com/Triangle-org">Copyright © 2018-<?= date('Y') ?> <b>Triangle Team</b></a>
+        <a href="https://github.com/localzet/server">Powered by <b>Localzet
+                Server <?= @\localzet\Server::getVersion() ?? '' ?></b></a>
+    </nav>
+</footer>
 </body>
 
 </html>
