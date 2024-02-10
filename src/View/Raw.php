@@ -57,32 +57,20 @@ class Raw extends AbstractView implements ViewInterface
 
         foreach (config("{$configPrefix}view.options.pre_renders", []) as $render) {
             if (isset($render['template'])) {
-                static::assign(@$render['vars'] ?? []);
-                static::addPreRender(
-                    $render['template'],
-                    @$render['app'] ?? null,
-                    @$render['plugin'] ?? null,
-                );
+                static::assign($render['vars'] ?? []);
+                static::addPreRender($render['template'], $render['app'] ?? null, $render['plugin'] ?? null);
             }
         }
 
         foreach (config("{$configPrefix}view.options.post_renders", []) as $render) {
             if (isset($render['template'])) {
-                static::assign(@$render['vars'] ?? []);
-                static::addPostRender(
-                    $render['template'],
-                    @$render['app'] ?? null,
-                    @$render['plugin'] ?? null,
-                );
+                static::assign($render['vars'] ?? []);
+                static::addPostRender($render['template'], $render['app'] ?? null, $render['plugin'] ?? null);
             }
         }
 
         $preRenders = static::getPreRenders();
-        $curRender = [
-            'template' => $template,
-            'app' => $app,
-            'plugin' => $plugin
-        ];
+        $curRender = ['template' => $template, 'app' => $app, 'plugin' => $plugin];
         $postRenders = static::getPostRenders();
 
         extract(config("{$configPrefix}view.options.vars", []));
@@ -91,24 +79,17 @@ class Raw extends AbstractView implements ViewInterface
         ob_start();
 
         try {
-            foreach ($preRenders as $render) {
-                $file = static::build($render);
-                if (file_exists($file)) include $file;
-            }
-
-            include static::build($curRender);
-
-            foreach ($postRenders as $render) {
+            foreach (array_merge($preRenders, [$curRender], $postRenders) as $render) {
                 $file = static::build($render);
                 if (file_exists($file)) include $file;
             }
         } catch (Throwable $e) {
-            static::$vars = [];
             ob_end_clean();
             throw $e;
+        } finally {
+            static::$vars = [];
         }
 
-        static::$vars = [];
         return ob_get_clean();
     }
 
@@ -120,14 +101,11 @@ class Raw extends AbstractView implements ViewInterface
      */
     public static function renderSys(string $template, array $vars): false|string
     {
-        $request = App::request();
+        $request = request();
         $plugin = $request->plugin ?? '';
         $configPrefix = $plugin ? "plugin.$plugin." : '';
 
-        $view = config(
-            "{$configPrefix}view.templates.system.$template",
-            __DIR__ . "/templates/$template.phtml"
-        );
+        $view = config("{$configPrefix}view.templates.system.$template", __DIR__ . "/templates/$template.phtml");
 
         extract(static::$vars);
         extract($vars);
@@ -136,12 +114,12 @@ class Raw extends AbstractView implements ViewInterface
         try {
             include $view;
         } catch (Throwable $e) {
-            static::$vars = [];
             ob_end_clean();
             throw $e;
+        } finally {
+            static::$vars = [];
         }
 
-        static::$vars = [];
         return ob_get_clean();
     }
 }
