@@ -27,6 +27,8 @@
 
 namespace Triangle\Engine;
 
+namespace Triangle\Engine;
+
 use Fiber;
 use SplObjectStorage;
 use StdClass;
@@ -54,25 +56,28 @@ class Context
     {
         $obj = static::getObject();
         if ($key === null) {
-            return $obj;
+            return $obj ?? null;
         }
-        return $obj->$key ?? null;
+        return $obj?->$key ?? null;
     }
 
     /**
      * Получить объект контекста
-     * @return StdClass
+     * @return StdClass|null
      */
-    protected static function getObject(): StdClass
+    protected static function getObject(): ?StdClass
     {
         if (!static::$objectStorage) {
             static::$objectStorage = class_exists(WeakMap::class) ? new WeakMap() : new SplObjectStorage();
         }
-        $key = static::getKey();
-        if (!isset(static::$objectStorage[$key])) {
-            static::$objectStorage[$key] = new StdClass;
+
+        if ($key = static::getKey()) {
+            if (!isset(static::$objectStorage[$key])) {
+                static::$objectStorage[$key] = new StdClass;
+            }
+            return static::$objectStorage[$key] ?? null;
         }
-        return static::$objectStorage[$key];
+        return null;
     }
 
     /**
@@ -93,7 +98,7 @@ class Context
     public static function set(string $key, mixed $value): void
     {
         $obj = static::getObject();
-        $obj->$key = $value;
+        if ($obj && $key) $obj->$key = $value;
     }
 
     /**
@@ -104,18 +109,18 @@ class Context
     public static function delete(string $key): void
     {
         $obj = static::getObject();
-        unset($obj->$key);
+        if ($obj && $key) unset($obj->$key);
     }
 
     /**
      * Проверить наличие значения в контексте
      * @param string $key Ключ значения
-     * @return bool
+     * @return bool|null
      */
-    public static function has(string $key): bool
+    public static function has(string $key): ?bool
     {
         $obj = static::getObject();
-        return property_exists($obj, $key);
+        return $obj && $key ? property_exists($obj, $key) : null;
     }
 
     /**
@@ -124,6 +129,8 @@ class Context
      */
     public static function destroy(): void
     {
-        unset(static::$objectStorage[static::getKey()]);
+        if ($key = static::getKey()) {
+            unset(static::$objectStorage[$key]);
+        }
     }
 }
