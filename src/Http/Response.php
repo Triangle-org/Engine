@@ -85,7 +85,7 @@ class Response extends \localzet\Server\Protocols\Http\Response
      */
     protected function notModifiedSince(string $file): bool
     {
-        $ifModifiedSince = App::request()->header('if-modified-since');
+        $ifModifiedSince = request()->header('if-modified-since');
         if ($ifModifiedSince === null || !is_file($file) || !($mtime = filemtime($file))) {
             return false;
         }

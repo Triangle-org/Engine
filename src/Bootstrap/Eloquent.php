@@ -123,16 +123,16 @@ class Eloquent implements BootstrapInterface
         if (class_exists(Paginator::class)) {
             if (method_exists(Paginator::class, 'queryStringResolver')) {
                 Paginator::queryStringResolver(function () {
-                    $request = App::request();
+                    $request = request();
                     return $request?->queryString();
                 });
             }
             Paginator::currentPathResolver(function () {
-                $request = App::request();
+                $request = request();
                 return $request ? $request->path() : '/';
             });
             Paginator::currentPageResolver(function ($pageName = 'page') {
-                $request = App::request();
+                $request = request();
                 if (!$request) {
                     return 1;
                 }

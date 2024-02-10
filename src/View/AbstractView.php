@@ -80,7 +80,7 @@ abstract class AbstractView implements ViewInterface
      */
     public static function build(array $params): string
     {
-        $request = App::request();
+        $request = request();
         $template = $params['template'];
         $app = $params['app'] ?? null;
         $plugin = $params['plugin'] ?? null;

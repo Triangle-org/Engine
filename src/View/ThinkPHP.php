@@ -54,7 +54,7 @@ class ThinkPHP extends AbstractView implements ViewInterface
      */
     public static function render(string $template, array $vars, string $app = null, string $plugin = null): string
     {
-        $request = App::request();
+        $request = request();
 
         $app = $app === null ? ($request->app ?? '') : $app;
         $plugin = $plugin === null ? ($request->plugin ?? '') : $plugin;

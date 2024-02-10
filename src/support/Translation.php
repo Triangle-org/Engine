@@ -71,7 +71,7 @@ class Translation
      */
     public static function __callStatic(string $name, array $arguments)
     {
-        $request = App::request();
+        $request = request();
         $plugin = $request->plugin ?? '';
         return static::instance($plugin)->{$name}(...$arguments);
     }

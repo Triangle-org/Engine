@@ -50,7 +50,7 @@ class View
      */
     public static function assign(mixed $name, mixed $value = null): void
     {
-        $request = App::request();
+        $request = request();
         $plugin = $request->plugin ?? '';
         $handler = config($plugin ? "plugin.$plugin.view.handler" : 'view.handler');
         $handler::assign($name, $value);
@@ -66,7 +66,7 @@ class View
      */
     public static function vars(): array
     {
-        $request = App::request();
+        $request = request();
         $plugin = $request->plugin ?? '';
         $handler = config($plugin ? "plugin.$plugin.view.handler" : 'view.handler');
         return $handler::vars();
