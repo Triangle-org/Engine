@@ -26,8 +26,6 @@
 
 namespace Triangle\Engine\View;
 
-use Triangle\Engine\App;
-
 /**
  * Абстрактный класс AbstractView
  * Этот класс реализует интерфейс ViewInterface и предоставляет базовую функциональность для представлений.

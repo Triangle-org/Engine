@@ -28,7 +28,6 @@
 namespace Triangle\Engine\View;
 
 use Jenssegers\Blade\Blade as BladeView;
-use Triangle\Engine\App;
 use function app_path;
 use function array_merge;
 use function base_path;

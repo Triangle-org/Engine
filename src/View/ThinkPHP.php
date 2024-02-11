@@ -28,7 +28,6 @@
 namespace Triangle\Engine\View;
 
 use think\Template;
-use Triangle\Engine\App;
 use function app_path;
 use function array_merge;
 use function base_path;

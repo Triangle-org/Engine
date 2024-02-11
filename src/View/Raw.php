@@ -28,7 +28,6 @@
 namespace Triangle\Engine\View;
 
 use Throwable;
-use Triangle\Engine\App;
 use function config;
 use function extract;
 use function ob_end_clean;

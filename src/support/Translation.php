@@ -32,7 +32,6 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RegexIterator;
 use Symfony\Component\Translation\Translator;
-use Triangle\Engine\App;
 use Triangle\Engine\Exception\NotFoundException;
 use function basename;
 use function config;

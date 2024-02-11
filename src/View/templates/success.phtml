@@ -109,7 +109,9 @@
 
 <body>
 <main>
-    <?php $print = $error ?? $data ?? 'Ошибка'; ?>
+    <?php use localzet\Server;
+
+    $print = $error ?? $data ?? 'Ошибка'; ?>
     <h1>
         <pre><?= is_string($print) ? $print : json($print) ?></pre>
     </h1>
@@ -119,7 +121,7 @@
     <nav>
         <a target="_blank" href="https://github.com/Triangle-org">Copyright © 2018-<?= date('Y') ?> <b>Triangle Team</b></a>
         <a target="_blank" href="https://github.com/localzet/server">Powered by <b>Localzet
-                Server <?= @\localzet\Server::getVersion() ?? '' ?></b></a>
+                Server <?= @Server::getVersion() ?? '' ?></b></a>
     </nav>
 </footer>
 </body>

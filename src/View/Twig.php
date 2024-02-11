@@ -27,7 +27,6 @@
 
 namespace Triangle\Engine\View;
 
-use Triangle\Engine\App;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;

@@ -28,7 +28,6 @@
 namespace Triangle\Engine\Http;
 
 use Throwable;
-use Triangle\Engine\App;
 use function filemtime;
 use function gmdate;
 
