@@ -66,6 +66,11 @@ class Plugin
         if (is_file($file)) {
             require_once $file;
         }
+
+        $file = __DIR__ . '/Install/helpers.php';
+        if (is_file($file)) {
+            require_once $file;
+        }
     }
 
     /**

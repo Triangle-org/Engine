@@ -66,21 +66,22 @@ class Install
      * Удаление плагина
      * @return void
      */
-    public static function uninstall()
+    public static function uninstall(): void
     {
+        self::uninstallByRelation();
     }
 
     /**
      * @return void
      */
-    public static function installByRelation()
+    public static function installByRelation(): void
     {
         foreach (static::$pathRelation as $source => $target) {
             $sourceFile = __DIR__ . "/$source";
             $targetFile = base_path($target);
 
             if ($pos = strrpos($target, '/')) {
-                $parentDir = base_path(substr($source, 0, $pos));
+                $parentDir = base_path(substr($target, 0, $pos));
                 if (!is_dir($parentDir)) {
                     mkdir($parentDir, 0777, true);
                 }
@@ -88,6 +89,19 @@ class Install
 
             copy_dir($sourceFile, $targetFile);
             echo "Создан $targetFile\r\n";
+        }
+    }
+
+    /**
+     * @return void
+     */
+    public static function uninstallByRelation(): void
+    {
+        foreach (static::$pathRelation as $source => $target) {
+            $targetFile = base_path($target);
+
+            remove_dir($targetFile);
+            echo "Удалён $target\r\n";
         }
     }
 }
