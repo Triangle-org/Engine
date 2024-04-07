@@ -30,6 +30,7 @@ namespace support;
 use Dotenv\Dotenv;
 use localzet\Server;
 use localzet\Server\Connection\TcpConnection;
+use Phar;
 use RuntimeException;
 use Throwable;
 use Triangle\Engine\Config;
@@ -115,16 +116,20 @@ class App
                         'requestClass' => config('app.request_class', Request::class),
                         'logger' => Log::channel(),
                         'basePath' => BASE_PATH,
-                        'appPath' => app_path(), //BASE_PATH . DIRECTORY_SEPARATOR . 'app',
+                        'appPath' => app_path(),
                         'publicPath' => public_path(),
                     ]
                 ]
             );
         }
 
-        // Windows does not support custom processes.
+        // Windows не поддерживает кастомные процессы
         if (DIRECTORY_SEPARATOR === '/') {
             foreach (config('process', []) as $processName => $config) {
+                // Отключим монитор в phar
+                if (class_exists(Phar::class, false) && Phar::running() && 'monitor' === $processName) {
+                    continue;
+                }
                 server_start($processName, $config);
             }
             foreach (config('plugin', []) as $firm => $projects) {
