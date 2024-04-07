@@ -229,7 +229,7 @@ function copy_dir(string $source, string $dest, bool $overwrite = false): void
 {
     if (is_dir($source)) {
         if (!is_dir($dest)) {
-            mkdir($dest);
+            create_dir($dest);
         }
         $files = array_diff(scandir($source), ['.', '..']) ?: [];
         foreach ($files as $file) {
@@ -280,7 +280,7 @@ function remove_dir(string $dir): bool
  */
 function create_dir(string $dir): bool
 {
-    return mkdir($dir);
+    return mkdir($dir, 0777, true);
 }
 
 /**
