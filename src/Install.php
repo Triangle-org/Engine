@@ -33,15 +33,15 @@ namespace Triangle\Engine;
  */
 class Install
 {
-    const TRIANGLE_PLUGIN = true;
+    public const TRIANGLE_PLUGIN = true;
 
     /**
      * @var array
      */
     protected static array $pathRelation = [
-        'master',
-        'support/bootstrap.php',
-        'support/helpers.php',
+        'Install/master' => 'master',
+        'Install/bootstrap.php' => 'support/bootstrap.php',
+        'Install/helpers.php' => 'support/helpers.php',
     ];
 
     /**
@@ -50,7 +50,7 @@ class Install
      */
     public static function install(): void
     {
-        static::installByRelation(true);
+        static::installByRelation();
     }
 
     /**
@@ -63,48 +63,31 @@ class Install
     }
 
     /**
-     * Установка плагина по связи
-     * @param bool $install
+     * Удаление плагина
      * @return void
      */
-    public static function installByRelation(bool $install = false): void
+    public static function uninstall()
     {
-        foreach (static::$pathRelation as $source) {
-            $sourceFile = __DIR__ . "/$source";
-            $targetFile = base_path($source);
+    }
 
-            if ($pos = strrpos($source, '/')) {
+    /**
+     * @return void
+     */
+    public static function installByRelation()
+    {
+        foreach (static::$pathRelation as $source => $target) {
+            $sourceFile = __DIR__ . "/$source";
+            $targetFile = base_path($target);
+
+            if ($pos = strrpos($target, '/')) {
                 $parentDir = base_path(substr($source, 0, $pos));
                 if (!is_dir($parentDir)) {
                     mkdir($parentDir, 0777, true);
                 }
             }
 
-            $install && self::delFile($targetFile);
-            copy_dir($sourceFile, $targetFile, true);
-            self::delFile($sourceFile);
-
-            echo "Создан $source\r\n";
+            copy_dir($sourceFile, $targetFile);
+            echo "Создан $targetFile\r\n";
         }
-    }
-
-    /**
-     * Удаление файла
-     * @param string $filepath Путь к файлу
-     * @return void
-     */
-    private static function delFile(string $filepath): void
-    {
-        if (is_file($filepath)) {
-            @unlink($filepath);
-        }
-    }
-
-    /**
-     * Удаление плагина
-     * @return void
-     */
-    public static function uninstall()
-    {
     }
 }
