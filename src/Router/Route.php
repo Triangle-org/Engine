@@ -138,9 +138,9 @@ class Route
 
     /**
      * Получить обработчик маршрута
-     * @return callable|null
+     * @return callable|mixed|null
      */
-    public function getCallback(): ?callable
+    public function getCallback(): mixed
     {
         return $this->callback;
     }
@@ -157,10 +157,10 @@ class Route
     /**
      * Получить параметры маршрута
      * @param string|null $name Имя параметра
-     * @param $default Значение по умолчанию
+     * @param mixed $default Значение по умолчанию
      * @return array|mixed|null
      */
-    public function param(string $name = null, $default = null): mixed
+    public function param(string $name = null, mixed $default = null): mixed
     {
         if ($name === null) {
             return $this->params;
