@@ -77,9 +77,9 @@ function response(mixed $body = '', int $status = 200, array $headers = [], bool
  * @param string $type
  * @return Response
  */
-function responseBlob(string $blob, string $type = null): Response
+function responseBlob(string $blob, string $type = 'image/png'): Response
 {
-    return new Response(200, ['Content-Type' => $type ?? mime_content_type($blob)], $blob);
+    return new Response(200, ['Content-Type' => $type], $blob);
 }
 
 /**
