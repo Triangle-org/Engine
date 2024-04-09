@@ -35,39 +35,27 @@ use function str_replace;
 
 
 /**
- * Класс Route
- * Этот класс представляет собой маршрут, который управляет маршрутами приложения.
+ * Класс Route представляет собой маршрут в веб-приложении.
+ * @package Triangle\Engine\Router
  */
 class Route
 {
-    /**
-     * @var string|null
-     */
+    /** @var string|null $name Имя маршрута */
     protected ?string $name = null;
 
-    /**
-     * @var array
-     */
+    /** @var array $methods HTTP-методы маршрута */
     protected array $methods = [];
 
-    /**
-     * @var string
-     */
+    /** @var string $path Путь маршрута */
     protected string $path = '';
 
-    /**
-     * @var callable
-     */
+    /** @var callable|mixed $callback Обработчик маршрута */
     protected $callback = null;
 
-    /**
-     * @var array
-     */
+    /** @var array $middlewares Промежуточное ПО маршрута */
     protected array $middlewares = [];
 
-    /**
-     * @var array
-     */
+    /** @var array $params Параметры маршрута */
     protected array $params = [];
 
     /**
@@ -84,8 +72,8 @@ class Route
     }
 
     /**
-     * Получить имя маршрута
-     * @return string|null
+     * Получить имя маршрута.
+     * @return string|null Возвращает имя маршрута или null, если имя не задано.
      */
     public function getName(): ?string
     {
@@ -93,9 +81,9 @@ class Route
     }
 
     /**
-     * Установить имя маршрута
-     * @param string $name Имя маршрута
-     * @return $this
+     * Установить имя маршрута.
+     * @param string $name Имя маршрута.
+     * @return static Возвращает текущий объект Route для цепочки вызовов.
      */
     public function name(string $name): Route
     {
@@ -105,9 +93,9 @@ class Route
     }
 
     /**
-     * Получить или установить промежуточное ПО
-     * @param mixed|null $middleware Промежуточное ПО
-     * @return $this|array
+     * Получить или установить промежуточное ПО.
+     * @param mixed|null $middleware Промежуточное ПО.
+     * @return static|array Возвращает массив промежуточного ПО, если $middleware равен null. В противном случае возвращает текущий объект Route.
      */
     public function middleware(mixed $middleware = null): array|static
     {
@@ -119,8 +107,8 @@ class Route
     }
 
     /**
-     * Получить путь маршрута
-     * @return string
+     * Получить путь маршрута.
+     * @return string Возвращает путь маршрута.
      */
     public function getPath(): string
     {
@@ -128,8 +116,8 @@ class Route
     }
 
     /**
-     * Получить методы маршрута
-     * @return array
+     * Получить методы маршрута.
+     * @return array Возвращает массив HTTP-методов маршрута.
      */
     public function getMethods(): array
     {
@@ -137,8 +125,8 @@ class Route
     }
 
     /**
-     * Получить обработчик маршрута
-     * @return callable|mixed|null
+     * Получить обработчик маршрута.
+     * @return callable|mixed|null Возвращает обработчик маршрута.
      */
     public function getCallback(): mixed
     {
@@ -171,7 +159,7 @@ class Route
     /**
      * Установить параметры маршрута
      * @param array $params Параметры
-     * @return $this
+     * @return static
      */
     public function setParams(array $params): Route
     {
