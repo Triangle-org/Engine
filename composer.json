@@ -33,6 +33,7 @@
     "ext-libxml": "For XML",
     "ext-openssl": "For JWT",
     "ext-redis": "For Redis",
+    "ext-fileinfo": "For mime_content_type()",
     "triangle/mongodb": "For MongoDB"
   },
   "require": {
