@@ -45,20 +45,16 @@ class Context
     /**
      * @var WeakMap|SplObjectStorage|null
      */
-    protected static WeakMap|null|SplObjectStorage $objectStorage = null;
+    protected static WeakMap|SplObjectStorage|null $objectStorage = null;
 
     /**
      * Получить значение из контекста
      * @param string|null $key Ключ значения
      * @return mixed
      */
-    public static function get(string $key = null): mixed
+    public static function get(?string $key = null): mixed
     {
-        $obj = static::getObject();
-        if ($key === null) {
-            return $obj ?? null;
-        }
-        return $obj?->$key ?? null;
+        return $key ? static::getObject()?->$key : static::getObject();
     }
 
     /**
@@ -71,13 +67,11 @@ class Context
             static::$objectStorage = class_exists(WeakMap::class) ? new WeakMap() : new SplObjectStorage();
         }
 
-        if ($key = static::getKey()) {
-            if (!isset(static::$objectStorage[$key])) {
-                static::$objectStorage[$key] = new StdClass;
-            }
-            return static::$objectStorage[$key] ?? null;
+        $key = static::getKey();
+        if ($key && !isset(static::$objectStorage[$key])) {
+            static::$objectStorage[$key] = new StdClass;
         }
-        return null;
+        return $key ? static::$objectStorage[$key] : null;
     }
 
     /**
@@ -97,8 +91,9 @@ class Context
      */
     public static function set(string $key, mixed $value): void
     {
-        $obj = static::getObject();
-        if ($obj && $key) $obj->$key = $value;
+        if ($obj = static::getObject()) {
+            $obj->$key = $value;
+        }
     }
 
     /**
@@ -108,19 +103,19 @@ class Context
      */
     public static function delete(string $key): void
     {
-        $obj = static::getObject();
-        if ($obj && $key) unset($obj->$key);
+        if ($obj = static::getObject()) {
+            unset($obj->$key);
+        }
     }
 
     /**
      * Проверить наличие значения в контексте
      * @param string $key Ключ значения
-     * @return bool|null
+     * @return bool
      */
-    public static function has(string $key): ?bool
+    public static function has(string $key): bool
     {
-        $obj = static::getObject();
-        return $obj && $key ? property_exists($obj, $key) : null;
+        return $key && ($obj = static::getObject()) && property_exists($obj, $key);
     }
 
     /**

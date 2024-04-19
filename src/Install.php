@@ -59,7 +59,7 @@ class Install
      */
     public static function update(): void
     {
-        static::installByRelation();
+        static::installByRelation(true);
     }
 
     /**
@@ -72,9 +72,10 @@ class Install
     }
 
     /**
+     * @param bool $overwrite
      * @return void
      */
-    public static function installByRelation(): void
+    public static function installByRelation(bool $overwrite = false): void
     {
         foreach (static::$pathRelation as $source => $target) {
             $sourceFile = __DIR__ . "/$source";
@@ -87,7 +88,7 @@ class Install
                 }
             }
 
-            copy_dir($sourceFile, $targetFile);
+            copy_dir($sourceFile, $targetFile, $overwrite);
             echo "Создан $targetFile\r\n";
         }
     }
