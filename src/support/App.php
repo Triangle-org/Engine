@@ -34,6 +34,7 @@ use Phar;
 use RuntimeException;
 use Throwable;
 use Triangle\Engine\Config;
+use Triangle\Engine\Environment;
 use Triangle\Engine\Util;
 use function base_path;
 use function is_dir;
@@ -51,14 +52,7 @@ class App
     {
         ini_set('display_errors', 'on');
 
-        if (class_exists(Dotenv::class) && file_exists(run_path('.env'))) {
-            if (method_exists(Dotenv::class, 'createUnsafeImmutable')) {
-                Dotenv::createUnsafeImmutable(run_path())->load();
-            } else {
-                Dotenv::createMutable(run_path())->load();
-            }
-        }
-
+        static::loadEnvironment();
         static::loadAllConfig(['route', 'container']);
 
         $errorReporting = config('app.error_reporting', E_ALL);
@@ -166,5 +160,10 @@ class App
                 Config::load($dir, $excludes, "plugin.$name");
             }
         }
+    }
+
+    private static function loadEnvironment(): void
+    {
+        Environment::load(run_path());
     }
 }

@@ -28,11 +28,11 @@ use localzet\Server;
 use localzet\Server\Connection\TcpConnection;
 use localzet\Server\Protocols\Http\Session;
 use support\Container;
-use support\Env;
 use support\Response;
 use support\Translation;
 use Triangle\Engine\App;
 use Triangle\Engine\Config;
+use Triangle\Engine\Environment;
 use Triangle\Engine\Http\Request;
 use Triangle\Engine\Router;
 use Triangle\Engine\View\Blade;
@@ -460,7 +460,7 @@ function config(string $key = null, mixed $default = null): mixed
  */
 function env(string $key = null, mixed $default = null): mixed
 {
-    return Env::get($key, $default);
+    return Environment::get($key, $default);
 }
 
 /**
