@@ -56,13 +56,13 @@ class Environment
         if (
             class_exists(Dotenv::class)
             && is_dir($environmentPath)
-            && file_exists(rtrim($environmentPath) . '/' . $environmentFile)
+            && file_exists(rtrim($environmentPath) . '/' . ltrim($environmentFile))
         ) {
             Dotenv::create(
                 self::getRepository(),
                 $environmentPath,
                 $environmentFile
-            );
+            )->safeLoad();
         }
     }
 
