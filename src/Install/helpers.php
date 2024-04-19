@@ -28,6 +28,7 @@ use localzet\Server;
 use localzet\Server\Connection\TcpConnection;
 use localzet\Server\Protocols\Http\Session;
 use support\Container;
+use support\Env;
 use support\Response;
 use support\Translation;
 use Triangle\Engine\App;
@@ -444,12 +445,22 @@ function locale(string $locale = null): string
 
 /**
  * @param string|null $key
- * @param $default
- * @return array|mixed|null
+ * * @param mixed|null $default
+ * @return mixed
  */
-function config(string $key = null, $default = null): mixed
+function config(string $key = null, mixed $default = null): mixed
 {
     return Config::get($key, $default);
+}
+
+/**
+ * @param string|null $key
+ * @param mixed|null $default
+ * @return mixed
+ */
+function env(string $key = null, mixed $default = null): mixed
+{
+    return Env::get($key, $default);
 }
 
 /**
