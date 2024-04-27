@@ -25,7 +25,6 @@
  *              For any questions, please contact <creator@localzet.com>
  */
 
-use Dotenv\Dotenv;
 use support\App;
 use support\Container;
 use support\Events;
