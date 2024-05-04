@@ -27,10 +27,8 @@
 
 namespace support;
 
-use Dotenv\Dotenv;
 use localzet\Server;
 use localzet\Server\Connection\TcpConnection;
-use Phar;
 use RuntimeException;
 use Throwable;
 use Triangle\Engine\Config;
@@ -89,19 +87,19 @@ class App
             }
         };
 
-        $config = config('server');
-        Server::$pidFile = $config['pid_file'];
-        Server::$stdoutFile = $config['stdout_file'];
-        Server::$logFile = $config['log_file'];
-        TcpConnection::$defaultMaxPackageSize = $config['max_package_size'] ?? 10 * 1024 * 1024;
+        Server::$pidFile = config('server.pid_file');
+        Server::$stdoutFile = config('server.stdout_file', '/dev/null');
+        Server::$logFile = config('server.log_file');
+        TcpConnection::$defaultMaxPackageSize = config('server.max_package_size', 10 * 1024 * 1024);
         if (property_exists(Server::class, 'statusFile')) {
-            Server::$statusFile = $config['status_file'] ?? '';
+            Server::$statusFile = config('server.status_file', '');
         }
         if (property_exists(Server::class, 'stopTimeout')) {
-            Server::$stopTimeout = $config['stop_timeout'] ?? 2;
+            Server::$stopTimeout = config('server.stop_timeout', 2);
         }
 
-        if ($config['listen']) {
+        if (config('server.listen')) {
+            $config = config('server');
             server_start(
                 $config['name'],
                 $config + [
