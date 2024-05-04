@@ -164,6 +164,6 @@ class App
 
     private static function loadEnvironment(): void
     {
-        Environment::load(run_path());
+        Environment::load(config('env_file', '.env'));
     }
 }
