@@ -714,34 +714,6 @@ function get_realpath(string $filePath): string
 
 /** SERVER HELPERS */
 
-
-/**
- * @param $server
- * @param $class
- */
-function server_bind($server, $class): void
-{
-    $callbackMap = [
-        'onConnect',
-        'onMessage',
-        'onClose',
-        'onError',
-        'onBufferFull',
-        'onBufferDrain',
-        'onServerStop',
-        'onWebSocketConnect',
-        'onServerReload'
-    ];
-    foreach ($callbackMap as $name) {
-        if (method_exists($class, $name)) {
-            $server->$name = [$class, $name];
-        }
-    }
-    if (method_exists($class, 'onServerStart')) {
-        call_user_func([$class, 'onServerStart'], $server);
-    }
-}
-
 /**
  * @param $processName
  * @param $config
@@ -766,25 +738,6 @@ function server_start($processName, $config): void
             return require_once base_path('/support/bootstrap.php');
         }
     );
-}
-
-/**
- * @return int
- */
-function cpu_count(): int
-{
-    if (DIRECTORY_SEPARATOR === '\\') {
-        return 1;
-    }
-    $count = 4;
-    if (is_callable('shell_exec')) {
-        if (strtolower(PHP_OS) === 'darwin') {
-            $count = (int)shell_exec('sysctl -n machdep.cpu.core_count');
-        } else {
-            $count = (int)shell_exec('nproc');
-        }
-    }
-    return $count > 0 ? $count : 4;
 }
 
 /**
