@@ -121,7 +121,7 @@ class App
         if (DIRECTORY_SEPARATOR === '/') {
             foreach (config('process', []) as $processName => $config) {
                 // Отключим монитор в phar
-                if (class_exists(Phar::class, false) && Phar::running() && 'monitor' === $processName) {
+                if (is_phar() && 'monitor' === $processName) {
                     continue;
                 }
                 server_start($processName, $config);
