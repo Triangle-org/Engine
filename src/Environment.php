@@ -51,16 +51,15 @@ class Environment
      */
     protected static ?RepositoryInterface $repository = null;
 
-    public static function load(string $environmentPath, string $environmentFile = '.env'): void
+    public static function load(string $environmentFile = '.env'): void
     {
         if (
             class_exists(Dotenv::class)
-            && is_dir($environmentPath)
-            && file_exists(rtrim($environmentPath) . '/' . ltrim($environmentFile))
+            && file_exists(run_path($environmentFile))
         ) {
             Dotenv::create(
                 self::getRepository(),
-                $environmentPath,
+                run_path(),
                 $environmentFile
             )->safeLoad();
         }
@@ -134,6 +133,38 @@ class Environment
     }
 
     /**
+     * Изменить значение переменной окружения.
+     *
+     * @param array $values
+     * @param string $environmentFile
+     * @return false|int
+     */
+    public static function set(array $values, string $environmentFile = '.env'): false|int
+    {
+        $envFile = file_exists($environmentFile) ? $environmentFile : run_path($environmentFile);
+        $str = file_get_contents($envFile);
+
+        if (count($values) > 0) {
+            foreach ($values as $envKey => $envValue) {
+                $str .= "\n"; // Если искомая переменная находится в последней строке без \n
+                $keyPosition = strpos($str, "{$envKey}=");
+
+                if ($keyPosition) {
+                    $endOfLinePosition = strpos($str, "\n", $keyPosition);
+                    $oldLine = substr($str, $keyPosition, $endOfLinePosition - $keyPosition);
+                    $str = str_replace($oldLine, "{$envKey}=\"{$envValue}\"", $str);
+                } else {
+                    $str .= "\n$envKey=\"$envValue\"";
+                }
+            }
+        }
+
+        $str = substr($str, 0, -1);
+
+        return file_put_contents($envFile, $str);
+    }
+
+    /**
      * Получить возможный вариант для этой переменной окружения.
      *
      * @param string $key
@@ -150,10 +181,9 @@ class Environment
                     'null' => null,
                     'empty' => '',
                 ];
-                $value = strtolower($value);
 
-                if (isset($valueMap[$value]) || isset($valueMap["($value)"])) {
-                    return $valueMap[$value] ?? $valueMap["($value)"];
+                if (isset($valueMap[strtolower($value)])) {
+                    return $valueMap[strtolower($value)];
                 }
 
                 if (preg_match('/\A([\'"])(.*)\1\z/', $value, $matches)) {
