@@ -191,6 +191,10 @@ class Environment
                     return $matches[2];
                 }
 
+                if (is_numeric($value)) {
+                    return $value + 0;
+                }
+
                 return $value;
             });
     }
