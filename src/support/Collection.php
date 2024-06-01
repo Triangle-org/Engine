@@ -134,7 +134,7 @@ final class Collection
      */
     public function isEmpty(): bool
     {
-        return !(bool)$this->count();
+        return !$this->count();
     }
 
     /**

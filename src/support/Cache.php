@@ -64,7 +64,7 @@ class Cache
      *
      * @link https://www.php.net/manual/ru/language.oop5.overloading.php#object.callstatic
      */
-    public static function __callStatic($name, $arguments)
+    public static function __callStatic(string $name, array $arguments)
     {
         return static::instance()->{$name}(...$arguments);
     }

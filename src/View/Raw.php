@@ -97,6 +97,7 @@ class Raw extends AbstractView implements ViewInterface
      * @param string $template Шаблон для рендеринга
      * @param array $vars Переменные, которые должны быть доступны в шаблоне
      * @return false|string Результат рендеринга
+     * @throws Throwable
      */
     public static function renderSys(string $template, array $vars): false|string
     {

@@ -58,21 +58,30 @@ foreach (config('plugin', []) as $firm => $projects) {
             continue;
         }
         foreach ($project['command'] ?? [] as $class_name) {
-            $reflection = new ReflectionClass($class_name);
-            if ($reflection->isAbstract()) {
-                continue;
-            }
+            try {
+                $reflection = new ReflectionClass($class_name);
+                if ($reflection->isAbstract()) {
+                    continue;
+                }
 
-            $properties = $reflection->getStaticProperties();
-            $name = $properties['defaultName'] ?? null;
-            if (!$name) {
-                throw new RuntimeException("У команды $class_name нет defaultName");
-            }
+                $properties = $reflection->getStaticProperties();
 
-            $command = new $class_name(config('plugin.triangle.console.app', []));
-            $this->add($command);
+                $name = $properties['defaultName'] ?? null;
+                if (!$name) {
+                    throw new RuntimeException("У команды $class_name нет defaultName");
+                }
+
+                $command = new $class_name(config('plugin.triangle.console.app', []));
+                $this->add($command);
+            } catch (ReflectionException $e) {
+                throw new RuntimeException("Ошибка ReflectionException: {$e->getMessage()}");
+            }
         }
     }
 }
 
-$cli->run();
+try {
+    $cli->run();
+} catch (Exception $e) {
+    throw new RuntimeException("Ошибка запуска CLI: {$e->getMessage()}");
+}

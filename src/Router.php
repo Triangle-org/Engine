@@ -138,7 +138,7 @@ class Router
      * @param Router $route
      * @return void
      */
-    public function addChild(Router $route)
+    public function addChild(Router $route): void
     {
         $this->children[] = $route;
     }
@@ -146,7 +146,7 @@ class Router
     /**
      * @return Router[]
      */
-    public function getChildren()
+    public function getChildren(): array
     {
         return $this->children;
     }

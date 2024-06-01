@@ -148,12 +148,12 @@ class Environment
         if (count($values) > 0) {
             foreach ($values as $envKey => $envValue) {
                 $str .= "\n"; // Если искомая переменная находится в последней строке без \n
-                $keyPosition = strpos($str, "{$envKey}=");
+                $keyPosition = strpos($str, "$envKey=");
 
                 if ($keyPosition) {
                     $endOfLinePosition = strpos($str, "\n", $keyPosition);
                     $oldLine = substr($str, $keyPosition, $endOfLinePosition - $keyPosition);
-                    $str = str_replace($oldLine, "{$envKey}=\"{$envValue}\"", $str);
+                    $str = str_replace($oldLine, "$envKey=\"$envValue\"", $str);
                 } else {
                     $str .= "\n$envKey=\"$envValue\"";
                 }
@@ -194,7 +194,7 @@ class Environment
                 if (preg_match('/\A([\'"])(.*)\1\z/', $value, $matches)) {
                     return $matches[2];
                 }
-                
+
                 return $value;
             });
     }
