@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package     Triangle Engine (FrameX Project)
@@ -30,6 +30,7 @@ namespace Triangle\Engine;
 use FilesystemIterator;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use SplFileInfo;
 use function array_replace_recursive;
 use function array_reverse;
 use function count;
@@ -94,7 +95,7 @@ class Config
      * @return void
      * @deprecated
      */
-    public static function reload(string $configPath, array $excludeFile = [])
+    public static function reload(string $configPath, array $excludeFile = []): void
     {
         static::load($configPath, $excludeFile);
     }
@@ -111,7 +112,7 @@ class Config
         $dirIterator = new RecursiveDirectoryIterator($configPath, FilesystemIterator::FOLLOW_SYMLINKS);
         $iterator = new RecursiveIteratorIterator($dirIterator);
         foreach ($iterator as $file) {
-            /** @var \SplFileInfo $file */
+            /** @var SplFileInfo $file */
             if (is_dir((string)$file) || $file->getExtension() != 'php' || in_array($file->getBaseName('.php'), $excludeFile)) {
                 continue;
             }

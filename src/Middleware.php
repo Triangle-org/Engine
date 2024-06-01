@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package     Triangle Engine (FrameX Project)
@@ -82,9 +82,9 @@ class Middleware
      * @param string $plugin Имя плагина
      * @param string $app Имя приложения
      * @param bool $withGlobal Флаг, указывающий, включать ли глобальное промежуточное ПО
-     * @return array|mixed Массив промежуточного ПО
+     * @return array Массив промежуточного ПО
      */
-    public static function getMiddleware(string $plugin, string $app, bool $withGlobal = true): mixed
+    public static function getMiddleware(string $plugin, string $app, bool $withGlobal = true): array
     {
         // Глобальное промежуточное ПО
         $globalMiddleware = static::$instances['']['@'] ?? [];

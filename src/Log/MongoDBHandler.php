@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package     Triangle Engine (FrameX Project)
@@ -75,7 +75,7 @@ class MongoDBHandler extends AbstractProcessingHandler
      * @param bool $bubble Булево значение, указывающее, должен ли обработчик позволить обработке следующим обработчикам.
      * @throws InvalidArgumentException Если переданный клиент не является экземпляром MongoDB\Client или MongoDB\Driver\Manager.
      */
-    public function __construct($mongodb, string $database, string $collection, $level = Logger::DEBUG, bool $bubble = true)
+    public function __construct($mongodb, string $database, string $collection, int $level = Logger::DEBUG, bool $bubble = true)
     {
         if (!($mongodb instanceof Client || $mongodb instanceof Manager)) {
             throw new InvalidArgumentException('MongoDB\Client or MongoDB\Driver\Manager instance required');

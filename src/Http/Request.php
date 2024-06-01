@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package     Triangle Engine (FrameX Project)
@@ -68,9 +68,9 @@ class Request extends \localzet\Server\Protocols\Http\Request
      * Получить файл из запроса.
      *
      * @param string|null $name Имя файла.
-     * @return \File|File[]|null
+     * @return File|File[]|null
      */
-    public function file($name = null): array|\File|null
+    public function file($name = null): array|File|null
     {
         $files = parent::file($name);
         if (null === $files) {
