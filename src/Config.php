@@ -111,15 +111,15 @@ class Config
         $dirIterator = new RecursiveDirectoryIterator($configPath, FilesystemIterator::FOLLOW_SYMLINKS);
         $iterator = new RecursiveIteratorIterator($dirIterator);
         foreach ($iterator as $file) {
-            /** var SplFileInfo $file */
-            if (is_dir($file) || $file->getExtension() != 'php' || in_array($file->getBaseName('.php'), $excludeFile)) {
+            /** @var \SplFileInfo $file */
+            if (is_dir((string)$file) || $file->getExtension() != 'php' || in_array($file->getBaseName('.php'), $excludeFile)) {
                 continue;
             }
             $appConfigFile = $file->getPath() . '/app.php';
             if (!is_file($appConfigFile)) {
                 continue;
             }
-            $relativePath = str_replace($configPath . DIRECTORY_SEPARATOR, '', substr($file, 0, -4));
+            $relativePath = str_replace($configPath . DIRECTORY_SEPARATOR, '', substr((string)$file, 0, -4));
             $explode = array_reverse(explode(DIRECTORY_SEPARATOR, $relativePath));
             if (count($explode) >= 2) {
                 $appConfig = include $appConfigFile;
