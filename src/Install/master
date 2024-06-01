@@ -1,5 +1,5 @@
 #!/usr/bin/env php
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package     Triangle Engine (FrameX Project)
@@ -24,31 +24,24 @@
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use localzet\Console\Util;
-use Triangle\Console;
-use Triangle\Engine\Config;
-
 require_once __DIR__ . '/vendor/autoload.php';
 
 if (!in_array($argv[1] ?? '', ['start', 'restart', 'stop', 'status', 'reload', 'connections'])) {
     require_once __DIR__ . '/support/bootstrap.php';
 } else {
-    if (class_exists('Support\App')) {
-        Support\App::loadAllConfig(['route']);
-    } else {
-        Config::load(config_path(), ['route', 'container']);
-    }
+    Triangle\Engine\Environment::load(run_path());
+    Triangle\Engine\Config::load(config_path(), ['route', 'container']);
 }
 
-$cli = new Console();
-$command_path = Util::guessPath(app_path(), '/command', true);
+$cli = new Triangle\Console();
+$command_path = localzet\Console\Util::guessPath(app_path(), '/command', true);
 if (is_dir((string)$command_path)) {
     $cli->installCommands($command_path);
 }
 
 foreach (config('plugin', []) as $firm => $projects) {
     if (isset($projects['app'])) {
-        if ($command_str = Util::guessPath(base_path() . "/plugin/$firm", 'command')) {
+        if ($command_str = localzet\Console\Util::guessPath(base_path() . "/plugin/$firm", 'command')) {
             $command_path = base_path() . "/plugin/$firm/$command_str";
             $cli->installCommands($command_path, "plugin\\$firm\\$command_str");
         }
@@ -58,21 +51,30 @@ foreach (config('plugin', []) as $firm => $projects) {
             continue;
         }
         foreach ($project['command'] ?? [] as $class_name) {
-            $reflection = new ReflectionClass($class_name);
-            if ($reflection->isAbstract()) {
-                continue;
-            }
+            try {
+                $reflection = new ReflectionClass($class_name);
+                if ($reflection->isAbstract()) {
+                    continue;
+                }
 
-            $properties = $reflection->getStaticProperties();
-            $name = $properties['defaultName'] ?? null;
-            if (!$name) {
-                throw new RuntimeException("У команды $class_name нет defaultName");
-            }
+                $properties = $reflection->getStaticProperties();
 
-            $command = new $class_name(config('plugin.triangle.console.app', []));
-            $this->add($command);
+                $name = $properties['defaultName'] ?? null;
+                if (!$name) {
+                    throw new RuntimeException("У команды $class_name нет defaultName");
+                }
+
+                $command = new $class_name(config('plugin.triangle.console.app', []));
+                $this->add($command);
+            } catch (ReflectionException $e) {
+                throw new RuntimeException("Ошибка ReflectionException: {$e->getMessage()}");
+            }
         }
     }
 }
 
-$cli->run();
+try {
+    $cli->run();
+} catch (Exception $e) {
+    throw new RuntimeException("Ошибка запуска CLI: {$e->getMessage()}");
+}
