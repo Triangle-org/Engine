@@ -187,14 +187,14 @@ class Environment
                     return $valueMap[strtolower($value)];
                 }
 
-                if (preg_match('/\A([\'"])(.*)\1\z/', $value, $matches)) {
-                    return $matches[2];
-                }
-
                 if (is_numeric($value)) {
                     return $value + 0;
                 }
 
+                if (preg_match('/\A([\'"])(.*)\1\z/', $value, $matches)) {
+                    return $matches[2];
+                }
+                
                 return $value;
             });
     }
