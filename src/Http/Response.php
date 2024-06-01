@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package     Triangle Engine (FrameX Project)
@@ -53,9 +53,9 @@ class Response extends \localzet\Server\Protocols\Http\Response
      * @param string $body Тело ответа.
      */
     function __construct(
-        $status = 200,
-        $headers = array(),
-        $body = ''
+        int    $status = 200,
+        array  $headers = [],
+        string $body = ''
     )
     {
         $headers = $headers + config('app.headers', []);

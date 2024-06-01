@@ -34,6 +34,7 @@
     "ext-openssl": "For JWT",
     "ext-redis": "For Redis",
     "ext-fileinfo": "For mime_content_type()",
+    "ext-mongodb": "For Triangle\\Engine\\Log\\MongoDBHandler",
     "triangle/mongodb": "For MongoDB"
   },
   "require": {

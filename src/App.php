@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package     Triangle Engine (FrameX Project)
@@ -469,7 +469,7 @@ class App
      * @throws NotFoundExceptionInterface
      * @throws ReflectionException
      */
-    protected static function getCallback(string $plugin, string $app, $call, array $args = null, bool $withGlobalMiddleware = true, RouteObject $route = null): callable|Closure
+    protected static function getCallback(string $plugin, string $app, mixed $call, array $args = null, bool $withGlobalMiddleware = true, RouteObject $route = null): callable|Closure
     {
         $args = $args === null ? null : array_values($args);
         $middlewares = [];
@@ -707,7 +707,7 @@ class App
      * @param mixed $request Запрос.
      * @return Response Возвращает ответ.
      */
-    protected static function exceptionResponse(Throwable $e, $request): Response
+    protected static function exceptionResponse(Throwable $e, mixed $request): Response
     {
         try {
             // Получаем приложение и плагин из запроса
@@ -953,7 +953,7 @@ class App
      * @return array|false Возвращает массив с информацией о контроллере и действии, если они найдены, иначе возвращает false.
      * @throws ReflectionException
      */
-    protected static function guessControllerAction($pathExplode, $action, $suffix, $classPrefix): false|array
+    protected static function guessControllerAction(array $pathExplode, string $action, string $suffix, string $classPrefix): false|array
     {
         // Создаем карту возможных путей к контроллеру
         $map[] = trim("$classPrefix\\app\\controller\\" . implode('\\', $pathExplode), '\\');

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * @package     Triangle Engine (FrameX Project)
@@ -134,7 +134,7 @@ final class Collection
      */
     public function isEmpty(): bool
     {
-        return !(bool)$this->count();
+        return !$this->count();
     }
 
     /**
