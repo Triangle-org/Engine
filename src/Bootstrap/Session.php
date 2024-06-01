@@ -47,6 +47,10 @@ class Session implements BootstrapInterface
      */
     public static function start(?Server $server): void
     {
+        if (!$server) {
+            return;
+        }
+
         // Получаем конфигурацию сессии.
         $config = config('session');
 
