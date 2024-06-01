@@ -95,7 +95,7 @@ class App
             Server::$statusFile = config('server.status_file', '');
         }
         if (property_exists(Server::class, 'stopTimeout')) {
-            Server::$stopTimeout = config('server.stop_timeout', 2);
+            Server::$stopTimeout = (int) config('server.stop_timeout', 2);
         }
 
         if (config('server.listen')) {
