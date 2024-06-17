@@ -57,9 +57,9 @@ abstract class AbstractView implements ViewInterface
     public static function assign(array|string $name, mixed $value = null, bool $merge_recursive = false): void
     {
         if ($merge_recursive) {
-            static::$vars = array_merge_recursive(static::$vars, is_array($name) ? $name : [$name => $value]);
+            request()->_view_vars = array_merge_recursive((array) request()->_view_vars, is_array($name) ? $name : [$name => $value]);
         } else {
-            static::$vars = array_merge(static::$vars, is_array($name) ? $name : [$name => $value]);
+            request()->_view_vars = array_merge((array) request()->_view_vars, is_array($name) ? $name : [$name => $value]);
         }
     }
 
@@ -69,7 +69,7 @@ abstract class AbstractView implements ViewInterface
      */
     public static function vars(): array
     {
-        return static::$vars;
+        return (array) request()->_view_vars;
     }
 
     /**

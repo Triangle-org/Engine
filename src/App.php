@@ -356,7 +356,7 @@ class App
 
         // Если путь указывает на плагин
         if (isset($pathExplodes[1]) && $pathExplodes[0] === 'app') {
-            $publicDir = static::$basePath . "/plugin/$pathExplodes[1]/public";
+            $publicDir = static::config($plugin, 'app.public_path') ?: static::$basePath . "/plugin/$pathExplodes[1]/public";
             $plugin = $pathExplodes[1];
             $path = substr($path, strlen("/app/$pathExplodes[1]/"));
         } else {
@@ -892,7 +892,7 @@ class App
     protected static function parseControllerAction(string $path): false|array
     {
         // Удаляем дефисы из пути
-        $path = str_replace('-', '', $path);
+        $path = str_replace(['-', '//'], ['', '/'], $path);
 
         static $cache = [];
         if (isset($cache[$path])) {
@@ -1081,12 +1081,12 @@ class App
     {
         // Получаем все методы класса контроллера
         $methods = get_class_methods($controllerClass);
-        $action = strtolower($action);
+        $lowerAction = strtolower($action);
         $found = false;
 
         // Проверяем, есть ли метод, соответствующий действию
         foreach ($methods as $candidate) {
-            if (strtolower($candidate) === $action) {
+            if (strtolower($candidate) === $lowerAction) {
                 $action = $candidate;
                 $found = true;
                 break;

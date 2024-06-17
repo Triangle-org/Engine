@@ -73,7 +73,7 @@ class Raw extends AbstractView implements ViewInterface
         $postRenders = static::getPostRenders();
 
         extract(config("{$configPrefix}view.options.vars", []));
-        extract(static::$vars);
+        extract((array) request()->_view_vars);
         extract($vars);
         ob_start();
 
@@ -85,8 +85,6 @@ class Raw extends AbstractView implements ViewInterface
         } catch (Throwable $e) {
             ob_end_clean();
             throw $e;
-        } finally {
-            static::$vars = [];
         }
 
         return ob_get_clean();
@@ -107,7 +105,7 @@ class Raw extends AbstractView implements ViewInterface
 
         $view = config("{$configPrefix}view.templates.system.$template", __DIR__ . "/templates/$template.phtml");
 
-        extract(static::$vars);
+        extract((array) $request->_view_vars);
         extract($vars);
         ob_start();
 
@@ -116,8 +114,6 @@ class Raw extends AbstractView implements ViewInterface
         } catch (Throwable $e) {
             ob_end_clean();
             throw $e;
-        } finally {
-            static::$vars = [];
         }
 
         return ob_get_clean();

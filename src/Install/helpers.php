@@ -589,6 +589,9 @@ function getRequestIp(): ?string
             )
         )
     );
+    if (is_string($ip)) {
+        $ip = current(explode(',', $ip));
+    }
     return filter_var($ip, FILTER_VALIDATE_IP) ? $ip : null;
 }
 

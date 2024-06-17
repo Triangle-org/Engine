@@ -88,9 +88,7 @@ class Translation
     {
         if (!isset(static::$instance[$plugin])) {
             $config = config($plugin ? "plugin.$plugin.translation" : 'translation', []);
-            if (!$translationsPath = get_realpath($config['path'])) {
-                throw new NotFoundException("File {$config['path']} not found");
-            }
+            $paths = (array)($config['path'] ?? []);
 
             static::$instance[$plugin] = $translator = new Translator($config['locale']);
             $translator->setFallbackLocales($config['fallback_locale']);
@@ -106,17 +104,23 @@ class Translation
                 ]
             ];
 
-            foreach ($classes as $class => $opts) {
-                $translator->addLoader($opts['format'], new $class);
-                $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($translationsPath, FilesystemIterator::SKIP_DOTS));
-                $files = new RegexIterator($iterator, '/^.+' . preg_quote($opts['extension']) . '$/i', RegexIterator::GET_MATCH);
-                foreach ($files as $file) {
-                    $file = $file[0];
-                    $domain = basename($file, $opts['extension']);
-                    $dirName = pathinfo($file, PATHINFO_DIRNAME);
-                    $locale = substr(strrchr($dirName, DIRECTORY_SEPARATOR), 1);
-                    if ($domain && $locale) {
-                        $translator->addResource($opts['format'], $file, $locale, $domain);
+            foreach ($paths as $path) {
+                if (!$translationsPath = get_realpath($path)) {
+                    throw new NotFoundException("File {$path} not found");
+                }
+
+                foreach ($classes as $class => $opts) {
+                    $translator->addLoader($opts['format'], new $class);
+                    $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($translationsPath, FilesystemIterator::SKIP_DOTS));
+                    $files = new RegexIterator($iterator, '/^.+' . preg_quote($opts['extension']) . '$/i', RegexIterator::GET_MATCH);
+                    foreach ($files as $file) {
+                        $file = $file[0];
+                        $domain = basename($file, $opts['extension']);
+                        $dirName = pathinfo($file, PATHINFO_DIRNAME);
+                        $locale = substr(strrchr($dirName, DIRECTORY_SEPARATOR), 1);
+                        if ($domain && $locale) {
+                            $translator->addResource($opts['format'], $file, $locale, $domain);
+                        }
                     }
                 }
             }

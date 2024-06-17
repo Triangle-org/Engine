@@ -285,6 +285,9 @@ class Router
             // Обновление существующего ресурса
             if (in_array('update', $options)) static::put("/$name/{id}", [$controller, 'update'])->name("$prefix$name.update");
 
+            // Изменение существующего ресурса
+            if (in_array('patch', $options)) static::patch("/$name/{id}", [$controller, 'patch'])->name("$name.patch");
+
             // Удаление существующего ресурса
             if (in_array('destroy', $options)) static::delete("/$name/{id}", [$controller, 'destroy'])->name("$prefix$name.destroy");
         } else {
@@ -305,6 +308,9 @@ class Router
 
             // Обновление существующего ресурса
             if (method_exists($controller, 'update')) static::put("/$name/{id}", [$controller, 'update'])->name("$prefix$name.update");
+
+            // Изменение существующего ресурса
+            if (method_exists($controller, 'patch')) static::patch("/$name/{id}", [$controller, 'patch'])->name("$name.patch");
 
             // Удаление существующего ресурса
             if (method_exists($controller, 'destroy')) static::delete("/$name/{id}", [$controller, 'destroy'])->name("$prefix$name.destroy");
