@@ -74,7 +74,9 @@ class ThinkPHP extends AbstractView implements ViewInterface
 
         ob_start();
 
-        $vars = array_merge((array) request()->_view_vars, $vars);
+        if(isset($request->_view_vars)) {
+            $vars = array_merge((array)$request->_view_vars, $vars);
+        }
         $views->fetch($template, $vars);
 
         return ob_get_clean();
