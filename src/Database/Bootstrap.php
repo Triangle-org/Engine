@@ -25,7 +25,7 @@
  *              For any questions, please contact <support@localzet.com>
  */
 
-namespace Triangle\Engine\Bootstrap;
+namespace Triangle\Engine\Database;
 
 use Illuminate\Container\Container as IlluminateContainer;
 use Illuminate\Database\Capsule\Manager as Capsule;
@@ -39,6 +39,7 @@ use localzet\Timer;
 use MongoDB\Laravel\Connection as LaravelMongodbConnection;
 use support\Container;
 use Throwable;
+use Triangle\Engine\Bootstrap\BootstrapInterface;
 use Triangle\MongoDB\Connection as TriangleMongodbConnection;
 use function class_exists;
 use function config;
@@ -46,7 +47,7 @@ use function config;
 /**
  * Класс Eloquent
  */
-class Eloquent implements BootstrapInterface
+class Bootstrap implements BootstrapInterface
 {
     /**
      * Запускает приложение.

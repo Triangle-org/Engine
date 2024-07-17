@@ -49,6 +49,7 @@ use Triangle\Engine\Exception\ExceptionHandlerInterface;
 use Triangle\Engine\Http\Request;
 use Triangle\Engine\Http\Response;
 use Triangle\Engine\Middleware\MiddlewareInterface;
+use Triangle\Engine\Middleware\MiddlewareLoader;
 use Triangle\Engine\Router\Route as RouteObject;
 use function array_merge;
 use function array_pop;
@@ -481,7 +482,7 @@ class App
             }
         }
         // Добавляем глобальное промежуточное ПО
-        $middlewares = array_merge($middlewares, Middleware::getMiddleware($plugin, $app, $withGlobalMiddleware));
+        $middlewares = array_merge($middlewares, MiddlewareLoader::getMiddleware($plugin, $app, $withGlobalMiddleware));
 
         // Создаем экземпляры промежуточного ПО
         foreach ($middlewares as $key => $item) {

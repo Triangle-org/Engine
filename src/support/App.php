@@ -34,7 +34,6 @@ use Throwable;
 use Triangle\Engine\Config;
 use Triangle\Engine\Environment;
 use Triangle\Engine\Util;
-use function base_path;
 use function is_dir;
 use function opcache_get_status;
 use function opcache_invalidate;
@@ -50,8 +49,8 @@ class App
     {
         ini_set('display_errors', 'on');
 
-        static::loadEnvironment();
-        static::loadAllConfig(['route', 'container']);
+        Environment::load(config('env_file', '.env'));
+        Config::loadAll(['route', 'container']);
 
         $errorReporting = config('app.error_reporting', E_ALL);
         if (isset($errorReporting)) {
@@ -150,14 +149,7 @@ class App
      */
     public static function loadAllConfig(array $excludes = []): void
     {
-        Config::load(config_path(), $excludes);
-        $directory = base_path('plugin');
-        foreach (scan_dir($directory, false) as $name) {
-            $dir = "$directory/$name/config";
-            if (is_dir($dir)) {
-                Config::load($dir, $excludes, "plugin.$name");
-            }
-        }
+        Config::loadAll($excludes);
     }
 
     private static function loadEnvironment(): void

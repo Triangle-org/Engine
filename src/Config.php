@@ -59,6 +59,18 @@ class Config
      */
     protected static bool $loaded = false;
 
+    public static function loadAll(array $excludes = []): void
+    {
+        Config::load(config_path(), $excludes);
+        $directory = base_path('plugin');
+        foreach (scan_dir($directory, false) as $name) {
+            $dir = "$directory/$name/config";
+            if (is_dir($dir)) {
+                Config::load($dir, $excludes, "plugin.$name");
+            }
+        }
+    }
+
     /**
      * Загрузи
      * @param string $configPath

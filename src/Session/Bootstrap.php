@@ -25,18 +25,19 @@
  *              For any questions, please contact <support@localzet.com>
  */
 
-namespace Triangle\Engine\Bootstrap;
+namespace Triangle\Engine\Session;
 
 use localzet\Server;
 use localzet\Server\Protocols\Http;
 use localzet\Server\Protocols\Http\Session as SessionBase;
+use Triangle\Engine\Bootstrap\BootstrapInterface;
 use function config;
 use function property_exists;
 
 /**
  * Класс Session.
  */
-class Session implements BootstrapInterface
+class Bootstrap implements BootstrapInterface
 {
     /**
      * Запускает приложение.
