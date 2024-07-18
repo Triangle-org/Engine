@@ -106,30 +106,7 @@ class App
      */
     protected static ?Logger $logger = null;
 
-    /**
-     * @var string|null
-     */
-    protected static ?string $basePath = null;
 
-    /**
-     * @var string|null
-     */
-    protected static ?string $appPath = null;
-
-    /**
-     * @var string|null
-     */
-    protected static ?string $configPath = null;
-
-    /**
-     * @var string|null
-     */
-    protected static ?string $publicPath = null;
-
-    /**
-     * @var string|null
-     */
-    protected static ?string $runtimePath = null;
 
     /**
      * @var string|null
@@ -157,11 +134,14 @@ class App
     {
         static::$requestClass = $requestClass;
         static::$logger = $logger;
-        static::$basePath = $basePath;
-        static::$appPath = $appPath;
-        static::$configPath = $configPath;
-        static::$publicPath = $publicPath;
-        static::$runtimePath = $runtimePath;
+
+        new Path(
+            $basePath,
+            $appPath,
+            $configPath,
+            $publicPath,
+            $runtimePath
+        );
     }
 
     /**
@@ -178,49 +158,6 @@ class App
     public static function request(): Request|null
     {
         return Context::get(Request::class);
-    }
-
-    /**
-     * @return string|null
-     */
-    public static function basePath(false|string $path = ''): ?string
-    {
-        if (false === $path) {
-            return run_path();
-        }
-        return path_combine(static::$basePath ?? BASE_PATH, $path);
-    }
-
-    /**
-     * @return string|null
-     */
-    public static function appPath(string $path = ''): ?string
-    {
-        return path_combine(static::$appPath ?? config('app.app_path', static::basePath('app')), $path);
-    }
-
-    /**
-     * @return string|null
-     */
-    public static function configPath(string $path = ''): ?string
-    {
-        return path_combine(static::$configPath ?? static::basePath('config'), $path);
-    }
-
-    /**
-     * @return string|null
-     */
-    public static function publicPath(string $path = ''): ?string
-    {
-        return path_combine(static::$publicPath ?? config('app.public_path', run_path('public')), $path);
-    }
-
-    /**
-     * @return string|null
-     */
-    public static function runtimePath(string $path = ''): ?string
-    {
-        return path_combine(static::$runtimePath ?? config('app.runtime_path', run_path('runtime')), $path);
     }
 
     /**
@@ -400,12 +337,12 @@ class App
 
         // Если путь указывает на плагин
         if (isset($pathExplodes[1]) && $pathExplodes[0] === 'app') {
-            $publicDir = static::config($plugin, 'app.public_path') ?: static::basePath() . "/plugin/$pathExplodes[1]/public";
+            $publicDir = static::config($plugin, 'app.public_path') ?: Path::basePath("plugin/$pathExplodes[1]/public");
             $plugin = $pathExplodes[1];
             $path = substr($path, strlen("/app/$pathExplodes[1]/"));
         } else {
             // Иначе используем общедоступную директорию
-            $publicDir = static::publicPath();
+            $publicDir = Path::publicPath();
         }
 
         // Получаем полный путь к файлу
@@ -1073,7 +1010,7 @@ class App
 
         // Разбиваем полное имя класса на части
         $explodes = explode('\\', strtolower(ltrim($controllerClass, '\\')));
-        $basePath = $explodes[0] === 'plugin' ? static::basePath() . '/plugin' : app_path();
+        $basePath = $explodes[0] === 'plugin' ? Path::basePath('plugin') : app_path();
         unset($explodes[0]);
         $fileName = array_pop($explodes) . '.php';
         $found = true;
@@ -1175,12 +1112,12 @@ class App
         date_default_timezone_set(config('app.default_timezone', 'Europe/Moscow'));
 
         Autoloader::loadAll();
-        MiddlewareLoader::loadAll();
         EventLoader::loadAll();
+        MiddlewareLoader::loadAll();
         BootstrapLoader::loadAll($server);
 
         $paths = [config_path()];
-        foreach (scan_dir(static::basePath() . '/plugin') as $path) {
+        foreach (scan_dir(Path::basePath('plugin')) as $path) {
             if (is_dir($path = "$path/config")) {
                 $paths[] = $path;
             }
