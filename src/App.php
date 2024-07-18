@@ -28,6 +28,7 @@
 namespace Triangle\Engine;
 
 use Closure;
+use ErrorException;
 use Exception;
 use FastRoute\Dispatcher;
 use InvalidArgumentException;
@@ -44,6 +45,8 @@ use ReflectionFunction;
 use ReflectionFunctionAbstract;
 use ReflectionMethod;
 use Throwable;
+use Triangle\Engine\Bootstrap\BootstrapLoader;
+use Triangle\Engine\Events\EventLoader;
 use Triangle\Engine\Exception\ExceptionHandler;
 use Triangle\Engine\Exception\ExceptionHandlerInterface;
 use Triangle\Engine\Http\Request;
@@ -180,41 +183,44 @@ class App
     /**
      * @return string|null
      */
-    public static function basePath(): ?string
+    public static function basePath(false|string $path = ''): ?string
     {
-        return static::$basePath ?? BASE_PATH;
+        if (false === $path) {
+            return run_path();
+        }
+        return path_combine(static::$basePath ?? BASE_PATH, $path);
     }
 
     /**
      * @return string|null
      */
-    public static function appPath(): ?string
+    public static function appPath(string $path = ''): ?string
     {
-        return static::$appPath ?? config('app.app_path', base_path('app'));
+        return path_combine(static::$appPath ?? config('app.app_path', static::basePath('app')), $path);
     }
 
     /**
      * @return string|null
      */
-    public static function configPath(): ?string
+    public static function configPath(string $path = ''): ?string
     {
-        return static::$configPath ?? base_path('config');
+        return path_combine(static::$configPath ?? static::basePath('config'), $path);
     }
 
     /**
      * @return string|null
      */
-    public static function publicPath(): ?string
+    public static function publicPath(string $path = ''): ?string
     {
-        return static::$publicPath ?? config('app.public_path', run_path('public'));
+        return path_combine(static::$publicPath ?? config('app.public_path', run_path('public')), $path);
     }
 
     /**
      * @return string|null
      */
-    public static function runtimePath(): ?string
+    public static function runtimePath(string $path = ''): ?string
     {
-        return static::$runtimePath ?? config('app.runtime_path', run_path('runtime'));
+        return path_combine(static::$runtimePath ?? config('app.runtime_path', run_path('runtime')), $path);
     }
 
     /**
@@ -309,7 +315,6 @@ class App
         }
         return null;
     }
-
 
     /**
      * @param TcpConnection|mixed $connection
@@ -1068,7 +1073,7 @@ class App
 
         // Разбиваем полное имя класса на части
         $explodes = explode('\\', strtolower(ltrim($controllerClass, '\\')));
-        $basePath = $explodes[0] === 'plugin' ? static::basePath() . '/plugin' : static::appPath();
+        $basePath = $explodes[0] === 'plugin' ? static::basePath() . '/plugin' : app_path();
         unset($explodes[0]);
         $fileName = array_pop($explodes) . '.php';
         $found = true;
@@ -1154,10 +1159,32 @@ class App
     /**
      * @param $server
      * @return void
+     * @throws ErrorException
      */
     public function onServerStart($server): void
     {
         static::$server = $server;
         Http::requestClass(static::$requestClass);
+
+        Environment::loadAll();
+        Config::clear();
+        Config::loadAll(['route']);
+
+        set_error_handler(fn($level, $message, $file = '', $line = 0) => (error_reporting() & $level) ? throw new ErrorException($message, 0, $level, $file, $line) : true);
+        register_shutdown_function(fn($start_time) => (time() - $start_time <= 1) ? sleep(1) : true, time());
+        date_default_timezone_set(config('app.default_timezone', 'Europe/Moscow'));
+
+        Autoloader::loadAll();
+        MiddlewareLoader::loadAll();
+        EventLoader::loadAll();
+        BootstrapLoader::loadAll($server);
+
+        $paths = [config_path()];
+        foreach (scan_dir(static::basePath() . '/plugin') as $path) {
+            if (is_dir($path = "$path/config")) {
+                $paths[] = $path;
+            }
+        }
+        Router::load($paths);
     }
 }
