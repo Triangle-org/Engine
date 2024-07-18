@@ -106,7 +106,7 @@ class App
                     'constructor' => [
                         'requestClass' => config('app.request_class', Request::class),
                         'logger' => Log::channel(),
-                        'basePath' => BASE_PATH,
+                        'basePath' => base_path(),
                         'appPath' => app_path(),
                         'publicPath' => public_path(),
                     ]
@@ -141,19 +141,5 @@ class App
         if (!defined('GLOBAL_START')) {
             Server::runAll();
         }
-    }
-
-    /**
-     * @param array $excludes
-     * @return void
-     */
-    public static function loadAllConfig(array $excludes = []): void
-    {
-        Config::loadAll($excludes);
-    }
-
-    private static function loadEnvironment(): void
-    {
-        Environment::load(config('env_file', '.env'));
     }
 }

@@ -51,6 +51,7 @@ use Triangle\Engine\Http\Response;
 use Triangle\Engine\Middleware\MiddlewareInterface;
 use Triangle\Engine\Middleware\MiddlewareLoader;
 use Triangle\Engine\Router\Route as RouteObject;
+use Triangle\Engine\support\Context;
 use function array_merge;
 use function array_pop;
 use function array_reduce;
@@ -104,39 +105,61 @@ class App
     protected static ?Logger $logger = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    protected static string $appPath = '';
+    protected static ?string $basePath = '';
 
     /**
-     * @var string
+     * @var string|null
      */
-    protected static string $basePath = '';
+    protected static ?string $appPath = '';
 
     /**
-     * @var string
+     * @var string|null
      */
-    protected static string $publicPath = '';
+    protected static ?string $configPath = '';
 
     /**
-     * @var string
+     * @var string|null
      */
-    protected static string $requestClass = '';
+    protected static ?string $publicPath = '';
+
+    /**
+     * @var string|null
+     */
+    protected static ?string $runtimePath = '';
+
+    /**
+     * @var string|null
+     */
+    protected static ?string $requestClass = '';
 
     /**
      * @param string $requestClass
      * @param Logger $logger
      * @param string $basePath
      * @param string|null $appPath
+     * @param string|null $configPath
      * @param string|null $publicPath
+     * @param string|null $runtimePath
      */
-    public function __construct(string $requestClass, Logger $logger, string $basePath, string $appPath = null, string $publicPath = null)
+    public function __construct(
+        string $requestClass,
+        Logger $logger,
+        string $basePath = null,
+        string $appPath = null,
+        string $configPath = null,
+        string $publicPath = null,
+        string $runtimePath = null,
+    )
     {
         static::$requestClass = $requestClass;
         static::$logger = $logger;
-        static::$publicPath = $publicPath;
-        static::$appPath = $appPath;
         static::$basePath = $basePath;
+        static::$appPath = $appPath;
+        static::$configPath = $configPath;
+        static::$publicPath = $publicPath;
+        static::$runtimePath = $runtimePath;
     }
 
     /**
@@ -155,21 +178,6 @@ class App
         return Context::get(Request::class);
     }
 
-    /**
-     * @return string|null
-     */
-    public static function publicPath(): ?string
-    {
-        return static::$publicPath ?? (config('app.public_path') ?: run_path('public'));
-    }
-
-    /**
-     * @return string|null
-     */
-    public static function appPath(): ?string
-    {
-        return static::$appPath ?? (config('app.app_path') ?: run_path('public'));
-    }
 
     /**
      * @return string|null
@@ -177,6 +185,38 @@ class App
     public static function basePath(): ?string
     {
         return static::$basePath ?? BASE_PATH;
+    }
+
+    /**
+     * @return string|null
+     */
+    public static function appPath(): ?string
+    {
+        return static::$appPath ?? config('app.app_path', base_path('app'));
+    }
+
+    /**
+     * @return string|null
+     */
+    public static function configPath(): ?string
+    {
+        return static::$configPath ?? base_path('config');
+    }
+
+    /**
+     * @return string|null
+     */
+    public static function publicPath(): ?string
+    {
+        return static::$publicPath ?? config('app.public_path', run_path('public'));
+    }
+
+    /**
+     * @return string|null
+     */
+    public static function runtimePath(): ?string
+    {
+        return static::$runtimePath ?? config('app.runtime_path', run_path('runtime'));
     }
 
     /**
