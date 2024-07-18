@@ -25,7 +25,7 @@
  *              For any questions, please contact <support@localzet.com>
  */
 
-namespace Triangle\Engine\support;
+namespace Triangle\Engine;
 
 use Fiber;
 use SplObjectStorage;

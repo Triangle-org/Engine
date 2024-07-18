@@ -51,7 +51,6 @@ use Triangle\Engine\Http\Response;
 use Triangle\Engine\Middleware\MiddlewareInterface;
 use Triangle\Engine\Middleware\MiddlewareLoader;
 use Triangle\Engine\Router\Route as RouteObject;
-use Triangle\Engine\support\Context;
 use function array_merge;
 use function array_pop;
 use function array_reduce;

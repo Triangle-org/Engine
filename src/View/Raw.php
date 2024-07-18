@@ -73,7 +73,7 @@ class Raw extends AbstractView implements ViewInterface
         $postRenders = static::getPostRenders();
 
         extract(config("{$configPrefix}view.options.vars", []));
-        if(isset($request->_view_vars)) {
+        if (isset($request->_view_vars)) {
             extract((array)$request->_view_vars);
         }
         extract($vars);
@@ -107,7 +107,7 @@ class Raw extends AbstractView implements ViewInterface
 
         $view = config("{$configPrefix}view.templates.system.$template", __DIR__ . "/templates/$template.phtml");
 
-        if(isset($request->_view_vars)) {
+        if (isset($request->_view_vars)) {
             extract((array)$request->_view_vars);
         }
         extract($vars);
