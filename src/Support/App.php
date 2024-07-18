@@ -106,9 +106,6 @@ class App
                     'constructor' => [
                         'requestClass' => config('app.request_class', Request::class),
                         'logger' => Log::channel(),
-//                        'basePath' => base_path(),
-//                        'appPath' => app_path(),
-//                        'publicPath' => public_path(),
                     ]
                 ]
             );
