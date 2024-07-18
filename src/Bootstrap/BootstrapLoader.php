@@ -31,7 +31,7 @@ use support\Log;
 
 class BootstrapLoader
 {
-    public static function loadAll(?Server $server = null)
+    public static function loadAll(?Server $server = null): void
     {
         $bootstrap = config('bootstrap', []);
         self::load($bootstrap, $server);
@@ -50,7 +50,7 @@ class BootstrapLoader
         }
     }
 
-    public static function load(array $classes, ?Server $server = null)
+    public static function load(array $classes, ?Server $server = null): void
     {
         foreach ($classes as $class) {
             if (!class_exists($class)) {
@@ -63,7 +63,7 @@ class BootstrapLoader
         }
     }
 
-    protected static function log($text)
+    protected static function log($text): void
     {
         echo $text;
         Log::error($text);

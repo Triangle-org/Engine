@@ -28,7 +28,7 @@ namespace Triangle\Engine;
 
 class Autoloader
 {
-    public static function loadAll()
+    public static function loadAll(): void
     {
         foreach (config('autoload.files', []) as $file) {
             include_once $file;

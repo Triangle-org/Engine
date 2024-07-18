@@ -32,7 +32,7 @@ use support\Log;
 
 class EventLoader
 {
-    public static function loadAll()
+    public static function loadAll(): void
     {
         $rawEvents = config('event', []);
 
@@ -51,7 +51,7 @@ class EventLoader
         self::load($rawEvents);
     }
 
-    public static function load(array $events)
+    public static function load(array $events): void
     {
         $allEvents = [];
         foreach ($events as $eventName => $callbacks) {
@@ -87,7 +87,7 @@ class EventLoader
         }
     }
 
-    protected static function log($text)
+    protected static function log($text): void
     {
         echo $text;
         Log::error($text);

@@ -44,7 +44,7 @@ class MiddlewareLoader
      */
     protected static array $instances = [];
 
-    public static function loadAll()
+    public static function loadAll(): void
     {
         self::load(config('middleware', []));
         self::load(['__static__' => config('static.middleware', [])]);
