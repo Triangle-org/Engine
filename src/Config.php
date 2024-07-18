@@ -121,6 +121,9 @@ class Config
     public static function loadFromDir(string $configPath, array $excludeFile = []): array
     {
         $allConfig = [];
+        if (!is_dir($configPath)) {
+            return [];
+        }
         $dirIterator = new RecursiveDirectoryIterator($configPath, FilesystemIterator::FOLLOW_SYMLINKS);
         $iterator = new RecursiveIteratorIterator($dirIterator);
         foreach ($iterator as $file) {
@@ -128,13 +131,13 @@ class Config
             if (is_dir((string)$file) || $file->getExtension() != 'php' || in_array($file->getBaseName('.php'), $excludeFile)) {
                 continue;
             }
-            $appConfigFile = $file->getPath() . '/app.php';
-            if (!is_file($appConfigFile)) {
-                continue;
-            }
             $relativePath = str_replace($configPath . DIRECTORY_SEPARATOR, '', substr((string)$file, 0, -4));
             $explode = array_reverse(explode(DIRECTORY_SEPARATOR, $relativePath));
             if (count($explode) >= 2) {
+                $appConfigFile = $file->getPath() . '/app.php';
+                if (!is_file($appConfigFile)) {
+                    continue;
+                }
                 $appConfig = include $appConfigFile;
                 if (empty($appConfig['enable'])) {
                     continue;
