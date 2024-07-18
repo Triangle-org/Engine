@@ -697,7 +697,7 @@ function path_combine(string $front, string $back): string
 /**
  * Get realpath
  * @param string $filePath
- * @return string
+ * @return string|false
  */
 function get_realpath(string $filePath): string|false
 {

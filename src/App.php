@@ -107,37 +107,37 @@ class App
     /**
      * @var string|null
      */
-    protected static ?string $basePath = '';
+    protected static ?string $basePath = null;
 
     /**
      * @var string|null
      */
-    protected static ?string $appPath = '';
+    protected static ?string $appPath = null;
 
     /**
      * @var string|null
      */
-    protected static ?string $configPath = '';
+    protected static ?string $configPath = null;
 
     /**
      * @var string|null
      */
-    protected static ?string $publicPath = '';
+    protected static ?string $publicPath = null;
 
     /**
      * @var string|null
      */
-    protected static ?string $runtimePath = '';
+    protected static ?string $runtimePath = null;
 
     /**
      * @var string|null
      */
-    protected static ?string $requestClass = '';
+    protected static ?string $requestClass = null;
 
     /**
      * @param string $requestClass
      * @param Logger $logger
-     * @param string $basePath
+     * @param string|null $basePath
      * @param string|null $appPath
      * @param string|null $configPath
      * @param string|null $publicPath
@@ -177,7 +177,6 @@ class App
     {
         return Context::get(Request::class);
     }
-
 
     /**
      * @return string|null
@@ -397,12 +396,12 @@ class App
 
         // Если путь указывает на плагин
         if (isset($pathExplodes[1]) && $pathExplodes[0] === 'app') {
-            $publicDir = static::config($plugin, 'app.public_path') ?: static::$basePath . "/plugin/$pathExplodes[1]/public";
+            $publicDir = static::config($plugin, 'app.public_path') ?: static::basePath() . "/plugin/$pathExplodes[1]/public";
             $plugin = $pathExplodes[1];
             $path = substr($path, strlen("/app/$pathExplodes[1]/"));
         } else {
             // Иначе используем общедоступную директорию
-            $publicDir = static::$publicPath;
+            $publicDir = static::publicPath();
         }
 
         // Получаем полный путь к файлу
@@ -1070,7 +1069,7 @@ class App
 
         // Разбиваем полное имя класса на части
         $explodes = explode('\\', strtolower(ltrim($controllerClass, '\\')));
-        $basePath = $explodes[0] === 'plugin' ? static::$basePath . '/plugin' : static::$appPath;
+        $basePath = $explodes[0] === 'plugin' ? static::basePath() . '/plugin' : static::appPath();
         unset($explodes[0]);
         $fileName = array_pop($explodes) . '.php';
         $found = true;

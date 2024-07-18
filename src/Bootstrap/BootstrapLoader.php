@@ -54,12 +54,12 @@ class BootstrapLoader
     {
         foreach ($classes as $class) {
             if (!class_exists($class)) {
-                self::log("Внимание! Класса $class не существует");
+                self::log("Внимание! Класса $class не существует\n");
                 continue;
             }
 
-            /** @var BootstrapInterface $className */
-            $className::start($server);
+            /** @var BootstrapInterface $class */
+            $class::start($server);
         }
     }
 
