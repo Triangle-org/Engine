@@ -52,17 +52,18 @@ class Environment
      */
     protected static ?RepositoryInterface $repository = null;
 
-    public static function load(string $environmentFile = '.env'): void
+    public static function loadAll(string $file = '.env'): void
+    {
+        self::load(run_path(), $file);
+    }
+
+    public static function load(string $path, $file = '.env'): void
     {
         if (
             class_exists(Dotenv::class)
-            && file_exists(run_path($environmentFile))
+            && file_exists(path_combine($path, $file))
         ) {
-            Dotenv::create(
-                self::getRepository(),
-                run_path(),
-                $environmentFile
-            )->safeLoad();
+            Dotenv::create(self::getRepository(), $path, $file)->safeLoad();
         }
     }
 

@@ -40,7 +40,6 @@ class Install
      */
     protected static array $pathRelation = [
         'Install/master' => 'master',
-        'Install/bootstrap.php' => 'support/bootstrap.php',
         'Install/helpers.php' => 'support/helpers.php',
     ];
 

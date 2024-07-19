@@ -28,6 +28,7 @@
 namespace Triangle\Engine;
 
 use Closure;
+use ErrorException;
 use Exception;
 use FastRoute\Dispatcher;
 use InvalidArgumentException;
@@ -44,11 +45,14 @@ use ReflectionFunction;
 use ReflectionFunctionAbstract;
 use ReflectionMethod;
 use Throwable;
+use Triangle\Engine\Bootstrap\BootstrapLoader;
+use Triangle\Engine\Events\EventLoader;
 use Triangle\Engine\Exception\ExceptionHandler;
 use Triangle\Engine\Exception\ExceptionHandlerInterface;
 use Triangle\Engine\Http\Request;
 use Triangle\Engine\Http\Response;
 use Triangle\Engine\Middleware\MiddlewareInterface;
+use Triangle\Engine\Middleware\MiddlewareLoader;
 use Triangle\Engine\Router\Route as RouteObject;
 use function array_merge;
 use function array_pop;
@@ -102,40 +106,42 @@ class App
      */
     protected static ?Logger $logger = null;
 
-    /**
-     * @var string
-     */
-    protected static string $appPath = '';
+
 
     /**
-     * @var string
+     * @var string|null
      */
-    protected static string $basePath = '';
-
-    /**
-     * @var string
-     */
-    protected static string $publicPath = '';
-
-    /**
-     * @var string
-     */
-    protected static string $requestClass = '';
+    protected static ?string $requestClass = null;
 
     /**
      * @param string $requestClass
      * @param Logger $logger
-     * @param string $basePath
+     * @param string|null $basePath
      * @param string|null $appPath
+     * @param string|null $configPath
      * @param string|null $publicPath
+     * @param string|null $runtimePath
      */
-    public function __construct(string $requestClass, Logger $logger, string $basePath, string $appPath = null, string $publicPath = null)
+    public function __construct(
+        string $requestClass,
+        Logger $logger,
+        string $basePath = null,
+        string $appPath = null,
+        string $configPath = null,
+        string $publicPath = null,
+        string $runtimePath = null,
+    )
     {
         static::$requestClass = $requestClass;
         static::$logger = $logger;
-        static::$publicPath = $publicPath;
-        static::$appPath = $appPath;
-        static::$basePath = $basePath;
+
+        new Path(
+            $basePath,
+            $appPath,
+            $configPath,
+            $publicPath,
+            $runtimePath
+        );
     }
 
     /**
@@ -152,30 +158,6 @@ class App
     public static function request(): Request|null
     {
         return Context::get(Request::class);
-    }
-
-    /**
-     * @return string|null
-     */
-    public static function publicPath(): ?string
-    {
-        return static::$publicPath ?? (config('app.public_path') ?: run_path('public'));
-    }
-
-    /**
-     * @return string|null
-     */
-    public static function appPath(): ?string
-    {
-        return static::$appPath ?? (config('app.app_path') ?: run_path('public'));
-    }
-
-    /**
-     * @return string|null
-     */
-    public static function basePath(): ?string
-    {
-        return static::$basePath ?? BASE_PATH;
     }
 
     /**
@@ -271,7 +253,6 @@ class App
         return null;
     }
 
-
     /**
      * @param TcpConnection|mixed $connection
      * @param mixed $response
@@ -356,12 +337,12 @@ class App
 
         // Если путь указывает на плагин
         if (isset($pathExplodes[1]) && $pathExplodes[0] === 'app') {
-            $publicDir = static::config($plugin, 'app.public_path') ?: static::$basePath . "/plugin/$pathExplodes[1]/public";
+            $publicDir = static::config($plugin, 'app.public_path') ?: Path::basePath("plugin/$pathExplodes[1]/public");
             $plugin = $pathExplodes[1];
             $path = substr($path, strlen("/app/$pathExplodes[1]/"));
         } else {
             // Иначе используем общедоступную директорию
-            $publicDir = static::$publicPath;
+            $publicDir = Path::publicPath();
         }
 
         // Получаем полный путь к файлу
@@ -481,7 +462,7 @@ class App
             }
         }
         // Добавляем глобальное промежуточное ПО
-        $middlewares = array_merge($middlewares, Middleware::getMiddleware($plugin, $app, $withGlobalMiddleware));
+        $middlewares = array_merge($middlewares, MiddlewareLoader::getMiddleware($plugin, $app, $withGlobalMiddleware));
 
         // Создаем экземпляры промежуточного ПО
         foreach ($middlewares as $key => $item) {
@@ -1029,7 +1010,7 @@ class App
 
         // Разбиваем полное имя класса на части
         $explodes = explode('\\', strtolower(ltrim($controllerClass, '\\')));
-        $basePath = $explodes[0] === 'plugin' ? static::$basePath . '/plugin' : static::$appPath;
+        $basePath = $explodes[0] === 'plugin' ? Path::basePath('plugin') : app_path();
         unset($explodes[0]);
         $fileName = array_pop($explodes) . '.php';
         $found = true;
@@ -1115,10 +1096,32 @@ class App
     /**
      * @param $server
      * @return void
+     * @throws ErrorException
      */
     public function onServerStart($server): void
     {
         static::$server = $server;
         Http::requestClass(static::$requestClass);
+
+        Environment::loadAll();
+        Config::clear();
+        Config::loadAll(['route']);
+
+        set_error_handler(fn($level, $message, $file = '', $line = 0) => (error_reporting() & $level) ? throw new ErrorException($message, 0, $level, $file, $line) : true);
+        register_shutdown_function(fn($start_time) => (time() - $start_time <= 1) ? sleep(1) : true, time());
+        date_default_timezone_set(config('app.default_timezone', 'Europe/Moscow'));
+
+        Autoloader::loadAll();
+        EventLoader::loadAll();
+        MiddlewareLoader::loadAll();
+        BootstrapLoader::loadAll($server);
+
+        $paths = [config_path()];
+        foreach (scan_dir(Path::basePath('plugin')) as $path) {
+            if (is_dir($path = "$path/config")) {
+                $paths[] = $path;
+            }
+        }
+        Router::load($paths);
     }
 }

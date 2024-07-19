@@ -78,7 +78,7 @@ class Twig extends AbstractView implements ViewInterface
             }
         }
 
-        if(isset($request->_view_vars)) {
+        if (isset($request->_view_vars)) {
             $vars = array_merge((array)$request->_view_vars, $vars);
         }
         return $views[$key]->render("$template.$viewSuffix", $vars);

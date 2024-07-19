@@ -25,7 +25,7 @@
  *              For any questions, please contact <support@localzet.com>
  */
 
-namespace Triangle\Engine;
+namespace Triangle\Engine\Middleware;
 
 use RuntimeException;
 use function array_merge;
@@ -37,12 +37,31 @@ use function method_exists;
  * Класс Middleware
  * Этот класс представляет собой контейнер для промежуточного ПО (Middleware).
  */
-class Middleware
+class MiddlewareLoader
 {
     /**
      * @var array Массив экземпляров промежуточного ПО
      */
     protected static array $instances = [];
+
+    public static function loadAll(): void
+    {
+        self::load(config('middleware', []));
+        self::load(['__static__' => config('static.middleware', [])]);
+
+        foreach (config('plugin', []) as $firm => $projects) {
+            foreach ($projects as $name => $project) {
+                if (!is_array($project) || $name === 'static') {
+                    continue;
+                }
+                self::load($project['middleware'] ?? []);
+                self::load(['__static__' => config("plugin.$firm.$name.static.middleware", [])]);
+            }
+
+            self::load($projects['middleware'] ?? [], $firm);
+            self::load(['__static__' => config("plugin.$firm.static.middleware", [])], $firm);
+        }
+    }
 
     /**
      * Загружает промежуточное ПО.

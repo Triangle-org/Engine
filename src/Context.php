@@ -41,9 +41,9 @@ use function property_exists;
 class Context
 {
     /**
-     * @var WeakMap|SplObjectStorage|null
+     * @var WeakMap|null
      */
-    protected static WeakMap|SplObjectStorage|null $objectStorage = null;
+    protected static ?WeakMap $objectStorage = null;
 
     /**
      * Получить значение из контекста
@@ -65,6 +65,7 @@ class Context
             static::$objectStorage = class_exists(WeakMap::class) ? new WeakMap() : new SplObjectStorage();
         }
 
+        /** @var Fiber $key */
         $key = static::getKey();
         if ($key && !isset(static::$objectStorage[$key])) {
             static::$objectStorage[$key] = new StdClass;

@@ -34,7 +34,6 @@ use Throwable;
 use Triangle\Engine\Config;
 use Triangle\Engine\Environment;
 use Triangle\Engine\Util;
-use function base_path;
 use function is_dir;
 use function opcache_get_status;
 use function opcache_invalidate;
@@ -50,14 +49,14 @@ class App
     {
         ini_set('display_errors', 'on');
 
-        static::loadEnvironment();
-        static::loadAllConfig(['route', 'container']);
+        Environment::loadAll();
+        Config::loadAll(['route', 'container']);
 
         $errorReporting = config('app.error_reporting', E_ALL);
         if (isset($errorReporting)) {
             error_reporting($errorReporting);
         }
-        if ($timezone = config('app.default_timezone')) {
+        if ($timezone = config('app.default_timezone', 'Europe/Moscow')) {
             date_default_timezone_set($timezone);
         }
 
@@ -87,12 +86,12 @@ class App
             }
         };
 
-        Server::$pidFile = config('server.pid_file');
-        Server::$stdoutFile = config('server.stdout_file', '/dev/null');
-        Server::$logFile = config('server.log_file');
+        Server::$pidFile = config('server.pid_file', runtime_path('triangle.pid'));
+        Server::$stdoutFile = config('server.stdout_file', runtime_path('logs/stdout.log'));
+        Server::$logFile = config('server.log_file', runtime_path('logs/server.log'));
         TcpConnection::$defaultMaxPackageSize = config('server.max_package_size', 10 * 1024 * 1024);
         if (property_exists(Server::class, 'statusFile')) {
-            Server::$statusFile = config('server.status_file', '');
+            Server::$statusFile = config('server.status_file', runtime_path('triangle.status'));
         }
         if (property_exists(Server::class, 'stopTimeout')) {
             Server::$stopTimeout = (int)config('server.stop_timeout', 2);
@@ -107,9 +106,6 @@ class App
                     'constructor' => [
                         'requestClass' => config('app.request_class', Request::class),
                         'logger' => Log::channel(),
-                        'basePath' => BASE_PATH,
-                        'appPath' => app_path(),
-                        'publicPath' => public_path(),
                     ]
                 ]
             );
@@ -142,26 +138,5 @@ class App
         if (!defined('GLOBAL_START')) {
             Server::runAll();
         }
-    }
-
-    /**
-     * @param array $excludes
-     * @return void
-     */
-    public static function loadAllConfig(array $excludes = []): void
-    {
-        Config::load(config_path(), $excludes);
-        $directory = base_path('plugin');
-        foreach (scan_dir($directory, false) as $name) {
-            $dir = "$directory/$name/config";
-            if (is_dir($dir)) {
-                Config::load($dir, $excludes, "plugin.$name");
-            }
-        }
-    }
-
-    private static function loadEnvironment(): void
-    {
-        Environment::load(config('env_file', '.env'));
     }
 }
