@@ -24,15 +24,6 @@
  *              along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use Triangle\Engine\Autoloader;
-use Triangle\Engine\Bootstrap\BootstrapLoader;
-use Triangle\Engine\Config;
-use Triangle\Engine\Environment;
-use Triangle\Engine\Events\EventLoader;
-use Triangle\Engine\Middleware\MiddlewareLoader;
-use Triangle\Engine\Path;
-use Triangle\Engine\Router;
-
 require_once __DIR__ . '/vendor/autoload.php';
 
 if (!in_array($argv[1] ?? '', ['start', 'restart', 'stop', 'status', 'reload', 'connections'])) {

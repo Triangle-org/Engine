@@ -107,7 +107,6 @@ class App
     protected static ?Logger $logger = null;
 
 
-
     /**
      * @var string|null
      */
