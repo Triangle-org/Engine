@@ -28,6 +28,7 @@
 namespace Triangle\Engine\Exception;
 
 use RuntimeException;
+use Triangle\Engine\Interface\ExceptionInterface;
 
 /**
  * Класс FileException

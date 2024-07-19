@@ -28,6 +28,7 @@
 namespace Triangle\Engine\Exception;
 
 use Psr\Container\NotFoundExceptionInterface;
+use Triangle\Engine\Interface\ExceptionInterface;
 
 /**
  * Класс NotFoundException

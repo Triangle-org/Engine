@@ -30,7 +30,7 @@ namespace Triangle\Engine\Session;
 use localzet\Server;
 use localzet\Server\Protocols\Http;
 use localzet\Server\Protocols\Http\Session as SessionBase;
-use Triangle\Engine\Bootstrap\BootstrapInterface;
+use Triangle\Engine\Interface\BootstrapInterface;
 use function config;
 use function property_exists;
 

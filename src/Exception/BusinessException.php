@@ -31,6 +31,7 @@ use RuntimeException;
 use Throwable;
 use Triangle\Engine\Http\Request;
 use Triangle\Engine\Http\Response;
+use Triangle\Engine\Interface\ExceptionInterface;
 use function nl2br;
 
 /**

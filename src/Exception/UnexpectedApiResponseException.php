@@ -27,6 +27,7 @@
 
 namespace Triangle\Engine\Exception;
 
+use Triangle\Engine\Interface\ExceptionInterface;
 use UnexpectedValueException;
 
 class UnexpectedApiResponseException extends UnexpectedValueException implements ExceptionInterface

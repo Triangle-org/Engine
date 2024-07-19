@@ -25,7 +25,7 @@
  *              For any questions, please contact <support@localzet.com>
  */
 
-namespace Triangle\Engine\Redis;
+namespace support;
 
 use Illuminate\Events\Dispatcher;
 use Illuminate\Redis\Connections\Connection;

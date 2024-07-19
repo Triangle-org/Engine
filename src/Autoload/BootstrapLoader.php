@@ -24,10 +24,11 @@
  *              For any questions, please contact <support@localzet.com>
  */
 
-namespace Triangle\Engine\Bootstrap;
+namespace Triangle\Engine\Autoload;
 
 use localzet\Server;
 use support\Log;
+use Triangle\Engine\Interface\BootstrapInterface;
 
 class BootstrapLoader
 {

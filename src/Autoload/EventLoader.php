@@ -24,7 +24,7 @@
  *              For any questions, please contact <support@localzet.com>
  */
 
-namespace Triangle\Engine\Events;
+namespace Triangle\Engine\Autoload;
 
 use support\Container;
 use support\Events;
