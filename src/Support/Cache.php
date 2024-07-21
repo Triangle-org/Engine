@@ -79,7 +79,7 @@ class Cache
     public static function instance(): ?Psr16Cache
     {
         if (!static::$instance) {
-            $client = RedisManager::connection()->client();
+            $client = Redis::connection()->client();
             $adapter = new RedisAdapter($client);
             self::$instance = new Psr16Cache($adapter);
         }
