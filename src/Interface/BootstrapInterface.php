@@ -25,30 +25,21 @@
  *              For any questions, please contact <support@localzet.com>
  */
 
-namespace Triangle\Engine\Middleware;
+namespace Triangle\Engine\Interface;
 
-use Triangle\Engine\Http\Request;
-use Triangle\Engine\Http\Response;
+use localzet\Server;
 
 /**
- * Участник обработки запроса и ответа сервера.
- *
- * Компонент промежуточного программного обеспечения HTTP участвует в обработке HTTP-сообщения:
- * воздействуя на запрос, генерируя ответ или пересылая запрос последующему
- * промежуточному программному обеспечению и, возможно, действуя на его ответ.
- *
- * @see https://www.php-fig.org/psr/psr-15 PSR-15
- * @see https://github.com/php-fig/http-server-middleware HTTP Server Middleware
+ * Интерфейс BootstrapInterface.
  */
-interface MiddlewareInterface
+interface BootstrapInterface
 {
     /**
-     * Обработка входящего запроса к серверу.
+     * Запускает приложение.
      *
-     * Обрабатывает входящий запрос к серверу для получения ответа.
-     * Если не удается создать ответ самостоятельно, он может
-     * делегировать это предоставленному обработчику запросов.
+     * @param Server|null $server
      *
+     * @return void
      */
-    public function process(Request $request, callable $handler): Response;
+    public static function start(?Server $server): void;
 }

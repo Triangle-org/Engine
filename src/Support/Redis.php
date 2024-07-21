@@ -25,21 +25,20 @@
  *              For any questions, please contact <support@localzet.com>
  */
 
-namespace Triangle\Engine\Redis;
+namespace support;
 
 use Illuminate\Events\Dispatcher;
 use Illuminate\Redis\Connections\Connection;
 use Illuminate\Redis\RedisManager as Manager;
 use localzet\Server;
 use localzet\Timer;
-use Redis;
 use function class_exists;
 use function config;
 use function in_array;
 
 
 /**
- * Class Events
+ * Class Redis
  *
  * Strings methods
  * @method static int append($key, $value)
@@ -194,7 +193,7 @@ use function in_array;
  * Generic methods
  * @method static mixed rawCommand(...$commandAndArgs)
  * Transactions methods
- * @method static Redis multi()
+ * @method static \Redis multi()
  * @method static mixed exec()
  * @method static mixed discard()
  * @method static mixed watch($keys)
@@ -219,7 +218,7 @@ use function in_array;
  * @method static mixed getPersistentID()
  * @method static mixed getAuth()
  */
-class RedisManager
+class Redis
 {
 
     /**

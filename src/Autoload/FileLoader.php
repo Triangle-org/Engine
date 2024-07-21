@@ -24,9 +24,9 @@
  *              For any questions, please contact <support@localzet.com>
  */
 
-namespace Triangle\Engine;
+namespace Triangle\Engine\Autoload;
 
-class Autoloader
+class FileLoader
 {
     public static function loadAll(): void
     {

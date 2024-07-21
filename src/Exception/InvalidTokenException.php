@@ -27,6 +27,8 @@
 
 namespace Triangle\Engine\Exception;
 
+use Triangle\Engine\Interface\ExceptionInterface;
+
 class InvalidTokenException extends InvalidAccessException implements ExceptionInterface
 {
 }

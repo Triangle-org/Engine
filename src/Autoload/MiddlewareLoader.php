@@ -25,7 +25,7 @@
  *              For any questions, please contact <support@localzet.com>
  */
 
-namespace Triangle\Engine\Middleware;
+namespace Triangle\Engine\Autoload;
 
 use RuntimeException;
 use function array_merge;

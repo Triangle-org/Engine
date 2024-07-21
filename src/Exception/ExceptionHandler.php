@@ -31,6 +31,7 @@ use Psr\Log\LoggerInterface;
 use Throwable;
 use Triangle\Engine\Http\Request;
 use Triangle\Engine\Http\Response;
+use Triangle\Engine\Interface\ExceptionHandlerInterface;
 use function nl2br;
 
 /**
