@@ -32,6 +32,7 @@ use FastRoute\RouteCollector;
 use FilesystemIterator;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use RuntimeException;
 use Triangle\Engine\Router\Route as RouteObject;
 use function array_diff;
 use function array_values;
@@ -246,6 +247,21 @@ class Router
         static::$instance = $previousInstance;
         $previousInstance?->addChild($instance);
         return $instance;
+    }
+
+    /**
+     * Добавить домен маршрутов
+     * @param string $domain Домен
+     * @param callable|null $callback Обработчик группы
+     * @return static
+     */
+    public static function domain(string $domain, callable $callback = null): Router
+    {
+        if (!empty(static::$groupPrefix)) {
+            throw new RuntimeException('Домен не может существовать в группе!');
+        }
+
+        return static::group(str_replace(['http://', 'https://'], '', $domain), $callback);
     }
 
     /**
