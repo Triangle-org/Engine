@@ -761,6 +761,9 @@ class App
     {
         // Получаем информацию о маршруте
         $routeInfo = Router::dispatch($request->method(), $path);
+        if ($routeInfo[0] === Dispatcher::NOT_FOUND) {
+            $routeInfo = Router::dispatch($request->method(), $request->host(true) . $path);
+        }
         // Если маршрут найден
         if ($routeInfo[0] === Dispatcher::FOUND) {
             $routeInfo[0] = 'route';
