@@ -53,15 +53,6 @@ class Install
     }
 
     /**
-     * Обновление плагина
-     * @return void
-     */
-    public static function update(): void
-    {
-        static::installByRelation(true);
-    }
-
-    /**
      * Удаление плагина
      * @return void
      */
@@ -71,10 +62,9 @@ class Install
     }
 
     /**
-     * @param bool $overwrite
      * @return void
      */
-    public static function installByRelation(bool $overwrite = false): void
+    public static function installByRelation(): void
     {
         foreach (static::$pathRelation as $source => $target) {
             $sourceFile = __DIR__ . "/$source";
@@ -83,11 +73,11 @@ class Install
             if ($pos = strrpos($target, '/')) {
                 $parentDir = base_path(substr($target, 0, $pos));
                 if (!is_dir($parentDir)) {
-                    mkdir($parentDir, 0777, true);
+                    create_dir($parentDir);
                 }
             }
 
-            copy_dir($sourceFile, $targetFile, $overwrite);
+            copy_dir($sourceFile, $targetFile, true);
             echo "Создан $targetFile\r\n";
         }
     }

@@ -108,7 +108,7 @@ class Plugin
             }
             $installFunction = static::getFunction($namespace, 'install');
             if ($installFunction) {
-                $installFunction(false);
+                $installFunction();
             }
         }
     }
