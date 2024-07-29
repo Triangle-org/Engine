@@ -27,7 +27,7 @@
 
 namespace Triangle\Engine\Http;
 
-use Triangle\Engine\Router\Route;
+use Triangle\Router\RouteObject;
 use function current;
 use function is_array;
 
@@ -60,9 +60,9 @@ class Request extends \localzet\Server\Protocols\Http\Request
     public ?string $action = null;
 
     /**
-     * @var Route|null $route Маршрут, связанный с запросом.
+     * @var RouteObject|null $route Маршрут, связанный с запросом.
      */
-    public ?Route $route = null;
+    public ?RouteObject $route = null;
 
     /**
      * Получить файл из запроса.

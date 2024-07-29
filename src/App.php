@@ -30,7 +30,6 @@ namespace Triangle\Engine;
 use Closure;
 use ErrorException;
 use Exception;
-use FastRoute\Dispatcher;
 use InvalidArgumentException;
 use localzet\Server;
 use localzet\Server\Connection\TcpConnection;
@@ -54,7 +53,9 @@ use Triangle\Engine\Http\Request;
 use Triangle\Engine\Http\Response;
 use Triangle\Engine\Interface\ExceptionHandlerInterface;
 use Triangle\Engine\Interface\MiddlewareInterface;
-use Triangle\Engine\Router\Route as RouteObject;
+use Triangle\Router;
+use Triangle\Router\Dispatcher;
+use Triangle\Router\RouteObject;
 use function array_merge;
 use function array_pop;
 use function array_reduce;
@@ -767,10 +768,10 @@ class App
         // Если маршрут найден
         if ($routeInfo[0] === Dispatcher::FOUND) {
             $routeInfo[0] = 'route';
-            $callback = $routeInfo[1]['callback'];
-            $route = clone $routeInfo[1]['route'];
+            $callback = $routeInfo[1];
             $app = $controller = $action = '';
             $args = !empty($routeInfo[2]) ? $routeInfo[2] : null;
+            $route = clone $routeInfo[3];
             // Если есть аргументы, устанавливаем их для маршрута
             if ($args) {
                 $route->setParams($args);
