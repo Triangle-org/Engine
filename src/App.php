@@ -1108,8 +1108,7 @@ class App
         Http::requestClass(static::$requestClass);
 
         Environment::loadAll();
-        Config::clear();
-        Config::loadAll(['route']);
+        Config::reloadAll(['route']);
 
         set_error_handler(fn($level, $message, $file = '', $line = 0) => (error_reporting() & $level) ? throw new ErrorException($message, 0, $level, $file, $line) : true);
         register_shutdown_function(fn($start_time) => (time() - $start_time <= 1) ? sleep(1) : true, time());

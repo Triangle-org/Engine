@@ -62,13 +62,19 @@ class Config
     public static function loadAll(array $excludes = []): void
     {
         Config::load(config_path(), $excludes);
-        $directory = base_path('plugin');
+        $directory = Path::basePath('plugin');
         foreach (scan_dir($directory, false) as $name) {
             $dir = "$directory/$name/config";
             if (is_dir($dir)) {
                 Config::load($dir, $excludes, "plugin.$name");
             }
         }
+    }
+
+    public static function reloadAll(array $excludes = []): void
+    {
+        static::clear();
+        static::loadAll($excludes);
     }
 
     /**
@@ -98,18 +104,6 @@ class Config
         static::$config = array_replace_recursive(static::$config, $config);
         static::formatConfig();
         static::$loaded = true;
-    }
-
-    /**
-     * This deprecated method will certainly be removed in the future.
-     * @param string $configPath
-     * @param array $excludeFile
-     * @return void
-     * @deprecated
-     */
-    public static function reload(string $configPath, array $excludeFile = []): void
-    {
-        static::load($configPath, $excludeFile);
     }
 
     /**
