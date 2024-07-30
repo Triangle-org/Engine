@@ -28,8 +28,7 @@
 namespace Triangle\Engine\Session;
 
 use localzet\Server;
-use localzet\Server\Protocols\Http;
-use localzet\Server\Protocols\Http\Session as SessionBase;
+use localzet\Server\Protocols\Http\Session;
 use Triangle\Engine\Interface\BootstrapInterface;
 use function config;
 use function property_exists;
@@ -55,15 +54,8 @@ class Bootstrap implements BootstrapInterface
         // Получаем конфигурацию сессии.
         $config = config('session');
 
-        // Устанавливаем имя сессии.
-        if (property_exists(SessionBase::class, 'name')) {
-            SessionBase::$name = $config['session_name'];
-        } else {
-            Http::sessionName($config['session_name']);
-        }
-
         // Устанавливаем обработчик сессии.
-        SessionBase::handlerClass($config['handler'], $config['config'][$config['type']]);
+        Session::handlerClass($config['handler'], $config['config'][$config['type']]);
 
         // Устанавливаем параметры сессии.
         $map = [
@@ -76,10 +68,11 @@ class Bootstrap implements BootstrapInterface
             'lifetime' => 'lifetime',
             'domain' => 'domain',
             'secure' => 'secure',
+            'session_name' => 'name'
         ];
         foreach ($map as $key => $name) {
-            if (isset($config[$key]) && property_exists(SessionBase::class, $name)) {
-                SessionBase::${$name} = $config[$key];
+            if (isset($config[$key]) && property_exists(Session::class, $name)) {
+                Session::${$name} = $config[$key];
             }
         }
     }

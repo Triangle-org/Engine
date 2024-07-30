@@ -1126,6 +1126,6 @@ class App
                 $paths[] = $path;
             }
         }
-        Router::load($paths);
+        Router::collect($paths);
     }
 }
