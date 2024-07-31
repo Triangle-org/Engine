@@ -31,27 +31,27 @@ class Path
     /**
      * @var string|null
      */
-    protected static ?string $basePath = null;
+    public static ?string $basePath = null;
 
     /**
      * @var string|null
      */
-    protected static ?string $appPath = null;
+    public static ?string $appPath = null;
 
     /**
      * @var string|null
      */
-    protected static ?string $configPath = null;
+    public static ?string $configPath = null;
 
     /**
      * @var string|null
      */
-    protected static ?string $publicPath = null;
+    public static ?string $publicPath = null;
 
     /**
      * @var string|null
      */
-    protected static ?string $runtimePath = null;
+    public static ?string $runtimePath = null;
 
     /**
      * @param string|null $basePath
