@@ -27,6 +27,12 @@
 
 namespace Triangle\Engine;
 
+use function base_path;
+use function copy_dir;
+use function create_dir;
+use function is_dir;
+use function remove_dir;
+
 /**
  * Класс Install
  * Этот класс предназначен для установки и обновления плагина.
