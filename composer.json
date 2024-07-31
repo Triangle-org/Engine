@@ -51,7 +51,10 @@
       "Triangle\\Engine\\": "src",
       "support\\": "src/Support/",
       "Support\\": "src/Support/"
-    }
+    },
+    "files": [
+      "src/functions.php"
+    ]
   },
   "scripts": {
     "post-package-install": [
