@@ -28,7 +28,8 @@
 use support\Response;
 use support\Translation;
 
-define('BASE_PATH', get_realpath(Composer\InstalledVersions::getRootPackage()['install_path']) ?? dirname(__DIR__));
+$install_path = Composer\InstalledVersions::getRootPackage()['install_path'] ?? null;
+define('BASE_PATH', str_starts_with($install_path, 'phar://') ? $install_path : realpath($install_path) ?? dirname(__DIR__));
 
 /** RESPONSE HELPERS */
 
