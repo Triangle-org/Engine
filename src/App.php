@@ -1104,7 +1104,6 @@ class App
         static::$server = $server;
         Http::requestClass(static::$requestClass);
 
-        Environment::loadAll();
         Config::reloadAll(['route']);
         Autoload::loadAll();
 

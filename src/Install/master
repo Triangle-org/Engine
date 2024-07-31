@@ -27,7 +27,6 @@
 require_once __DIR__ . '/vendor/autoload.php';
 
 if (!in_array($argv[1] ?? '', ['start', 'restart', 'stop', 'status', 'reload', 'connections'])) {
-    Triangle\Engine\Environment::loadAll();
     Triangle\Engine\Config::reloadAll(['route']);
     Triangle\Engine\Autoload::loadAll();
 
@@ -46,8 +45,8 @@ if (!in_array($argv[1] ?? '', ['start', 'restart', 'stop', 'status', 'reload', '
 
     if (class_exists('Triangle\Router')) Triangle\Router::collect($paths);
 } else {
-    Triangle\Engine\Environment::loadAll(run_path());
-    Triangle\Engine\Config::load(config_path(), ['route', 'container']);
+    Triangle\Engine\Environment::start();
+    Triangle\Engine\Config::reloadAll(['route', 'container']);
 }
 
 $cli = new Triangle\Console();

@@ -24,36 +24,49 @@
  *              For any questions, please contact <support@localzet.com>
  */
 
-namespace Triangle\Engine\Autoload;
+namespace Triangle\Engine;
 
-class FileLoader
+use localzet\Server;
+use support\Log;
+use Triangle\Engine\Interface\BootstrapInterface;
+
+class Bootstrap
 {
-    public static function start(): void
+    public static function start(?Server $server = null): void
     {
-        foreach (config('autoload.files', []) as $file) {
-            include_once $file;
-        }
+        $bootstrap = config('bootstrap', []);
+        self::load($bootstrap, $server);
 
-        foreach (glob(base_path('autoload/*.php')) as $file) {
-            include_once($file);
-        }
-
-        foreach (glob(base_path('autoload/*/*/*.php')) as $file) {
-            include_once($file);
-        }
-
-        foreach (config('plugin', []) as $firm => $projects) {
+        $plugins = config('plugin', []);
+        foreach ($plugins as $firm => $projects) {
             foreach ($projects as $name => $project) {
-                if (!is_array($project)) {
-                    continue;
-                }
-                foreach ($project['autoload']['files'] ?? [] as $file) {
-                    include_once $file;
+                if (is_array($project) && !empty($project['bootstrap'])) {
+                    self::load($project['bootstrap'], $server);
                 }
             }
-            foreach ($projects['autoload']['files'] ?? [] as $file) {
-                include_once $file;
+
+            if (!empty($project['bootstrap'])) {
+                self::load($projects['bootstrap'], $server);
             }
         }
+    }
+
+    public static function load(array $classes, ?Server $server = null): void
+    {
+        foreach ($classes as $class) {
+            if (!class_exists($class)) {
+                self::log("Внимание! Класса $class не существует\n");
+                continue;
+            }
+
+            /** @var BootstrapInterface $class */
+            $class::start($server);
+        }
+    }
+
+    protected static function log($text): void
+    {
+        echo $text;
+        Log::error($text);
     }
 }

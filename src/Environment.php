@@ -52,7 +52,7 @@ class Environment
      */
     protected static ?RepositoryInterface $repository = null;
 
-    public static function loadAll(string $file = '.env'): void
+    public static function start(string $file = '.env'): void
     {
         self::load(run_path(), $file);
     }

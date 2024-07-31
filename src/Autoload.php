@@ -29,13 +29,13 @@ namespace Triangle\Engine;
 class Autoload
 {
     private const LOADERS = [
-        [\Triangle\Engine\Autoload\FileLoader::class, 'start'],
-        [\Triangle\Engine\Autoload\BootstrapLoader::class, 'start'],
-        [\Triangle\Engine\Autoload\EventLoader::class, 'loadAll'],
+        [\Triangle\Engine\Bootstrap::class, 'start'],
+        [\Triangle\Engine\Environment::class, 'start'],
 
         [\Triangle\Database\Bootstrap::class, 'start'],
         [\Triangle\Middleware\Bootstrap::class, 'start'],
         [\Triangle\Session\Bootstrap::class, 'start'],
+        [\Triangle\Events\Bootstrap::class, 'start'],
     ];
 
     public static function loadAll(
@@ -43,9 +43,39 @@ class Autoload
         ?\localzet\Server $server = null
     ): void
     {
+        static::files();
         foreach (self::LOADERS + $addLoaders as $loader) {
             if (class_exists($loader[0]) && method_exists($loader[0], $loader[1])) {
                 $loader[0]::{$loader[1]}($server);
+            }
+        }
+    }
+
+    public static function files(): void
+    {
+        foreach (config('autoload.files', []) as $file) {
+            include_once $file;
+        }
+
+        foreach (glob(base_path('autoload/*.php')) as $file) {
+            include_once($file);
+        }
+
+        foreach (glob(base_path('autoload/*/*/*.php')) as $file) {
+            include_once($file);
+        }
+
+        foreach (config('plugin', []) as $firm => $projects) {
+            foreach ($projects as $name => $project) {
+                if (!is_array($project)) {
+                    continue;
+                }
+                foreach ($project['autoload']['files'] ?? [] as $file) {
+                    include_once $file;
+                }
+            }
+            foreach ($projects['autoload']['files'] ?? [] as $file) {
+                include_once $file;
             }
         }
     }

@@ -49,8 +49,8 @@ class App
     {
         ini_set('display_errors', 'on');
 
-        Environment::loadAll();
-        Config::loadAll(['route', 'container']);
+        Environment::start();
+        Config::reloadAll(['route', 'container']);
 
         error_reporting(config('app.error_reporting', E_ALL));
         date_default_timezone_set(config('app.default_timezone', 'Europe/Moscow'));
