@@ -134,11 +134,11 @@ class App
         static::$logger = $logger;
 
         new Path(
-            $basePath,
-            $appPath,
-            $configPath,
-            $publicPath,
-            $runtimePath
+            $basePath ?? Path::basePath(),
+            $appPath ?? Path::appPath(),
+            $configPath ?? Path::configPath(),
+            $publicPath ?? Path::publicPath(),
+            $runtimePath ?? Path::runtimePath(),
         );
     }
 
