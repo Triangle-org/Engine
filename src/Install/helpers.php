@@ -25,15 +25,8 @@
  *              For any questions, please contact <support@localzet.com>
  */
 
-use localzet\Server;
-use localzet\Server\Connection\TcpConnection;
 use support\Response;
 use support\Translation;
-use Triangle\Engine\App;
-use Triangle\Engine\Config;
-use Triangle\Engine\Environment;
-use Triangle\Engine\Http\Request;
-use Triangle\Engine\Path;
 
 define('BASE_PATH', get_realpath(Composer\InstalledVersions::getRootPackage()['install_path']) ?? dirname(__DIR__));
 
@@ -114,8 +107,6 @@ function not_found(): Response
 {
     return response('Ничего не найдено', 404);
 }
-
-
 
 
 /** TRANSLATION HELPERS */
