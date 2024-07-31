@@ -32,7 +32,7 @@ use Triangle\Engine\Interface\BootstrapInterface;
 
 class BootstrapLoader
 {
-    public static function loadAll(?Server $server = null): void
+    public static function start(?Server $server = null): void
     {
         $bootstrap = config('bootstrap', []);
         self::load($bootstrap, $server);

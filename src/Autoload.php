@@ -29,17 +29,23 @@ namespace Triangle\Engine;
 class Autoload
 {
     private const LOADERS = [
-        [\Triangle\Engine\Autoload\FileLoader::class, 'loadAll'],
-        [\Triangle\Engine\Autoload\BootstrapLoader::class, 'loadAll'],
+        [\Triangle\Engine\Autoload\FileLoader::class, 'start'],
+        [\Triangle\Engine\Autoload\BootstrapLoader::class, 'start'],
         [\Triangle\Engine\Autoload\EventLoader::class, 'loadAll'],
-        [\Triangle\Engine\Autoload\MiddlewareLoader::class, 'loadAll'],
+
+        [\Triangle\Database\Bootstrap::class, 'start'],
+        [\Triangle\Middleware\Bootstrap::class, 'start'],
+        [\Triangle\Session\Bootstrap::class, 'start'],
     ];
 
-    public static function loadAll(array $addLoaders = []): void
+    public static function loadAll(
+        array $addLoaders = [],
+        ?\localzet\Server $server = null
+    ): void
     {
         foreach (self::LOADERS + $addLoaders as $loader) {
             if (class_exists($loader[0]) && method_exists($loader[0], $loader[1])) {
-                $loader[0]::$loader[1]();
+                $loader[0]::$loader[1]($server);
             }
         }
     }

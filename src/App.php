@@ -44,15 +44,12 @@ use ReflectionFunction;
 use ReflectionFunctionAbstract;
 use ReflectionMethod;
 use Throwable;
-use Triangle\Engine\Autoload\BootstrapLoader;
-use Triangle\Engine\Autoload\EventLoader;
-use Triangle\Engine\Autoload\FileLoader;
-use Triangle\Engine\Autoload\MiddlewareLoader;
 use Triangle\Engine\Exception\ExceptionHandler;
 use Triangle\Engine\Http\Request;
 use Triangle\Engine\Http\Response;
 use Triangle\Engine\Interface\ExceptionHandlerInterface;
-use Triangle\Engine\Interface\MiddlewareInterface;
+use Triangle\Middleware\Bootstrap as Middleware;
+use Triangle\Middleware\MiddlewareInterface;
 use Triangle\Router;
 use Triangle\Router\Dispatcher;
 use Triangle\Router\RouteObject;
@@ -463,7 +460,7 @@ class App
             }
         }
         // Добавляем глобальное промежуточное ПО
-        $middlewares = array_merge($middlewares, MiddlewareLoader::getMiddleware($plugin, $app, $withGlobalMiddleware));
+        $middlewares = array_merge($middlewares, Middleware::getMiddleware($plugin, $app, $withGlobalMiddleware));
 
         // Создаем экземпляры промежуточного ПО
         foreach ($middlewares as $key => $item) {
@@ -1109,22 +1106,21 @@ class App
 
         Environment::loadAll();
         Config::reloadAll(['route']);
+        Autoload::loadAll();
 
         set_error_handler(fn($level, $message, $file = '', $line = 0) => (error_reporting() & $level) ? throw new ErrorException($message, 0, $level, $file, $line) : true);
         register_shutdown_function(fn($start_time) => (time() - $start_time <= 1) ? sleep(1) : true, time());
-        date_default_timezone_set(config('app.default_timezone', 'Europe/Moscow'));
-
-        FileLoader::loadAll();
-        EventLoader::loadAll();
-        MiddlewareLoader::loadAll();
-        BootstrapLoader::loadAll($server);
+        if (function_exists('config')) date_default_timezone_set(config('app.default_timezone', 'Europe/Moscow'));
 
         $paths = [config_path()];
-        foreach (scan_dir(Path::basePath('plugin')) as $path) {
-            if (is_dir($path = "$path/config")) {
-                $paths[] = $path;
+        $directory = Path::basePath('plugin');
+        foreach (scan_dir($directory, false) as $name) {
+            $dir = "$directory/$name/config";
+            if (is_dir($dir)) {
+                $paths[] = $dir;
             }
         }
-        Router::collect($paths);
+
+        if (class_exists('Triangle\Router')) Router::collect($paths);
     }
 }
