@@ -1103,23 +1103,6 @@ class App
     {
         static::$server = $server;
         Http::requestClass(static::$requestClass);
-
-        Config::reloadAll(['route']);
-        Autoload::loadAll();
-
-        set_error_handler(fn($level, $message, $file = '', $line = 0) => (error_reporting() & $level) ? throw new ErrorException($message, 0, $level, $file, $line) : true);
-        register_shutdown_function(fn($start_time) => (time() - $start_time <= 1) ? sleep(1) : true, time());
-        if (function_exists('config')) date_default_timezone_set(config('app.default_timezone', 'Europe/Moscow'));
-
-        $paths = [config_path()];
-        $directory = Path::basePath('plugin');
-        foreach (scan_dir($directory, false) as $name) {
-            $dir = "$directory/$name/config";
-            if (is_dir($dir)) {
-                $paths[] = $dir;
-            }
-        }
-
-        if (class_exists('Triangle\Router')) Router::collect($paths);
+        Autoload::loadAll($server);
     }
 }

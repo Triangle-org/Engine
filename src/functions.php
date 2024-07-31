@@ -285,7 +285,7 @@ function server_start($processName, $config): void
 {
     localzet_start(
         name: $processName,
-        count: $config['count'] ?? cpu_count(),
+        count: $config['count'] ?? cpu_count() * 4,
         listen: $config['listen'] ?? null,
         context: $config['context'] ?? [],
         user: $config['user'] ?? '',
@@ -296,9 +296,12 @@ function server_start($processName, $config): void
         transport: $config['transport'] ?? 'tcp',
         handler: $config['handler'] ?? null,
         constructor: $config['constructor'] ?? [],
-        onServerStart: function (?Server $server) {
+        onServerStart: function (?Server $server) use ($config) {
             if (file_exists(base_path('/support/bootstrap.php'))) {
                 include_once base_path('/support/bootstrap.php');
+            }
+            if (is_callable($config['onServerStart'])) {
+                $config['onServerStart']($server);
             }
         },
         services: $config['services'] ?? [],

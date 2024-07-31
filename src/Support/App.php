@@ -62,13 +62,6 @@ class App
             }
         }
 
-        $runtimeViewsPath = runtime_path('views');
-        if (!file_exists($runtimeViewsPath) || !is_dir($runtimeViewsPath)) {
-            if (!mkdir($runtimeViewsPath, 0777, true)) {
-                throw new RuntimeException("Failed to create runtime views directory. Please check the permission.");
-            }
-        }
-
         Server::$onMasterReload = function () {
             if (function_exists('opcache_get_status')) {
                 if ($status = opcache_get_status()) {
@@ -88,23 +81,20 @@ class App
         Server::$stopTimeout = (int)config('server.stop_timeout', 2);
         TcpConnection::$defaultMaxPackageSize = config('server.max_package_size', 10 * 1024 * 1024);
 
-        if (config('server.listen')) {
-            $config = config('server');
-            server_start(
-                $config['name'],
-                $config + [
-                    'handler' => \Triangle\Engine\App::class,
-                    'constructor' => [
-                        'requestClass' => config('app.request_class', Request::class),
-                        'logger' => Log::channel(),
-                    ]
+        server_start(
+            config('server.name'),
+            config('server') + [
+                'handler' => \Triangle\Engine\App::class,
+                'constructor' => [
+                    'requestClass' => config('app.request_class', Request::class),
+                    'logger' => Log::channel(),
                 ]
-            );
-        }
+            ]
+        );
 
         // Windows не поддерживает кастомные процессы
         if (DIRECTORY_SEPARATOR === '/') {
-            foreach (config('process', []) as $processName => $config) {
+            foreach (config('servers', config('process', [])) as $processName => $config) {
                 // Отключим монитор в phar
                 if (is_phar() && 'monitor' === $processName) {
                     continue;
@@ -116,11 +106,11 @@ class App
                     if (!is_array($project)) {
                         continue;
                     }
-                    foreach ($project['process'] ?? [] as $processName => $config) {
+                    foreach ($projects['servers'] ?? $project['process'] ?? [] as $processName => $config) {
                         server_start("plugin.$firm.$name.$processName", $config);
                     }
                 }
-                foreach ($projects['process'] ?? [] as $processName => $config) {
+                foreach ($projects['servers'] ?? $projects['process'] ?? [] as $processName => $config) {
                     server_start("plugin.$firm.$processName", $config);
                 }
             }

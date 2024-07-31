@@ -26,28 +26,54 @@
 
 namespace Triangle\Engine;
 
+use localzet\Server;
+use Triangle\Router;
+
 class Autoload
 {
     private const LOADERS = [
-        [\Triangle\Engine\Bootstrap::class, 'start'],
-        [\Triangle\Engine\Environment::class, 'start'],
+        [Bootstrap::class, 'start'],
 
-        [\Triangle\Database\Bootstrap::class, 'start'],
         [\Triangle\Middleware\Bootstrap::class, 'start'],
+        [\Triangle\Database\Bootstrap::class, 'start'],
         [\Triangle\Session\Bootstrap::class, 'start'],
         [\Triangle\Events\Bootstrap::class, 'start'],
     ];
 
-    public static function loadAll(
-        array $addLoaders = [],
-        ?\localzet\Server $server = null
-    ): void
+    public static function loadCore(): void
     {
+        Environment::start();
+        Config::reloadAll(['route', 'container']);
+    }
+
+    public static function loadAll(?Server $server = null): void
+    {
+        Environment::start();
+        Config::reloadAll(['route']);
+
+        set_error_handler(fn($level, $message, $file = '', $line = 0) => (error_reporting() & $level) ? throw new ErrorException($message, 0, $level, $file, $line) : true);
+        if ($server) register_shutdown_function(fn($start_time) => (time() - $start_time <= 1) ? sleep(1) : true, time());
+        if (function_exists('config')) date_default_timezone_set(config('app.default_timezone', 'Europe/Moscow'));
+
         static::files();
-        foreach (self::LOADERS + $addLoaders as $loader) {
+
+        foreach (self::LOADERS as $loader) {
             if (class_exists($loader[0]) && method_exists($loader[0], $loader[1])) {
                 $loader[0]::{$loader[1]}($server);
             }
+        }
+
+        if (class_exists(Router::class)) {
+            $paths = [config_path()];
+            $directory = Path::basePath('plugin');
+            foreach (scan_dir($directory, false) as $name) {
+                $dir = "$directory/$name/config";
+                if (is_dir($dir)) {
+                    $paths[] = $dir;
+                }
+            }
+
+            Router::collect($paths);
         }
     }
 
