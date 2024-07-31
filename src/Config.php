@@ -86,10 +86,10 @@ class Config
      */
     public static function load(string $configPath, array $excludeFile = [], string $key = null): void
     {
-        static::$configPath = $configPath;
         if (!$configPath) {
             return;
         }
+        static::$configPath = $configPath;
         static::$loaded = false;
         $config = static::loadFromDir($configPath, $excludeFile);
         if (!$config) {
