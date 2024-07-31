@@ -52,13 +52,8 @@ class App
         Environment::loadAll();
         Config::loadAll(['route', 'container']);
 
-        $errorReporting = config('app.error_reporting', E_ALL);
-        if (isset($errorReporting)) {
-            error_reporting($errorReporting);
-        }
-        if ($timezone = config('app.default_timezone', 'Europe/Moscow')) {
-            date_default_timezone_set($timezone);
-        }
+        error_reporting(config('app.error_reporting', E_ALL));
+        date_default_timezone_set(config('app.default_timezone', 'Europe/Moscow'));
 
         $runtimeLogsPath = runtime_path('logs');
         if (!file_exists($runtimeLogsPath) || !is_dir($runtimeLogsPath)) {
@@ -89,13 +84,9 @@ class App
         Server::$pidFile = config('server.pid_file', runtime_path('triangle.pid'));
         Server::$stdoutFile = config('server.stdout_file', runtime_path('logs/stdout.log'));
         Server::$logFile = config('server.log_file', runtime_path('logs/server.log'));
+        Server::$statusFile = config('server.status_file', runtime_path('triangle.status'));
+        Server::$stopTimeout = (int)config('server.stop_timeout', 2);
         TcpConnection::$defaultMaxPackageSize = config('server.max_package_size', 10 * 1024 * 1024);
-        if (property_exists(Server::class, 'statusFile')) {
-            Server::$statusFile = config('server.status_file', runtime_path('triangle.status'));
-        }
-        if (property_exists(Server::class, 'stopTimeout')) {
-            Server::$stopTimeout = (int)config('server.stop_timeout', 2);
-        }
 
         if (config('server.listen')) {
             $config = config('server');

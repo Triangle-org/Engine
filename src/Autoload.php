@@ -1,5 +1,4 @@
-<?php declare(strict_types=1);
-
+<?php
 /**
  * @package     Triangle Engine (FrameX Project)
  * @link        https://github.com/Triangle-org/Engine Triangle Engine (v2+)
@@ -25,20 +24,23 @@
  *              For any questions, please contact <support@localzet.com>
  */
 
-namespace Triangle\Engine\View;
+namespace Triangle\Engine;
 
-/**
- * Интерфейс ViewInterface
- * Этот интерфейс определяет методы, которые должны быть реализованы в классах представления.
- */
-interface ViewInterface
+class Autoload
 {
-    /**
-     * Рендеринг представления.
-     * @param string $template Шаблон для рендеринга
-     * @param array $vars Переменные, которые должны быть доступны в шаблоне
-     * @param string|null $app Приложение, которому принадлежит шаблон (необязательно)
-     * @return string Результат рендеринга
-     */
-    public static function render(string $template, array $vars, string $app = null): string;
+    private const LOADERS = [
+        [\Triangle\Engine\Autoload\FileLoader::class, 'loadAll'],
+        [\Triangle\Engine\Autoload\BootstrapLoader::class, 'loadAll'],
+        [\Triangle\Engine\Autoload\EventLoader::class, 'loadAll'],
+        [\Triangle\Engine\Autoload\MiddlewareLoader::class, 'loadAll'],
+    ];
+
+    public static function loadAll(array $addLoaders = []): void
+    {
+        foreach (self::LOADERS + $addLoaders as $loader) {
+            if (class_exists($loader[0]) && method_exists($loader[0], $loader[1])) {
+                $loader[0]::$loader[1]();
+            }
+        }
+    }
 }

@@ -49,24 +49,11 @@ class Install
      */
     public static function install(): void
     {
-        static::installByRelation();
-    }
-
-    /**
-     * Удаление плагина
-     * @return void
-     */
-    public static function uninstall(): void
-    {
-        self::uninstallByRelation();
-    }
-
-    /**
-     * @return void
-     */
-    public static function installByRelation(): void
-    {
         foreach (static::$pathRelation as $source => $target) {
+            if ($target == 'master' && !class_exists('Triangle\Console')) {
+                continue;
+            }
+
             $sourceFile = __DIR__ . "/$source";
             $targetFile = base_path($target);
 
@@ -83,9 +70,10 @@ class Install
     }
 
     /**
+     * Удаление плагина
      * @return void
      */
-    public static function uninstallByRelation(): void
+    public static function uninstall(): void
     {
         foreach (static::$pathRelation as $source => $target) {
             $targetFile = base_path($target);

@@ -96,6 +96,37 @@ class Request extends \localzet\Server\Protocols\Http\Request
     }
 
     /**
+     * Получение IP-адреса
+     *
+     * @return string|null IP-адрес
+     */
+    public function getRequestIp(): ?string
+    {
+        $ip = $this->header(
+            'x-real-ip',
+            $this->header(
+                'x-forwarded-for',
+                $this->header(
+                    'client-ip',
+                    $this->header(
+                        'x-client-ip',
+                        $this->header(
+                            'remote-addr',
+                            $this->header(
+                                'via'
+                            )
+                        )
+                    )
+                )
+            )
+        );
+        if (is_string($ip)) {
+            $ip = current(explode(',', $ip));
+        }
+        return filter_var($ip, FILTER_VALIDATE_IP) ? $ip : null;
+    }
+
+    /**
      * Разобрать массив файлов.
      *
      * @param array $files Массив файлов.
