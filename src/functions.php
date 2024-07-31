@@ -300,7 +300,7 @@ function server_start($processName, $config): void
             if (file_exists(base_path('/support/bootstrap.php'))) {
                 include_once base_path('/support/bootstrap.php');
             }
-            if (is_callable($config['onServerStart'])) {
+            if (isset($config['onServerStart']) && is_callable($config['onServerStart'])) {
                 $config['onServerStart']($server);
             }
         },
