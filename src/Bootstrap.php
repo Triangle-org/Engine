@@ -30,7 +30,7 @@ use localzet\Server;
 use support\Log;
 use Triangle\Engine\Interface\BootstrapInterface;
 
-class Bootstrap
+class Bootstrap implements BootstrapInterface
 {
     public static function start(?Server $server = null): void
     {
