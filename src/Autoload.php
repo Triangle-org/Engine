@@ -45,7 +45,7 @@ class Autoload
     {
         foreach (self::LOADERS + $addLoaders as $loader) {
             if (class_exists($loader[0]) && method_exists($loader[0], $loader[1])) {
-                $loader[0]::$loader[1]($server);
+                $loader[0]::{$loader[1]}($server);
             }
         }
     }
