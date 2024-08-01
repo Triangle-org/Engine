@@ -93,7 +93,7 @@ class Path
      */
     public static function appPath(string $path = ''): ?string
     {
-        return path_combine(static::$appPath ?? config('app.app_path', static::basePath('app')), $path);
+        return path_combine(static::$appPath ?? config('server.app_path', config('app.app_path', static::basePath('app'))), $path);
     }
 
     public static function controllerPath(string $path = ''): ?string
@@ -126,7 +126,7 @@ class Path
      */
     public static function publicPath(string $path = ''): ?string
     {
-        return path_combine(static::$publicPath ?? config('app.public_path', run_path('public')), $path);
+        return path_combine(static::$publicPath ?? config('server.public_path', config('app.public_path', run_path('public'))), $path);
     }
 
     /**
@@ -135,6 +135,6 @@ class Path
      */
     public static function runtimePath(string $path = ''): ?string
     {
-        return path_combine(static::$runtimePath ?? config('app.runtime_path', run_path('runtime')), $path);
+        return path_combine(static::$runtimePath ?? config('server.runtime_path', config('app.runtime_path', run_path('runtime'))), $path);
     }
 }

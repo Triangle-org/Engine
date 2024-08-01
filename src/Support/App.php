@@ -52,7 +52,7 @@ class App
         Config::reloadAll(['route', 'container']);
 
         error_reporting(config('server.error_reporting', E_ALL));
-        date_default_timezone_set(config('server.default_timezone', 'Europe/Moscow'));
+        date_default_timezone_set(config('server.default_timezone', config('app.default_timezone', 'Europe/Moscow')));
 
         $runtimeLogsPath = runtime_path('logs');
         if (!file_exists($runtimeLogsPath) || !is_dir($runtimeLogsPath)) {

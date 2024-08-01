@@ -26,6 +26,7 @@
 
 namespace Triangle\Engine;
 
+use ErrorException;
 use localzet\Server;
 use Triangle\Database\Bootstrap as DatabaseBootstrap;
 use Triangle\Events\Bootstrap as EventsBootstrap;
@@ -57,7 +58,7 @@ class Autoload
 
         set_error_handler(fn($level, $message, $file = '', $line = 0) => (error_reporting() & $level) ? throw new ErrorException($message, 0, $level, $file, $line) : true);
         if ($server) register_shutdown_function(fn($start_time) => (time() - $start_time <= 1) ? sleep(1) : true, time());
-        if (function_exists('config')) date_default_timezone_set(config('server.default_timezone', 'Europe/Moscow'));
+        if (function_exists('config')) date_default_timezone_set(config('server.default_timezone', config('app.default_timezone', 'Europe/Moscow')));
 
         static::files();
 
