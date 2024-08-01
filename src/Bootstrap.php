@@ -28,7 +28,6 @@ namespace Triangle\Engine;
 
 use localzet\Server;
 use support\Log;
-use Triangle\Engine\Interface\BootstrapInterface;
 
 class Bootstrap implements BootstrapInterface
 {

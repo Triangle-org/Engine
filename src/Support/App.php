@@ -33,7 +33,6 @@ use RuntimeException;
 use Throwable;
 use Triangle\Engine\Config;
 use Triangle\Engine\Environment;
-use Triangle\Engine\Util;
 use function is_dir;
 use function opcache_get_status;
 use function opcache_invalidate;
@@ -52,8 +51,8 @@ class App
         Environment::start();
         Config::reloadAll(['route', 'container']);
 
-        error_reporting(config('app.error_reporting', E_ALL));
-        date_default_timezone_set(config('app.default_timezone', 'Europe/Moscow'));
+        error_reporting(config('server.error_reporting', E_ALL));
+        date_default_timezone_set(config('server.default_timezone', 'Europe/Moscow'));
 
         $runtimeLogsPath = runtime_path('logs');
         if (!file_exists($runtimeLogsPath) || !is_dir($runtimeLogsPath)) {
@@ -81,16 +80,7 @@ class App
         Server::$stopTimeout = (int)config('server.stop_timeout', 2);
         TcpConnection::$defaultMaxPackageSize = config('server.max_package_size', 10 * 1024 * 1024);
 
-        server_start(
-            config('server.name'),
-            config('server') + [
-                'handler' => \Triangle\Engine\App::class,
-                'constructor' => [
-                    'requestClass' => config('app.request_class', Request::class),
-                    'logger' => Log::channel(),
-                ]
-            ]
-        );
+        server_start(config('server.name'), config('server'));
 
         // Windows не поддерживает кастомные процессы
         if (DIRECTORY_SEPARATOR === '/') {

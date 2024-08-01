@@ -49,6 +49,7 @@
   "autoload": {
     "psr-4": {
       "Triangle\\Engine\\": "src",
+      "Triangle\\Exception\\": "src/Exception",
       "support\\": "src/Support/",
       "Support\\": "src/Support/"
     }

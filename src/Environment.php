@@ -36,7 +36,6 @@ use localzet\Server;
 use PhpOption\Option;
 use PhpOption\Some;
 use RuntimeException;
-use Triangle\Engine\Interface\BootstrapInterface;
 
 class Environment implements BootstrapInterface
 {

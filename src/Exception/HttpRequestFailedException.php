@@ -25,9 +25,8 @@
  *              For any questions, please contact <support@localzet.com>
  */
 
-namespace Triangle\Engine\Exception;
+namespace Triangle\Exception;
 
-use Triangle\Engine\Interface\ExceptionInterface;
 use UnexpectedValueException;
 
 class HttpRequestFailedException extends UnexpectedValueException implements ExceptionInterface
