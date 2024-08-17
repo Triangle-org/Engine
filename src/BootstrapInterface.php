@@ -25,16 +25,21 @@
  *              For any questions, please contact <support@localzet.com>
  */
 
-namespace Triangle\Engine\Exception;
+namespace Triangle\Engine;
 
-use Psr\Container\NotFoundExceptionInterface;
-use Triangle\Engine\Interface\ExceptionInterface;
+use localzet\Server;
 
 /**
- * Класс NotFoundException
- * Этот класс представляет собой пользовательское исключение, которое может быть использовано для обработки ошибок, связанных с отсутствием каких-либо ресурсов.
+ * Интерфейс BootstrapInterface.
  */
-class NotFoundException extends BusinessException implements ExceptionInterface, NotFoundExceptionInterface
+interface BootstrapInterface
 {
+    /**
+     * Запускает приложение.
+     *
+     * @param Server|null $server
+     *
+     * @return void
+     */
+    public static function start(?Server $server): void;
 }
-

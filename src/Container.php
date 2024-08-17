@@ -28,7 +28,7 @@
 namespace Triangle\Engine;
 
 use Psr\Container\{ContainerInterface, NotFoundExceptionInterface};
-use Triangle\Engine\Exception\NotFoundException;
+use RuntimeException;
 use function array_key_exists;
 use function class_exists;
 
@@ -67,7 +67,7 @@ class Container implements ContainerInterface
                 $this->instances[$id] = call_user_func($this->definitions[$id], $this);
             } else {
                 if (!class_exists($id)) {
-                    throw new NotFoundException("Класс '$id' не найден");
+                    throw new RuntimeException("Класс '$id' не найден");
                 }
                 $this->instances[$id] = new $id();
             }
@@ -99,12 +99,12 @@ class Container implements ContainerInterface
      * @param array $constructor Параметры конструктора.
      *
      * @return mixed Новый экземпляр класса.
-     * @throws NotFoundException Если класс не найден.
+     * @throws RuntimeException Если класс не найден.
      */
     public function make(string $name, array $constructor = []): mixed
     {
         if (!class_exists($name)) {
-            throw new NotFoundException("Класс '$name' не найден");
+            throw new ("Класс '$name' не найден");
         }
         return new $name(...array_values($constructor));
     }

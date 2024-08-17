@@ -33,7 +33,6 @@ use RuntimeException;
 use Throwable;
 use Triangle\Engine\Config;
 use Triangle\Engine\Environment;
-use Triangle\Engine\Util;
 use function is_dir;
 use function opcache_get_status;
 use function opcache_invalidate;
@@ -49,28 +48,16 @@ class App
     {
         ini_set('display_errors', 'on');
 
-        Environment::loadAll();
-        Config::loadAll(['route', 'container']);
+        Environment::start();
+        Config::reloadAll(['route', 'container']);
 
-        $errorReporting = config('app.error_reporting', E_ALL);
-        if (isset($errorReporting)) {
-            error_reporting($errorReporting);
-        }
-        if ($timezone = config('app.default_timezone', 'Europe/Moscow')) {
-            date_default_timezone_set($timezone);
-        }
+        error_reporting(config('server.error_reporting', E_ALL));
+        date_default_timezone_set(config('server.default_timezone', config('app.default_timezone', 'Europe/Moscow')));
 
         $runtimeLogsPath = runtime_path('logs');
         if (!file_exists($runtimeLogsPath) || !is_dir($runtimeLogsPath)) {
             if (!mkdir($runtimeLogsPath, 0777, true)) {
                 throw new RuntimeException("Failed to create runtime logs directory. Please check the permission.");
-            }
-        }
-
-        $runtimeViewsPath = runtime_path('views');
-        if (!file_exists($runtimeViewsPath) || !is_dir($runtimeViewsPath)) {
-            if (!mkdir($runtimeViewsPath, 0777, true)) {
-                throw new RuntimeException("Failed to create runtime views directory. Please check the permission.");
             }
         }
 
@@ -89,31 +76,15 @@ class App
         Server::$pidFile = config('server.pid_file', runtime_path('triangle.pid'));
         Server::$stdoutFile = config('server.stdout_file', runtime_path('logs/stdout.log'));
         Server::$logFile = config('server.log_file', runtime_path('logs/server.log'));
+        Server::$statusFile = config('server.status_file', runtime_path('triangle.status'));
+        Server::$stopTimeout = (int)config('server.stop_timeout', 2);
         TcpConnection::$defaultMaxPackageSize = config('server.max_package_size', 10 * 1024 * 1024);
-        if (property_exists(Server::class, 'statusFile')) {
-            Server::$statusFile = config('server.status_file', runtime_path('triangle.status'));
-        }
-        if (property_exists(Server::class, 'stopTimeout')) {
-            Server::$stopTimeout = (int)config('server.stop_timeout', 2);
-        }
 
-        if (config('server.listen')) {
-            $config = config('server');
-            server_start(
-                $config['name'],
-                $config + [
-                    'handler' => \Triangle\Engine\App::class,
-                    'constructor' => [
-                        'requestClass' => config('app.request_class', Request::class),
-                        'logger' => Log::channel(),
-                    ]
-                ]
-            );
-        }
+        server_start(config('server.name'), config('server'));
 
         // Windows не поддерживает кастомные процессы
         if (DIRECTORY_SEPARATOR === '/') {
-            foreach (config('process', []) as $processName => $config) {
+            foreach (config('servers', config('process', [])) as $processName => $config) {
                 // Отключим монитор в phar
                 if (is_phar() && 'monitor' === $processName) {
                     continue;
@@ -125,11 +96,11 @@ class App
                     if (!is_array($project)) {
                         continue;
                     }
-                    foreach ($project['process'] ?? [] as $processName => $config) {
+                    foreach ($projects['servers'] ?? $project['process'] ?? [] as $processName => $config) {
                         server_start("plugin.$firm.$name.$processName", $config);
                     }
                 }
-                foreach ($projects['process'] ?? [] as $processName => $config) {
+                foreach ($projects['servers'] ?? $projects['process'] ?? [] as $processName => $config) {
                     server_start("plugin.$firm.$processName", $config);
                 }
             }

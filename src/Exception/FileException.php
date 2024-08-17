@@ -25,10 +25,9 @@
  *              For any questions, please contact <support@localzet.com>
  */
 
-namespace Triangle\Engine\Exception;
+namespace Triangle\Exception;
 
 use RuntimeException;
-use Triangle\Engine\Interface\ExceptionInterface;
 
 /**
  * Класс FileException

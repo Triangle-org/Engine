@@ -31,8 +31,8 @@ use FilesystemIterator;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RegexIterator;
+use RuntimeException;
 use Symfony\Component\Translation\Translator;
-use Triangle\Engine\Exception\NotFoundException;
 use function basename;
 use function config;
 use function get_realpath;
@@ -64,7 +64,7 @@ class Translation
      * @param string $name Имя метода.
      * @param array $arguments Аргументы метода.
      * @return mixed Результат вызова метода.
-     * @throws NotFoundException Если файл перевода не найден.
+     * @throws RuntimeException Если файл перевода не найден.
      *
      * @link https://www.php.net/manual/ru/language.oop5.overloading.php#object.callstatic
      */
@@ -80,7 +80,7 @@ class Translation
      *
      * @param string $plugin Имя плагина.
      * @return Translator Экземпляр переводчика.
-     * @throws NotFoundException Если файл перевода не найден.
+     * @throws RuntimeException Если файл перевода не найден.
      *
      * @link https://symfony.com/doc/current/translation.html
      */
@@ -106,7 +106,7 @@ class Translation
 
             foreach ($paths as $path) {
                 if (!$translationsPath = get_realpath($path)) {
-                    throw new NotFoundException("File {$path} not found");
+                    throw new RuntimeException("File $path not found");
                 }
 
                 foreach ($classes as $class => $opts) {

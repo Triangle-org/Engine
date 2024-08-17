@@ -25,7 +25,7 @@
  *              For any questions, please contact <support@localzet.com>
  */
 
-namespace Triangle\Engine\Interface;
+namespace Triangle\Exception;
 
 use Throwable;
 

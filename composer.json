@@ -26,33 +26,30 @@
     "source": "https://github.com/Triangle-org/Engine"
   },
   "suggest": {
-    "ext-curl": "For HttpClient",
-    "ext-json": "For support JSON",
     "ext-mysqli": "For support MySQL",
     "ext-simplexml": "For XML",
     "ext-libxml": "For XML",
     "ext-openssl": "For JWT",
     "ext-redis": "For Redis",
     "ext-fileinfo": "For mime_content_type()",
-    "ext-mongodb": "For Triangle\\Engine\\Log\\MongoDBHandler",
-    "triangle/mongodb": "For MongoDB"
+    "ext-mongodb": "For Triangle\\Engine\\Log\\MongoDBHandler"
   },
   "require": {
-    "php": "^8.2",
+    "php": "^8.1",
     "ext-curl": "*",
     "ext-intl": "*",
+    "ext-json": "*",
     "ext-mbstring": "*",
     "ext-zend-opcache": "*",
     "localzet/server": "^4.2",
-    "triangle/console": "^1.3",
-    "triangle/router": "^1.0",
     "psr/container": ">=1.0",
-    "monolog/monolog": "^2.0",
+    "monolog/monolog": "^2.9",
     "vlucas/phpdotenv": "^5.6"
   },
   "autoload": {
     "psr-4": {
       "Triangle\\Engine\\": "src",
+      "Triangle\\Exception\\": "src/Exception",
       "support\\": "src/Support/",
       "Support\\": "src/Support/"
     }

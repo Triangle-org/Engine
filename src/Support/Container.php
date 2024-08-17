@@ -28,8 +28,8 @@
 namespace support;
 
 use Exception;
-use Triangle\Engine\App;
 use Triangle\Engine\Config;
+use Triangle\Http\App;
 
 /**
  * Класс Container
@@ -58,7 +58,7 @@ class Container
      */
     public static function __callStatic(string $name, array $arguments)
     {
-        $plugin = App::getPluginByClass($name);
+        $plugin = class_exists(App::class) ? App::getPluginByClass($name) : '';
         $container = static::instance($plugin);
         if (!method_exists($container, $name)) {
             throw new Exception("Метод $name не существует в контейнере");

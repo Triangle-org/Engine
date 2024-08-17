@@ -31,27 +31,27 @@ class Path
     /**
      * @var string|null
      */
-    protected static ?string $basePath = null;
+    public static ?string $basePath = null;
 
     /**
      * @var string|null
      */
-    protected static ?string $appPath = null;
+    public static ?string $appPath = null;
 
     /**
      * @var string|null
      */
-    protected static ?string $configPath = null;
+    public static ?string $configPath = null;
 
     /**
      * @var string|null
      */
-    protected static ?string $publicPath = null;
+    public static ?string $publicPath = null;
 
     /**
      * @var string|null
      */
-    protected static ?string $runtimePath = null;
+    public static ?string $runtimePath = null;
 
     /**
      * @param string|null $basePath
@@ -62,15 +62,15 @@ class Path
      */
     public function __construct(
         string $basePath = null,
-        string $appPath = null,
         string $configPath = null,
+        string $appPath = null,
         string $publicPath = null,
         string $runtimePath = null,
     )
     {
         static::$basePath = $basePath;
-        static::$appPath = $appPath;
         static::$configPath = $configPath;
+        static::$appPath = $appPath;
         static::$publicPath = $publicPath;
         static::$runtimePath = $runtimePath;
     }
@@ -93,7 +93,8 @@ class Path
      */
     public static function appPath(string $path = ''): ?string
     {
-        return path_combine(static::$appPath ?? config('app.app_path', static::basePath('app')), $path);
+        static::$appPath ??= static::basePath('app');
+        return path_combine(static::$appPath, $path);
     }
 
     public static function controllerPath(string $path = ''): ?string
@@ -117,7 +118,8 @@ class Path
      */
     public static function configPath(string $path = ''): ?string
     {
-        return path_combine(static::$configPath ?? static::basePath('config'), $path);
+        static::$configPath ??= static::basePath('config');
+        return path_combine(static::$configPath, $path);
     }
 
     /**
@@ -126,7 +128,8 @@ class Path
      */
     public static function publicPath(string $path = ''): ?string
     {
-        return path_combine(static::$publicPath ?? config('app.public_path', run_path('public')), $path);
+        static::$publicPath ??= run_path('public');
+        return path_combine(static::$publicPath, $path);
     }
 
     /**
@@ -135,6 +138,7 @@ class Path
      */
     public static function runtimePath(string $path = ''): ?string
     {
-        return path_combine(static::$runtimePath ?? config('app.runtime_path', run_path('runtime')), $path);
+        static::$runtimePath ??= run_path('runtime');
+        return path_combine(static::$runtimePath, $path);
     }
 }

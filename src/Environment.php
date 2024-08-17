@@ -32,11 +32,12 @@ use Dotenv\Dotenv;
 use Dotenv\Repository\Adapter\PutenvAdapter;
 use Dotenv\Repository\RepositoryBuilder;
 use Dotenv\Repository\RepositoryInterface;
+use localzet\Server;
 use PhpOption\Option;
 use PhpOption\Some;
 use RuntimeException;
 
-class Environment
+class Environment implements BootstrapInterface
 {
     /**
      * Указывает, включен ли адаптер putenv.
@@ -52,9 +53,9 @@ class Environment
      */
     protected static ?RepositoryInterface $repository = null;
 
-    public static function loadAll(string $file = '.env'): void
+    public static function start(?Server $server = null): void
     {
-        self::load(run_path(), $file);
+        self::load(run_path());
     }
 
     public static function load(string $path, $file = '.env'): void

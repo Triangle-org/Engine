@@ -24,11 +24,65 @@
  *              For any questions, please contact <support@localzet.com>
  */
 
-namespace Triangle\Engine\Autoload;
+namespace Triangle\Engine;
 
-class FileLoader
+use ErrorException;
+use localzet\Server;
+use Triangle\Database\Bootstrap as DatabaseBootstrap;
+use Triangle\Events\Bootstrap as EventsBootstrap;
+use Triangle\Middleware\Bootstrap as MiddlewareBootstrap;
+use Triangle\Router;
+use Triangle\Session\Bootstrap as SessionBootstrap;
+
+class Autoload
 {
-    public static function loadAll(): void
+    private const LOADERS = [
+        [Bootstrap::class, 'start'],
+
+        [MiddlewareBootstrap::class, 'start'],
+        [DatabaseBootstrap::class, 'start'],
+        [SessionBootstrap::class, 'start'],
+        [EventsBootstrap::class, 'start'],
+    ];
+
+    public static function loadCore(): void
+    {
+        Environment::start();
+        Config::reloadAll(['route', 'container']);
+    }
+
+    public static function loadAll(?Server $server = null): void
+    {
+        Environment::start();
+        Config::reloadAll(['route']);
+
+        set_error_handler(fn($level, $message, $file = '', $line = 0) => (error_reporting() & $level) ? throw new ErrorException($message, 0, $level, $file, $line) : true);
+        if ($server) register_shutdown_function(fn($start_time) => (time() - $start_time <= 1) ? sleep(1) : true, time());
+        if (function_exists('config')) date_default_timezone_set(config('server.default_timezone', config('app.default_timezone', 'Europe/Moscow')));
+
+        static::files();
+
+        foreach (self::LOADERS as $loader) {
+            if (class_exists($loader[0]) && method_exists($loader[0], $loader[1])) {
+                $loader[0]::{$loader[1]}($server);
+            }
+        }
+
+        if (class_exists(Router::class)) {
+            $paths = [config_path()];
+            $directory = Path::basePath('plugin');
+            foreach (scan_dir($directory, false) as $name) {
+                $dir = "$directory/$name/config";
+                if (is_dir($dir)) {
+                    $paths[] = $dir;
+                }
+            }
+
+            Router::collect($paths);
+        }
+    }
+
+    public static function files(): void
     {
         foreach (config('autoload.files', []) as $file) {
             include_once $file;

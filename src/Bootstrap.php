@@ -1,5 +1,4 @@
-<?php declare(strict_types=1);
-
+<?php
 /**
  * @package     Triangle Engine (FrameX Project)
  * @link        https://github.com/Triangle-org/Engine Triangle Engine (v2+)
@@ -25,10 +24,48 @@
  *              For any questions, please contact <support@localzet.com>
  */
 
-namespace Triangle\Engine\Exception;
+namespace Triangle\Engine;
 
-use Triangle\Engine\Interface\ExceptionInterface;
+use localzet\Server;
+use support\Log;
 
-class InvalidAuthorizationException extends InvalidAccessException implements ExceptionInterface
+class Bootstrap implements BootstrapInterface
 {
+    public static function start(?Server $server = null): void
+    {
+        $bootstrap = config('bootstrap', []);
+        self::load($bootstrap, $server);
+
+        $plugins = config('plugin', []);
+        foreach ($plugins as $firm => $projects) {
+            foreach ($projects as $name => $project) {
+                if (is_array($project) && !empty($project['bootstrap'])) {
+                    self::load($project['bootstrap'], $server);
+                }
+            }
+
+            if (!empty($project['bootstrap'])) {
+                self::load($projects['bootstrap'], $server);
+            }
+        }
+    }
+
+    public static function load(array $classes, ?Server $server = null): void
+    {
+        foreach ($classes as $class) {
+            if (!class_exists($class)) {
+                self::log("Внимание! Класса $class не существует\n");
+                continue;
+            }
+
+            /** @var BootstrapInterface $class */
+            $class::start($server);
+        }
+    }
+
+    protected static function log($text): void
+    {
+        echo $text;
+        Log::error($text);
+    }
 }
