@@ -62,15 +62,15 @@ class Path
      */
     public function __construct(
         string $basePath = null,
-        string $appPath = null,
         string $configPath = null,
+        string $appPath = null,
         string $publicPath = null,
         string $runtimePath = null,
     )
     {
         static::$basePath = $basePath;
-        static::$appPath = $appPath;
         static::$configPath = $configPath;
+        static::$appPath = $appPath;
         static::$publicPath = $publicPath;
         static::$runtimePath = $runtimePath;
     }
