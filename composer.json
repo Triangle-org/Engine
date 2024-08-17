@@ -35,7 +35,7 @@
     "ext-mongodb": "For Triangle\\Engine\\Log\\MongoDBHandler"
   },
   "require": {
-    "php": "^8.2",
+    "php": "^8.1",
     "ext-curl": "*",
     "ext-intl": "*",
     "ext-json": "*",

@@ -106,7 +106,7 @@ class Translation
 
             foreach ($paths as $path) {
                 if (!$translationsPath = get_realpath($path)) {
-                    throw new RuntimeException("File {$path} not found");
+                    throw new RuntimeException("File $path not found");
                 }
 
                 foreach ($classes as $class => $opts) {
