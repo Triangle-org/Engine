@@ -61,7 +61,10 @@ class App
             }
         }
 
-        Server::$onMasterReload = function () {
+        $server = config('server.server');
+        $server = $server instanceof Server ? $server : Server::class;
+
+        $server::$onMasterReload = function () {
             if (function_exists('opcache_get_status')) {
                 if ($status = opcache_get_status()) {
                     if (isset($status['scripts']) && $scripts = $status['scripts']) {
@@ -73,14 +76,14 @@ class App
             }
         };
 
-        Server::$pidFile = config('server.pid_file', runtime_path('triangle.pid'));
-        Server::$stdoutFile = config('server.stdout_file', runtime_path('logs/stdout.log'));
-        Server::$logFile = config('server.log_file', runtime_path('logs/server.log'));
-        Server::$statusFile = config('server.status_file', runtime_path('triangle.status'));
-        Server::$stopTimeout = (int)config('server.stop_timeout', 2);
+        $server::$pidFile = config('server.pid_file', runtime_path('triangle.pid'));
+        $server::$stdoutFile = config('server.stdout_file', runtime_path('logs/stdout.log'));
+        $server::$logFile = config('server.log_file', runtime_path('logs/server.log'));
+        $server::$statusFile = config('server.status_file', runtime_path('triangle.status'));
+        $server::$stopTimeout = (int)config('server.stop_timeout', 2);
         TcpConnection::$defaultMaxPackageSize = config('server.max_package_size', 10 * 1024 * 1024);
 
-        server_start(config('server.name'), config('server'));
+        static::server_start(config('server'));
 
         // Windows не поддерживает кастомные процессы
         if (DIRECTORY_SEPARATOR === '/') {
@@ -89,7 +92,8 @@ class App
                 if (is_phar() && 'monitor' === $processName) {
                     continue;
                 }
-                server_start($processName, $config);
+                $config['name'] ??= $processName;
+                static::server_start($config);
             }
             foreach (config('plugin', []) as $firm => $projects) {
                 foreach ($projects as $name => $project) {
@@ -97,11 +101,13 @@ class App
                         continue;
                     }
                     foreach ($projects['servers'] ?? $project['process'] ?? [] as $processName => $config) {
-                        server_start("plugin.$firm.$name.$processName", $config);
+                        $config['name'] ??= "plugin.$firm.$name.$processName";
+                        static::server_start($config);
                     }
                 }
                 foreach ($projects['servers'] ?? $projects['process'] ?? [] as $processName => $config) {
-                    server_start("plugin.$firm.$processName", $config);
+                    $config['name'] ??= "plugin.$firm.$processName";
+                    static::server_start($config);
                 }
             }
         }
@@ -109,5 +115,25 @@ class App
         if (!defined('GLOBAL_START')) {
             Server::runAll();
         }
+    }
+
+    protected static function server_start($config)
+    {
+        localzet_start(
+            name: $config['name'] ?? null,
+            count: $config['count'] ?? null,
+            listen: $config['listen'] ?? null,
+            context: $config['context'] ?? null,
+            user: $config['user'] ?? null,
+            group: $config['group'] ?? null,
+            reloadable: $config['reloadable'] ?? null,
+            reusePort: $config['reusePort'] ?? null,
+            protocol: $config['protocol'] ?? null,
+            transport: $config['transport'] ?? null,
+            server: $config['server'] ?? null,
+            handler: $config['handler'] ?? null,
+            constructor: $config['constructor'] ?? null,
+            services: $config['services'] ?? null,
+        );
     }
 }
