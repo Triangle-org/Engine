@@ -61,7 +61,10 @@ class App
             }
         }
 
-        config('server.server')::$onMasterReload = function () {
+        $server = config('server.server');
+        $server = $server instanceof Server ? $server : Server::class;
+
+        $server::$onMasterReload = function () {
             if (function_exists('opcache_get_status')) {
                 if ($status = opcache_get_status()) {
                     if (isset($status['scripts']) && $scripts = $status['scripts']) {
@@ -73,11 +76,11 @@ class App
             }
         };
 
-        config('server.server')::$pidFile = config('server.pid_file', runtime_path('triangle.pid'));
-        config('server.server')::$stdoutFile = config('server.stdout_file', runtime_path('logs/stdout.log'));
-        config('server.server')::$logFile = config('server.log_file', runtime_path('logs/server.log'));
-        config('server.server')::$statusFile = config('server.status_file', runtime_path('triangle.status'));
-        config('server.server')::$stopTimeout = (int)config('server.stop_timeout', 2);
+        $server::$pidFile = config('server.pid_file', runtime_path('triangle.pid'));
+        $server::$stdoutFile = config('server.stdout_file', runtime_path('logs/stdout.log'));
+        $server::$logFile = config('server.log_file', runtime_path('logs/server.log'));
+        $server::$statusFile = config('server.status_file', runtime_path('triangle.status'));
+        $server::$stopTimeout = (int)config('server.stop_timeout', 2);
         TcpConnection::$defaultMaxPackageSize = config('server.max_package_size', 10 * 1024 * 1024);
 
         static::server_start(config('server'));
