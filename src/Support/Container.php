@@ -71,13 +71,13 @@ class Container
      * Получить экземпляр контейнера.
      * Если экземпляр контейнера еще не создан, он будет создан и сохранен в статическом свойстве $instance.
      *
-     * @param string $plugin Плагин, которому принадлежит контейнер (необязательно).
+     * @param string|null $plugin Плагин, которому принадлежит контейнер (необязательно).
      *
      * @return array|mixed|void|null
      *
      * @link https://www.php-fig.org/psr/psr-11/
      */
-    public static function instance(string $plugin = '')
+    public static function instance(?string $plugin = '')
     {
         return Config::get($plugin ? "plugin.$plugin.container" : 'container');
     }
