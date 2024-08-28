@@ -33,21 +33,17 @@ class Bootstrap implements BootstrapInterface
 {
     public static function start(?Server $server = null): void
     {
-        $bootstrap = config('bootstrap', []);
-        self::load($bootstrap, $server);
+        $config = config();
 
-        $plugins = config('plugin', []);
-        foreach ($plugins as $firm => $projects) {
-            foreach ($projects as $name => $project) {
-                if (is_array($project) && !empty($project['bootstrap'])) {
-                    self::load($project['bootstrap'], $server);
-                }
-            }
+        self::load($config['bootstrap'] ?? [], $server);
 
-            if (!empty($project['bootstrap'])) {
-                self::load($projects['bootstrap'], $server);
-            }
-        }
+        Plugin::plugin_reduce(function ($vendor, $plugins, $plugin, $config) use ($server) {
+            self::load($config['bootstrap'] ?? [], $server);
+        });
+
+        Plugin::app_reduce(function ($plugin, $config) use ($server) {
+            self::load($config['bootstrap'] ?? [], $server);
+        });
     }
 
     public static function load(array $classes, ?Server $server = null): void
