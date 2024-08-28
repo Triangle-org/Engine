@@ -70,7 +70,7 @@ class Autoload
 
         if (class_exists(Router::class)) {
             $paths = [config_path()];
-            $directory = Path::basePath('plugin');
+            $directory = Path::basePath(config('app.plugin_alias', 'plugin'));
             foreach (scan_dir($directory, false) as $name) {
                 $dir = "$directory/$name/config";
                 if (is_dir($dir)) {
@@ -96,18 +96,16 @@ class Autoload
             include_once($file);
         }
 
-        foreach (config('plugin', []) as $firm => $projects) {
-            foreach ($projects as $name => $project) {
-                if (!is_array($project)) {
-                    continue;
-                }
-                foreach ($project['autoload']['files'] ?? [] as $file) {
-                    include_once $file;
-                }
-            }
-            foreach ($projects['autoload']['files'] ?? [] as $file) {
+        Plugin::app_reduce(function ($plugin, $config) {
+            foreach ($config['autoload']['files'] ?? [] as $file) {
                 include_once $file;
             }
-        }
+        });
+
+        Plugin::plugin_reduce(function ($vendor, $plugins, $plugin, $config) {
+            foreach ($config['autoload']['files'] ?? [] as $file) {
+                include_once $file;
+            }
+        });
     }
 }

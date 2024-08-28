@@ -29,6 +29,55 @@ namespace Triangle\Engine;
 
 class Plugin
 {
+    public static function app_reduce($callback)
+    {
+        foreach (config(config('app.plugin_alias', 'plugin'), []) as $plugin => $config) {
+            if (!is_array($config)) {
+                continue;
+            }
+            $callback($plugin, $config);
+        }
+    }
+
+    public static function app_by_path(string $path): ?string
+    {
+        $path = trim($path, '/');
+        $suffix = trim(config('app.plugin_uri', 'app'), '/');
+
+        if (str_starts_with($path, $suffix)) {
+            $path = trim(substr($path, strlen($suffix)), '/');
+            return explode($path, '/')[0] ?? '';
+        }
+
+        return null;
+    }
+
+    public static function app_by_class(string $class): ?string
+    {
+        $class = trim($class, '\\');
+        $suffix = trim(config('app.plugin_alias', 'app'), '/');
+        $suffix = str_replace('\\', '/', $suffix);
+
+        if (str_starts_with($class, $suffix)) {
+            $path = trim(substr($class, strlen($suffix)), '\\');
+            return explode($path, '\\')[0] ?? '';
+        }
+
+        return null;
+    }
+
+    public static function plugin_reduce($callback)
+    {
+        foreach (config('plugin', []) as $vendor => $plugins) {
+            foreach ($plugins as $plugin => $config) {
+                if (!is_array($config)) {
+                    continue;
+                }
+                $callback($vendor, $plugins, $plugin, $config);
+            }
+        }
+    }
+
     protected static function getFunction(string $namespace, string $type): ?callable
     {
         $function = "\\{$namespace}Install::$type";
