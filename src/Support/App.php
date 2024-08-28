@@ -33,6 +33,7 @@ use RuntimeException;
 use Throwable;
 use Triangle\Engine\Config;
 use Triangle\Engine\Environment;
+use Triangle\Engine\Plugin;
 use function is_dir;
 use function opcache_get_status;
 use function opcache_invalidate;
@@ -87,29 +88,26 @@ class App
 
         // Windows не поддерживает кастомные процессы
         if (DIRECTORY_SEPARATOR === '/') {
-            foreach (config('servers', config('process', [])) as $processName => $config) {
-                // Отключим монитор в phar
-                if (is_phar() && 'monitor' === $processName) {
-                    continue;
-                }
-                $config['name'] ??= $processName;
-                static::server_start($config);
+            $config = config();
+
+            foreach ($config['servers'] ?? $config['process'] ?? [] as $processName => $processConfig) {
+                $processConfig['name'] ??= $processName;
+                static::server_start($processConfig);
             }
-            foreach (config('plugin', []) as $firm => $projects) {
-                foreach ($projects as $name => $project) {
-                    if (!is_array($project)) {
-                        continue;
-                    }
-                    foreach ($projects['servers'] ?? $project['process'] ?? [] as $processName => $config) {
-                        $config['name'] ??= "plugin.$firm.$name.$processName";
-                        static::server_start($config);
-                    }
+
+            Plugin::app_reduce(function ($plugin, $config) {
+                foreach ($config['servers'] ?? $config['process'] ?? [] as $processName => $processConfig) {
+                    $processConfig['name'] ??= config('app.plugin_alias', 'plugin') . ".$plugin.$processName";
+                    static::server_start($processConfig);
                 }
-                foreach ($projects['servers'] ?? $projects['process'] ?? [] as $processName => $config) {
-                    $config['name'] ??= "plugin.$firm.$processName";
-                    static::server_start($config);
+            });
+
+            Plugin::plugin_reduce(function ($vendor, $plugins, $plugin, $config) {
+                foreach ($config['servers'] ?? $config['process'] ?? [] as $processName => $processConfig) {
+                    $processConfig['name'] ??= "plugin.$vendor.$plugin.$processName";
+                    static::server_start($processConfig);
                 }
-            }
+            });
         }
 
         if (!defined('GLOBAL_START')) {
