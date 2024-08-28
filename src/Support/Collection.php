@@ -37,19 +37,40 @@ class Collection
      * Коллекция данных.
      * Это свойство хранит все данные, которые были добавлены в коллекцию.
      *
-     * @var object|null $collection
+     * @var array $collection
      */
-    protected ?object $collection = null;
+    protected array $collection = [];
 
     /**
      * Конструктор класса Collection.
-     * Этот метод принимает необязательный аргумент $data, который будет приведен к объекту и сохранен в свойстве $collection.
+     * Этот метод принимает необязательный аргумент $data, который будет приведен к массиву и сохранен в свойстве $collection.
      *
      * @param mixed $data Начальные данные для коллекции, которые будут приведены к массиву.
      */
     public function __construct(mixed $data = null)
     {
-        $this->collection = (object)$data;
+        $this->collection = $this->normalizeData($data);
+    }
+
+    /**
+     * Метод normalizeData нормализует входные данные в массив.
+     *
+     * @param mixed $data Входные данные.
+     *
+     * @return array Нормализованные данные в виде массива.
+     */
+    protected function normalizeData(mixed $data): array
+    {
+        if (is_array($data)) {
+            return $data;
+        } elseif (is_object($data)) {
+            if (method_exists($data, 'toArray')) {
+                return $data->toArray();
+            }
+            return (array)$data;
+        } else {
+            return [$data];
+        }
     }
 
     /**
@@ -59,72 +80,60 @@ class Collection
      */
     public function toArray(): array
     {
-        return (array)$this->collection;
+        return $this->collection;
     }
 
     /**
      * Метод get возвращает значение указанного свойства из коллекции.
      * Если свойство не существует, метод возвращает null.
      *
-     * @param string $property Имя свойства для получения.
+     * @param string|int $property Имя свойства для получения.
      *
      * @return mixed Значение свойства или null, если его не существует.
      */
-    public function get(string $property): mixed
+    public function get(string|int $property): mixed
     {
-        if ($this->exists($property)) {
-            return $this->collection->$property;
-        }
-
-        return null;
+        return $this->collection[$property] ?? null;
     }
 
     /**
      * Метод set добавляет новое свойство в коллекцию или обновляет существующее.
      *
-     * @param string $property Имя свойства для установки.
+     * @param string|int $property Имя свойства для установки.
      * @param mixed $value Значение для установки.
      */
-    public function set(string $property, mixed $value): void
+    public function set(string|int $property, mixed $value): void
     {
-        if ($property) {
-            $this->collection->$property = $value;
-        }
+        $this->collection[$property] = $value;
     }
 
     /**
      * Метод filter возвращает новую коллекцию, которая содержит только элементы, соответствующие указанному свойству.
      * Если свойство не существует, метод возвращает пустую коллекцию.
      *
-     * @param string $property Свойство для фильтрации.
+     * @param string|int $property Свойство для фильтрации.
      *
      * @return Collection Новая коллекция, содержащая отфильтрованные данные.
      */
-    public function filter(string $property): Collection
+    public function filter(string|int $property): Collection
     {
-        if ($this->exists($property)) {
-            $data = $this->get($property);
+        $filtered = array_filter($this->collection, function ($key) use ($property) {
+            return $key == $property;
+        }, ARRAY_FILTER_USE_KEY);
 
-            if (!is_a($data, 'Collection')) {
-                $data = new Collection($data);
-            }
-
-            return $data;
-        }
-
-        return new Collection([]);
+        return new Collection($filtered);
     }
 
     /**
      * Метод exists проверяет, существует ли указанное свойство в коллекции.
      *
-     * @param string $property Свойство для проверки на существование.
+     * @param string|int $property Свойство для проверки на существование.
      *
      * @return bool True, если свойство существует, false в противном случае.
      */
-    public function exists(string $property): bool
+    public function exists(string|int $property): bool
     {
-        return property_exists($this->collection, $property);
+        return array_key_exists($property, $this->collection);
     }
 
     /**
@@ -134,7 +143,7 @@ class Collection
      */
     public function isEmpty(): bool
     {
-        return !$this->count();
+        return empty($this->collection);
     }
 
     /**
@@ -144,7 +153,7 @@ class Collection
      */
     public function count(): int
     {
-        return count($this->properties());
+        return count($this->collection);
     }
 
     /**
@@ -152,15 +161,9 @@ class Collection
      *
      * @return array Массив имен всех свойств в коллекции.
      */
-    public function properties(): array
+    public function keys(): array
     {
-        $properties = [];
-
-        foreach ($this->collection as $key => $value) {
-            $properties[] = $key;
-        }
-
-        return $properties;
+        return array_keys($this->collection);
     }
 
     /**
@@ -170,12 +173,6 @@ class Collection
      */
     public function values(): array
     {
-        $values = [];
-
-        foreach ($this->collection as $value) {
-            $values[] = $value;
-        }
-
-        return $values;
+        return array_values($this->collection);
     }
 }
