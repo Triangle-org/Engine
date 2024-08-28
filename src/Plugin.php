@@ -46,7 +46,7 @@ class Plugin
 
         if (str_starts_with($path, $suffix)) {
             $path = trim(substr($path, strlen($suffix)), '/');
-            return explode($path, '/')[0] ?? '';
+            return explode('/', $path)[0] ?? '';
         }
 
         return null;
@@ -60,7 +60,7 @@ class Plugin
 
         if (str_starts_with($class, $suffix)) {
             $path = trim(substr($class, strlen($suffix)), '\\');
-            return explode($path, '\\')[0] ?? '';
+            return explode('\\', $path)[0] ?? '';
         }
 
         return null;
