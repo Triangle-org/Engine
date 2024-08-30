@@ -68,7 +68,7 @@ class Autoload
             }
         }
 
-        if (class_exists(Router::class)) {
+        if ($server && class_exists(Router::class)) {
             $paths = [config_path()];
             $directory = Path::basePath(config('app.plugin_alias', 'plugin'));
             foreach (scan_dir($directory, false) as $name) {
