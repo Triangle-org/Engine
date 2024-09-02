@@ -55,7 +55,7 @@ class Plugin
     public static function app_by_class(string $class): ?string
     {
         $class = trim($class, '\\');
-        $suffix = trim(config('app.plugin_alias', 'app'), '/');
+        $suffix = trim(config('app.plugin_alias', 'plugin'), '/');
         $suffix = str_replace('\\', '/', $suffix);
 
         if (str_starts_with($class, $suffix)) {
