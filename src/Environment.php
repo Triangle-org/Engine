@@ -142,9 +142,12 @@ class Environment implements BootstrapInterface
      * @param string $environmentFile
      * @return false|int
      */
-    public static function set(array $values, string $environmentFile = '.env'): false|int
+    public static function set(array $values, string $environmentFile = '.env'): bool
     {
         $envFile = file_exists($environmentFile) ? $environmentFile : run_path($environmentFile);
+        if (!file_exists($envFile) && file_exists($envExample = base_path('.env.example') ?? run_path('.env.example'))) {
+            copy($envExample, $envFile);
+        }
         $str = file_get_contents($envFile);
 
         if (count($values) > 0) {
@@ -164,7 +167,7 @@ class Environment implements BootstrapInterface
 
         $str = substr($str, 0, -1);
 
-        return file_put_contents($envFile, $str);
+        return file_put_contents($envFile, $str) !== false;
     }
 
     /**
