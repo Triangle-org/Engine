@@ -145,7 +145,8 @@ class Environment implements BootstrapInterface
     public static function set(array $values, string $environmentFile = '.env'): bool
     {
         $envFile = file_exists($environmentFile) ? $environmentFile : run_path($environmentFile);
-        if (!file_exists($envFile) && file_exists($envExample = base_path('.env.example') ?? run_path('.env.example'))) {
+        $envExample = base_path('.env.example') ?? run_path('.env.example');
+        if (!file_exists($envFile) && file_exists($envExample)) {
             copy($envExample, $envFile);
         }
         $str = file_get_contents($envFile);
