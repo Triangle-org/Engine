@@ -1,5 +1,6 @@
 FROM ubuntu:latest
-LABEL authors="Ivan Zorin <creator@localzet.com>"
+LABEL authors = "Ivan Zorin <creator@localzet.com>"
+LABEL org.opencontainers.image.source = "https://github.com/Triangle-org/Engine"
 
 RUN apt-get update && apt-get install -y \
     software-properties-common && \
