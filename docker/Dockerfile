@@ -1,6 +1,8 @@
 FROM ubuntu:latest
 LABEL authors = "Ivan Zorin <creator@localzet.com>"
 LABEL org.opencontainers.image.source = "https://github.com/Triangle-org/Engine"
+LABEL org.opencontainers.image.description = "Triangle Docker Image"
+LABEL org.opencontainers.image.licenses = "AGPL-3.0-or-later"
 
 RUN apt-get update && apt-get install -y \
     software-properties-common && \
