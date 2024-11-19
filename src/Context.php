@@ -30,7 +30,12 @@ namespace Triangle\Engine;
 use Fiber;
 use SplObjectStorage;
 use StdClass;
+use Swow\Coroutine;
 use WeakMap;
+use localzet\Server\Events\Linux;
+use localzet\Server\Events\Swoole;
+use localzet\Server\Events\Swow;
+use localzet\Server;
 use function property_exists;
 
 /**
@@ -46,6 +51,11 @@ class Context
     protected static ?WeakMap $objectStorage = null;
 
     /**
+     * @var StdClass
+     */
+    protected static $object;
+
+    /**
      * Получить значение из контекста
      * @param string|null $key Ключ значения
      * @return mixed
@@ -57,14 +67,21 @@ class Context
 
     /**
      * Получить объект контекста
-     * @return StdClass|null
+     * @return void
      */
-    protected static function getObject(): ?StdClass
+    public static function init()
     {
         if (!static::$objectStorage) {
             static::$objectStorage = class_exists(WeakMap::class) ? new WeakMap() : new SplObjectStorage();
+            static::$object = new StdClass;
         }
+    }
 
+    /**
+     * @return StdClass|null
+     */
+    protected static function getObject(): StdClass|null
+    {
         /** @var Fiber $key */
         $key = static::getKey();
         if ($key && !isset(static::$objectStorage[$key])) {
@@ -75,11 +92,16 @@ class Context
 
     /**
      * Получить ключ контекста
-     * @return Fiber|null
+     * @return object
      */
-    protected static function getKey(): ?Fiber
+    protected static function getKey(): object
     {
-        return Fiber::getCurrent();
+        return match (Server::$eventLoopClass) {
+            Linux::class => Fiber::getCurrent(),
+            Swoole::class => \Swoole\Coroutine::getContext(),
+            Swow::class => Coroutine::getCurrent(),
+            default => static::$object,
+        };
     }
 
     /**

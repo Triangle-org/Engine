@@ -129,7 +129,7 @@ class Path
     public static function publicPath(string $path = ''): ?string
     {
         static::$publicPath ??= run_path('public');
-        return path_combine(static::$publicPath, $path);
+        return empty($path) ? static::$publicPath : path_combine(static::$publicPath, $path);
     }
 
     /**
