@@ -25,10 +25,14 @@
  *              For any questions, please contact <support@localzet.com>
  */
 
+use localzet\Server;
+use localzet\Server\Connection\TcpConnection;
 use support\Translation;
 use Triangle\Engine\Config;
 use Triangle\Engine\Environment;
 use Triangle\Engine\Path;
+use Triangle\Engine\Request;
+use Triangle\Engine\Response;
 
 $install_path = Composer\InstalledVersions::getRootPackage()['install_path'] ?? null;
 define('BASE_PATH', str_starts_with($install_path, 'phar://') ? $install_path : realpath($install_path) ?? dirname(__DIR__));
@@ -36,35 +40,37 @@ define('BASE_PATH', str_starts_with($install_path, 'phar://') ? $install_path : 
 
 /** TRANSLATION HELPERS */
 
-
-/**
- * Translation
- * @param string $id
- * @param array $parameters
- * @param string|null $domain
- * @param string|null $locale
- * @return string
- */
-function trans(string $id, array $parameters = [], string $domain = null, string $locale = null): string
-{
-    $res = Translation::trans($id, $parameters, $domain, $locale);
-    return $res === '' ? $id : $res;
-}
-
-/**
- * Locale
- * @param string|null $locale
- * @return string
- */
-function locale(string $locale = null): string
-{
-    if (!$locale) {
-        return Translation::getLocale();
+if (!function_exists('trans')) {
+    /**
+     * Translation
+     * @param string $id
+     * @param array $parameters
+     * @param string|null $domain
+     * @param string|null $locale
+     * @return string
+     */
+    function trans(string $id, array $parameters = [], string $domain = null, string $locale = null): string
+    {
+        $res = Translation::trans($id, $parameters, $domain, $locale);
+        return $res === '' ? $id : $res;
     }
-    Translation::setLocale($locale);
-    return $locale;
 }
 
+if (!function_exists('locale')) {
+    /**
+     * Locale
+     * @param string|null $locale
+     * @return string
+     */
+    function locale(string $locale = null): string
+    {
+        if (!$locale) {
+            return Translation::getLocale();
+        }
+        Translation::setLocale($locale);
+        return $locale;
+    }
+}
 
 /** FORMATS HELPERS */
 
@@ -319,4 +325,122 @@ function generateId(): string
         mt_rand(0, 0xffff),
         mt_rand(0, 0xffff)
     );
+}
+
+if (!function_exists('connection')) {
+    /**
+     * @return TcpConnection|null
+     */
+    function connection(): ?TcpConnection
+    {
+        return config('server.handler')::connection();
+    }
+}
+
+if (!function_exists('request')) {
+    /**
+     * @return Request
+     */
+    function request(): Request
+    {
+        return config('server.handler')::request();
+    }
+}
+
+if (!function_exists('server')) {
+    /**
+     * @return Server|null
+     */
+    function server(): ?Server
+    {
+        return config('server.handler')::server();
+    }
+}
+
+if (!function_exists('response')) {
+    /**
+     * @param mixed $data
+     * @param int $status
+     * @param array $headers
+     * @return Response
+     * @throws Throwable
+     */
+    function response(mixed $data = '', int $status = 200, array $headers = []): Response
+    {
+        $status = config('app.http_always_200') ? 200 : $status;
+        $body = compact('status', 'data');
+
+        if (config('app.debug')) {
+            $body['debug'] = config('app.debug');
+        }
+
+        if (!function_exists('responseView') || request()->expectsJson()) {
+            return responseJson($body, $status, $headers);
+        } else {
+            return responseView($body, $status, $headers);
+        }
+    }
+}
+
+/**
+ * @param string $blob
+ * @param string $type
+ * @return Response
+ */
+function responseBlob(string $blob, string $type = 'text/plain'): Response
+{
+    return new Response(200, ['Content-Type' => $type], $blob);
+}
+
+/**
+ * @param $data
+ * @param int $status
+ * @param array $headers
+ * @param int $options
+ * @return Response
+ */
+function responseJson($data, int $status = 200, array $headers = [], int $options = JSON_NUMERIC_CHECK | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR): Response
+{
+    return new Response($status, ['Content-Type' => 'application/json'] + $headers, json($data, $options));
+}
+
+/**
+ * @param string $location
+ * @param int $status
+ * @param array $headers
+ * @return Response
+ */
+function redirect(string $location, int $status = 302, array $headers = []): Response
+{
+    $response = new Response($status, ['Location' => $location]);
+    if (!empty($headers)) {
+        $response->withHeaders($headers);
+    }
+    return $response;
+}
+
+if (!function_exists('not_found')) {
+    /**
+     * @return Response
+     * @throws Throwable
+     */
+    function not_found(): Response
+    {
+        return response('Ничего не найдено', 404);
+    }
+}
+
+if (!function_exists('jsonp')) {
+    /**
+     * @param $data
+     * @param string $callbackName
+     * @return Response
+     */
+    function jsonp($data, string $callbackName = 'callback'): Response
+    {
+        if (!is_scalar($data) && null !== $data) {
+            $data = json_encode($data);
+        }
+        return new Response(200, [], "$callbackName($data)");
+    }
 }

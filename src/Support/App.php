@@ -84,54 +84,53 @@ class App
         $server::$stopTimeout = (int)config('server.stop_timeout', 2);
         TcpConnection::$defaultMaxPackageSize = config('server.max_package_size', 10 * 1024 * 1024);
 
-        static::server_start(config('server'));
+        $servers = [config('server')];
 
         // Windows не поддерживает кастомные процессы
-        if (DIRECTORY_SEPARATOR === '/') {
+        if (is_unix()) {
             $config = config();
 
             foreach ($config['servers'] ?? $config['process'] ?? [] as $processName => $processConfig) {
                 $processConfig['name'] ??= $processName;
-                static::server_start($processConfig);
+                $servers[] = $processConfig;
             }
 
-            Plugin::app_reduce(function ($plugin, $config) {
+            Plugin::app_reduce(function ($plugin, $config) use (&$servers) {
                 foreach ($config['servers'] ?? $config['process'] ?? [] as $processName => $processConfig) {
                     $processConfig['name'] ??= config('app.plugin_alias', 'plugin') . ".$plugin.$processName";
-                    static::server_start($processConfig);
+                    $servers[] = $processConfig;
                 }
             });
 
-            Plugin::plugin_reduce(function ($vendor, $plugins, $plugin, $config) {
+            Plugin::plugin_reduce(function ($vendor, $plugins, $plugin, $config) use (&$servers) {
                 foreach ($config['servers'] ?? $config['process'] ?? [] as $processName => $processConfig) {
                     $processConfig['name'] ??= "plugin.$vendor.$plugin.$processName";
-                    static::server_start($processConfig);
+                    $servers[] = $processConfig;
                 }
             });
+        }
+
+        foreach ($servers as $config) {
+            localzet_start(
+                name: $config['name'] ?? null,
+                count: $config['count'] ?? null,
+                listen: $config['listen'] ?? null,
+                context: $config['context'] ?? null,
+                user: $config['user'] ?? null,
+                group: $config['group'] ?? null,
+                reloadable: $config['reloadable'] ?? null,
+                reusePort: $config['reusePort'] ?? null,
+                protocol: $config['protocol'] ?? null,
+                transport: $config['transport'] ?? null,
+                server: $config['server'] ?? null,
+                handler: $config['handler'] ?? null,
+                constructor: $config['constructor'] ?? null,
+                services: $config['services'] ?? null,
+            );
         }
 
         if (!defined('GLOBAL_START')) {
             Server::runAll();
         }
-    }
-
-    protected static function server_start($config)
-    {
-        localzet_start(
-            name: $config['name'] ?? null,
-            count: $config['count'] ?? null,
-            listen: $config['listen'] ?? null,
-            context: $config['context'] ?? null,
-            user: $config['user'] ?? null,
-            group: $config['group'] ?? null,
-            reloadable: $config['reloadable'] ?? null,
-            reusePort: $config['reusePort'] ?? null,
-            protocol: $config['protocol'] ?? null,
-            transport: $config['transport'] ?? null,
-            server: $config['server'] ?? null,
-            handler: $config['handler'] ?? null,
-            constructor: $config['constructor'] ?? null,
-            services: $config['services'] ?? null,
-        );
     }
 }

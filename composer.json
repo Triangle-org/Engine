@@ -50,9 +50,13 @@
     "psr-4": {
       "Triangle\\Engine\\": "src",
       "Triangle\\Exception\\": "src/Exception",
+      "Triangle\\Services\\": "src/Services",
       "support\\": "src/Support/",
       "Support\\": "src/Support/"
-    }
+    },
+    "files": [
+      "src/functions.php"
+    ]
   },
   "scripts": {
     "post-package-install": [

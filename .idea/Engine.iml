@@ -5,6 +5,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" packagePrefix="Triangle\Engine\" />
       <sourceFolder url="file://$MODULE_DIR$/src/Support" isTestSource="false" packagePrefix="support\" />
       <sourceFolder url="file://$MODULE_DIR$/src/Exception" isTestSource="false" packagePrefix="Triangle\Exception\" />
+      <sourceFolder url="file://$MODULE_DIR$/src/Services" isTestSource="false" packagePrefix="Triangle\Services\" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/composer" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/graham-campbell/result-type" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/localzet/server" />
