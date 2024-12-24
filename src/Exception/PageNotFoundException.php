@@ -27,8 +27,8 @@
 namespace Triangle\Exception;
 
 use Throwable;
-use Triangle\support\Request;
-use Triangle\support\Response;
+use Triangle\Engine\Request;
+use Triangle\Engine\Response;
 
 class PageNotFoundException extends NotFoundException
 {
