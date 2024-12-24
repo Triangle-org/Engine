@@ -43,6 +43,8 @@ use ReflectionFunction;
 use ReflectionFunctionAbstract;
 use ReflectionMethod;
 use Throwable;
+use Triangle\Exception\ExceptionHandler;
+use Triangle\Exception\ExceptionHandlerInterface;
 use Triangle\Exception\InputTypeException;
 use Triangle\Exception\InputValueException;
 use Triangle\Exception\MissingInputException;
@@ -651,7 +653,7 @@ abstract class App extends ServerAbstract
      * @param $request
      * @return array|null
      */
-    protected static function getCallbacks(string $key, &$request): ?array
+    protected static function getCallbacks(string $key, &$request): Closure|callable|null
     {
         if (!isset(static::$callbacks[$key])) return null;
         [
