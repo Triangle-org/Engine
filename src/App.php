@@ -55,14 +55,8 @@ abstract class App extends ServerAbstract
      */
     protected static array $callbacks = [];
 
-    /**
-     * @var Server|null
-     */
     protected static ?Server $server = null;
 
-    /**
-     * @var Logger|null
-     */
     protected static ?Logger $logger = null;
 
 
@@ -72,8 +66,6 @@ abstract class App extends ServerAbstract
     protected static ?string $requestClass = null;
 
     /**
-     * @param string $requestClass
-     * @param Logger $logger
      * @param string|null $basePath
      * @param string|null $appPath
      * @param string|null $configPath
@@ -101,8 +93,6 @@ abstract class App extends ServerAbstract
     }
 
     /**
-     * @param Server $server
-     * @return void
      * @throws ErrorException
      */
     public function onServerStart(Server &$server): void
@@ -111,29 +101,21 @@ abstract class App extends ServerAbstract
         if (class_exists($server->protocol) && method_exists($server->protocol, 'requestClass')) {
             $server->protocol::requestClass(static::$requestClass);
         }
+        
         Context::init();
         Autoload::loadAll($server);
     }
 
-    /**
-     * @return TcpConnection|null
-     */
     public static function connection(): TcpConnection|null
     {
         return Context::get(TcpConnection::class);
     }
 
-    /**
-     * @return Request|null
-     */
     public static function request(): Request|null
     {
         return Context::get(static::$requestClass);
     }
 
-    /**
-     * @return Server|null
-     */
     public static function server(): ?Server
     {
         return static::$server;
@@ -151,13 +133,10 @@ abstract class App extends ServerAbstract
         if ($call instanceof Closure || is_string($call)) {
             return new ReflectionFunction($call);
         }
+        
         return new ReflectionMethod($call[0], $call[1]);
     }
 
-    /**
-     * @param mixed $data
-     * @return string
-     */
     protected static function stringify(mixed $data): string
     {
         $type = gettype($data);
@@ -181,9 +160,6 @@ abstract class App extends ServerAbstract
 
     /**
      * Получить метод
-     * @param string $class
-     * @param string $method
-     * @return string
      */
     protected static function getRealMethod(string $class, string $method): string
     {
@@ -194,11 +170,11 @@ abstract class App extends ServerAbstract
                 return $candidate;
             }
         }
+        
         return $method;
     }
 
     /**
-     * @param string $controllerClass
      * @return mixed|string
      */
     protected static function getAppByController(string $controllerClass): mixed
@@ -209,6 +185,7 @@ abstract class App extends ServerAbstract
         if (!isset($tmp[$pos])) {
             return '';
         }
+        
         return strtolower($tmp[$pos]) === 'controller' ? '' : $tmp[$pos];
     }
 
@@ -287,6 +264,7 @@ abstract class App extends ServerAbstract
             array_splice($tmp, $index, 1, [$section, 'controller']);
             $map[] = trim("$classPrefix\\" . implode('\\', array_merge(['app'], $tmp)), '\\');
         }
+        
         foreach ($map as $item) {
             $map[] = $item . '\\index';
         }
@@ -297,6 +275,7 @@ abstract class App extends ServerAbstract
             if (str_ends_with($controllerClass, '\\controller')) {
                 continue;
             }
+            
             $controllerClass .= $suffix;
             // Если контроллер и действие найдены, возвращаем информацию о них
             if ($controllerAction = static::getControllerAction($controllerClass, $action)) {
@@ -363,11 +342,12 @@ abstract class App extends ServerAbstract
             if (!$found) {
                 break;
             }
+            
             $dirs = scan_dir($basePath, false);
             $found = false;
-            foreach ($dirs as $name) {
-                $path = "$basePath/$name";
-                if (is_dir($path) && strtolower($name) === $pathSection) {
+            foreach ($dirs as $dir) {
+                $path = "$basePath/{$dir}";
+                if (is_dir($path) && strtolower((string) $dir) === $pathSection) {
                     $basePath = $path;
                     $found = true;
                     break;
@@ -409,9 +389,9 @@ abstract class App extends ServerAbstract
         $found = false;
 
         // Проверяем, есть ли метод, соответствующий действию
-        foreach ($methods as $candidate) {
-            if (strtolower($candidate) === $lowerAction) {
-                $action = $candidate;
+        foreach ($methods as $method) {
+            if (strtolower($method) === $lowerAction) {
+                $action = $method;
                 $found = true;
                 break;
             }
@@ -437,28 +417,15 @@ abstract class App extends ServerAbstract
     }
 
     /**
-     * @param string $path
-     * @return bool
      * @throws Throwable
      */
     protected static function unsafeUri(string $path): bool
     {
-        if (
-            !$path ||
-            $path[0] !== '/' ||
-            str_contains($path, '/../') ||
-            str_ends_with($path, '/..') ||
-            str_contains($path, "\\") ||
-            str_contains($path, "\0")
-        ) {
-            return true;
-        }
-        return false;
+        return !$path || $path[0] !== '/' || str_contains($path, '/../') || str_ends_with($path, '/..') || str_contains($path, "\\") || str_contains($path, "\0");
     }
 
     /**
      * Выполнить php файл
-     * @param string $file
      * @return false|string
      */
     public static function execPhpFile(string $file): false|string
@@ -466,20 +433,18 @@ abstract class App extends ServerAbstract
         ob_start();
         try {
             include $file;
-        } catch (Exception $e) {
-            echo $e;
+        } catch (Exception $exception) {
+            echo $exception;
         }
+        
         return ob_get_clean();
     }
 
     /**
      * Функция для получения зависимых параметров.
      *
-     * @param ContainerInterface $container
      * @param Request $request Запрос.
-     * @param array $inputs
-     * @param ReflectionFunctionAbstract $reflector Рефлектор.
-     * @param bool $debug
+     * @param ReflectionFunctionAbstract $reflectionFunctionAbstract Рефлектор.
      * @return array Возвращает массив с зависимыми параметрами.
      * @throws ReflectionException
      */
@@ -487,17 +452,17 @@ abstract class App extends ServerAbstract
         ContainerInterface         $container,
         Request                    $request,
         array                      $inputs,
-        ReflectionFunctionAbstract $reflector,
+        ReflectionFunctionAbstract $reflectionFunctionAbstract,
         bool                       $debug
     ): array
     {
         $parameters = [];
-        foreach ($reflector->getParameters() as $parameter) {
+        foreach ($reflectionFunctionAbstract->getParameters() as $parameter) {
             $parameterName = $parameter->name;
             $type = $parameter->getType();
             $typeName = $type?->getName();
 
-            if ($typeName && is_a($request, $typeName)) {
+            if ($typeName && $request instanceof $typeName) {
                 $parameters[$parameterName] = $request;
                 continue;
             }
@@ -514,6 +479,7 @@ abstract class App extends ServerAbstract
                     continue;
                 }
             }
+            
             $parameterValue = $inputs[$parameterName] ?? null;
             switch ($typeName) {
                 case 'int':
@@ -525,6 +491,7 @@ abstract class App extends ServerAbstract
                             'actualType' => gettype($parameterValue),
                         ])->debug($debug);
                     }
+                    
                     $parameters[$parameterName] = $typeName === 'float' ? (float)$parameterValue : (int)$parameterValue;
                     break;
                 case 'bool':
@@ -539,6 +506,7 @@ abstract class App extends ServerAbstract
                             'actualType' => gettype($parameterValue),
                         ])->debug($debug);
                     }
+                    
                     $parameters[$parameterName] = $typeName === 'object' ? (object)$parameterValue : $parameterValue;
                     break;
                 case 'string':
@@ -556,6 +524,7 @@ abstract class App extends ServerAbstract
                         ]);
                         break;
                     }
+                    
                     if (enum_exists($typeName)) {
                         $reflection = new ReflectionEnum($typeName);
                         if ($reflection->hasCase($parameterValue)) {
@@ -569,19 +538,23 @@ abstract class App extends ServerAbstract
                                 }
                             }
                         }
+                        
                         if (!array_key_exists($parameterName, $parameters)) {
                             throw (new InputValueException())->data([
                                 'parameter' => $parameterName,
                                 'enum' => $typeName
                             ])->debug($debug);
                         }
+                        
                         break;
                     }
-                    if (is_array($subInputs) && $constructor = (new ReflectionClass($typeName))->getConstructor()) {
+                    
+                    if ($constructor = (new ReflectionClass($typeName))->getConstructor()) {
                         $parameters[$parameterName] = $container->make($typeName, static::resolveMethodDependencies($container, $request, $subInputs, $constructor, $debug));
                     } else {
                         $parameters[$parameterName] = $container->make($typeName);
                     }
+                    
                     break;
             }
         }
@@ -590,10 +563,6 @@ abstract class App extends ServerAbstract
     }
 
     /**
-     * @param string|null $plugin
-     * @param array|Closure $call
-     * @param array|null $args
-     * @return Closure
      * @see Dependency injection through reflection information
      */
     protected static function resolveInject(?string $plugin, array|Closure $call, ?array $args): Closure
@@ -611,11 +580,6 @@ abstract class App extends ServerAbstract
         };
     }
 
-    /**
-     * @param string $key
-     * @param array $data
-     * @return void
-     */
     protected static function collectCallbacks(string $key, array $data): void
     {
         static::$callbacks[$key] = $data;
@@ -625,13 +589,15 @@ abstract class App extends ServerAbstract
     }
 
     /**
-     * @param string $key
      * @param $request
      * @return array|null
      */
     protected static function getCallbacks(string $key, &$request): Closure|callable|null
     {
-        if (!isset(static::$callbacks[$key])) return null;
+        if (!isset(static::$callbacks[$key])) {
+            return null;
+        }
+
         [
             $callback,
             $request->plugin,
@@ -646,8 +612,6 @@ abstract class App extends ServerAbstract
     /**
      * Проверка, требуется ли внедрение зависимостей.
      * @param $call
-     * @param array $args
-     * @return bool
      * @throws ReflectionException
      */
     protected static function isNeedInject($call, array &$args): bool
@@ -661,7 +625,8 @@ abstract class App extends ServerAbstract
         if (!$reflectionParameters) {
             return false;
         }
-        $firstParameter = current($reflectionParameters);
+        
+        $reflectionParameter = current($reflectionParameters);
         unset($reflectionParameters[key($reflectionParameters)]);
         $adaptersList = ['int', 'string', 'bool', 'array', 'object', 'float', 'mixed', 'resource'];
         $keys = [];
@@ -675,16 +640,19 @@ abstract class App extends ServerAbstract
                     $needInject = true;
                     continue;
                 }
+                
                 if (!array_key_exists($parameterName, $args)) {
                     $needInject = true;
                     continue;
                 }
+                
                 switch ($typeName) {
                     case 'int':
                     case 'float':
                         if (!is_numeric($args[$parameterName])) {
                             return true;
                         }
+                        
                         $args[$parameterName] = $typeName === 'int' ? (int)$args[$parameterName] : (float)$args[$parameterName];
                         break;
                     case 'bool':
@@ -695,6 +663,7 @@ abstract class App extends ServerAbstract
                         if (!is_array($args[$parameterName])) {
                             return true;
                         }
+                        
                         $args[$parameterName] = $typeName === 'array' ? $args[$parameterName] : (object)$args[$parameterName];
                         break;
                     case 'string':
@@ -704,14 +673,16 @@ abstract class App extends ServerAbstract
                 }
             }
         }
+        
         if (array_keys($args) !== $keys) {
             return true;
         }
-        if (!$firstParameter->hasType()) {
-            return $firstParameter->getName() !== 'request';
+        
+        if (!$reflectionParameter->hasType()) {
+            return $reflectionParameter->getName() !== 'request';
         }
 
-        if (!is_a(static::$requestClass, $firstParameter->getType()->getName(), true)) {
+        if (!is_a(static::$requestClass, $reflectionParameter->getType()->getName(), true)) {
             return true;
         }
 
@@ -757,10 +728,10 @@ abstract class App extends ServerAbstract
             $response = $exceptionHandler->render($request, $e);
             $response->exception($e);
             return $response;
-        } catch (Throwable $e) {
+        } catch (Throwable $throwable) {
             // Если возникло исключение при обработке исключения, создаем ответ с кодом 500
-            $response = new Response(500, [], config('app.debug', plugin: $plugin) ? (string)$e : $e->getMessage());
-            $response->exception($e);
+            $response = new Response(500, [], config('app.debug', plugin: $plugin) ? (string)$throwable : $throwable->getMessage());
+            $response->exception($throwable);
             return $response;
         }
     }
