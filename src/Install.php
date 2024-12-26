@@ -58,7 +58,7 @@ class Install
 
     public static function uninstall(): void
     {
-        foreach (static::$pathRelation as $source => $target) {
+        foreach (static::$pathRelation as $target) {
             self::removeDirectory($target);
         }
     }
