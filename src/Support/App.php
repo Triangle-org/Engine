@@ -76,7 +76,7 @@ class App
                  ] as $key => $default
         ) {
             $path = runtime_path(config("server.master.$key", $default));
-            if ((!file_exists($path) || !is_dir(dirname($path))) && !create_dir(dirname($path))) {
+            if ((!file_exists(dirname($path)) || !is_dir(dirname($path))) && !create_dir(dirname($path))) {
                 throw new RuntimeException("Failed to create runtime logs directory. Please check the permission.");
             }
             $server::$$key = $path;
