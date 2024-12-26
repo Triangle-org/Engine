@@ -6,6 +6,8 @@
       <sourceFolder url="file://$MODULE_DIR$/src/Support" isTestSource="false" packagePrefix="support\" />
       <sourceFolder url="file://$MODULE_DIR$/src/Exception" isTestSource="false" packagePrefix="Triangle\Exception\" />
       <sourceFolder url="file://$MODULE_DIR$/src/Services" isTestSource="false" packagePrefix="Triangle\Services\" />
+      <sourceFolder url="file://$MODULE_DIR$/spec" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/composer" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/graham-campbell/result-type" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/localzet/server" />
@@ -18,6 +20,8 @@
       <excludeFolder url="file://$MODULE_DIR$/vendor/symfony/polyfill-php80" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/vlucas/phpdotenv" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/localzet/events" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/phpstan/phpstan" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/rector/rector" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
