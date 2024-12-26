@@ -42,10 +42,6 @@ use function opcache_invalidate;
 
 class App
 {
-    /**
-     * @return void
-     * @throws Throwable
-     */
     public static function run(): void
     {
         ini_set('display_errors', 'on');
@@ -58,21 +54,14 @@ class App
         error_reporting(config('server.error_reporting', E_ALL));
         date_default_timezone_set(config('server.default_timezone', config('app.default_timezone', 'Europe/Moscow')));
 
-        $runtimeLogsPath = runtime_path('logs');
-        if (!file_exists($runtimeLogsPath) || !is_dir($runtimeLogsPath)) {
-            if (!mkdir($runtimeLogsPath, 0777, true)) {
-                throw new RuntimeException("Failed to create runtime logs directory. Please check the permission.");
-            }
-        }
-
         $server = config('server.server');
         $server = $server instanceof Server ? $server : Server::class;
 
         $server::$onMasterReload = function () {
             if (function_exists('opcache_get_status')) {
                 if ($status = opcache_get_status()) {
-                    if (isset($status['scripts']) && $scripts = $status['scripts']) {
-                        foreach (array_keys($scripts) as $file) {
+                    if (isset($status['scripts'])) {
+                        foreach (array_keys($status['scripts']) as $file) {
                             opcache_invalidate($file, true);
                         }
                     }
@@ -80,12 +69,24 @@ class App
             }
         };
 
-        $server::$pidFile = config('server.pid_file', runtime_path('triangle.pid'));
-        $server::$stdoutFile = config('server.stdout_file', runtime_path('logs/stdout.log'));
-        $server::$logFile = config('server.log_file', runtime_path('logs/server.log'));
-        $server::$statusFile = config('server.status_file', runtime_path('triangle.status'));
-        $server::$stopTimeout = (int)config('server.stop_timeout', 2);
-        TcpConnection::$defaultMaxPackageSize = config('server.max_package_size', 10 * 1024 * 1024);
+        foreach ([
+                     'pidFile' => 'triangle.pid',
+                     'statusFile' => 'triangle.status',
+                     'stdoutFile' => 'logs/stdout.log',
+                     'logFile' => 'logs/server.log',
+                 ] as $key => $default
+        ) {
+            $path = runtime_path(config("server.master.$key", $default));
+            if ((!file_exists($path) || !is_dir(dirname($path))) && !mkdir(dirname($path), 0777, true)) {
+                throw new RuntimeException("Failed to create runtime logs directory. Please check the permission.");
+            }
+            $server::$$key = $path;
+        }
+
+        if (is_array(config('server.tcp'))) {
+            TcpConnection::$defaultMaxSendBufferSize = config('server.tcp.defaultMaxSendBufferSize', 1024 * 1024);
+            TcpConnection::$defaultMaxPackageSize = config('server.tcp.defaultMaxPackageSize', 10 * 1024 * 1024);
+        }
 
         $servers = [config('server')];
 
