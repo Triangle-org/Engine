@@ -31,8 +31,8 @@ use support\Translation;
 use Triangle\Engine\Config;
 use Triangle\Engine\Environment;
 use Triangle\Engine\Path;
-use Triangle\Engine\Request;
-use Triangle\Engine\Response;
+use Triangle\Request;
+use Triangle\Response;
 
 $install_path = Composer\InstalledVersions::getRootPackage()['install_path'] ?? null;
 define('BASE_PATH', str_starts_with($install_path, 'phar://') ? $install_path : realpath($install_path) ?? dirname(__DIR__));
@@ -339,9 +339,9 @@ if (!function_exists('connection')) {
 
 if (!function_exists('request')) {
     /**
-     * @return Request
+     * @return Request|\Triangle\Request
      */
-    function request(): Request
+    function request(): Request|\Triangle\Request
     {
         return config('server.handler')::request();
     }
@@ -362,10 +362,10 @@ if (!function_exists('response')) {
      * @param mixed $data
      * @param int $status
      * @param array $headers
-     * @return Response
+     * @return Response|\Triangle\Response
      * @throws Throwable
      */
-    function response(mixed $data = '', int $status = 200, array $headers = []): Response
+    function response(mixed $data = '', int $status = 200, array $headers = []): Response|\Triangle\Response
     {
         $status = config('app.http_always_200') ? 200 : $status;
         $body = compact('status', 'data');
@@ -385,10 +385,11 @@ if (!function_exists('response')) {
 /**
  * @param string $blob
  * @param string $type
- * @return Response
+ * @return Response|\Triangle\Response
  */
-function responseBlob(string $blob, string $type = 'text/plain'): Response
+function responseBlob(string $blob, string $type = 'text/plain'): Response|\Triangle\Response
 {
+
     return new Response(200, ['Content-Type' => $type], $blob);
 }
 

@@ -34,10 +34,11 @@ use Throwable;
 use Triangle\Engine\Config;
 use Triangle\Engine\Environment;
 use Triangle\Engine\Plugin;
+use Triangle\Engine\Request;
+use Triangle\Engine\Response;
 use function is_dir;
 use function opcache_get_status;
 use function opcache_invalidate;
-use const DIRECTORY_SEPARATOR;
 
 class App
 {
@@ -48,6 +49,8 @@ class App
     public static function run(): void
     {
         ini_set('display_errors', 'on');
+        class_exists(\Triangle\Request::class) || class_alias(Request::class, \Triangle\Request::class);
+        class_exists(\Triangle\Response::class) || class_alias(Response::class, \Triangle\Response::class);
 
         Environment::start();
         Config::reloadAll(['route', 'container']);
