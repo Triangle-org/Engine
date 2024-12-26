@@ -29,7 +29,7 @@ namespace Triangle\Engine;
 
 class Plugin
 {
-    public static function app_reduce($callback)
+    public static function app_reduce($callback): void
     {
         foreach (config(config('app.plugin_alias', 'plugin'), []) as $plugin => $config) {
             if (is_array($config)) {
@@ -64,7 +64,7 @@ class Plugin
         return null;
     }
 
-    public static function plugin_reduce($callback)
+    public static function plugin_reduce($callback): void
     {
         foreach (config('plugin', []) as $vendor => $plugins) {
             foreach ($plugins as $plugin => $config) {

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package     Triangle Engine (FrameX Project)
  * @link        https://github.com/Triangle-org/Engine Triangle Engine (v2+)
@@ -67,12 +67,12 @@ abstract class App extends ServerAbstract
 
 
     /**
-     * @var string|null
+     * @var class-string|null
      */
     protected static ?string $requestClass = null;
 
     /**
-     * @param Request $requestClass
+     * @param string $requestClass
      * @param Logger $logger
      * @param string|null $basePath
      * @param string|null $appPath
@@ -81,7 +81,7 @@ abstract class App extends ServerAbstract
      * @param string|null $runtimePath
      */
     public function __construct(
-        Request $requestClass,
+        string $requestClass,
         Logger  $logger,
         string  $basePath = null,
         string  $appPath = null,

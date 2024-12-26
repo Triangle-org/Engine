@@ -52,7 +52,7 @@ class Context
     /**
      * @var StdClass
      */
-    protected static $object;
+    protected static StdClass $object;
 
     /**
      * Получить значение из контекста
@@ -68,7 +68,7 @@ class Context
      * Получить объект контекста
      * @return void
      */
-    public static function init()
+    public static function init(): void
     {
         if (!static::$objectStorage) {
             static::$objectStorage = class_exists(WeakMap::class) ? new WeakMap() : new SplObjectStorage();

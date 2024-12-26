@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package     Triangle Engine (FrameX Project)
  * @link        https://github.com/Triangle-org/Engine Triangle Engine (v2+)

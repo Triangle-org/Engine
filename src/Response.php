@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package     Triangle Engine (FrameX Project)
  * @link        https://github.com/Triangle-org/Engine Triangle Engine (v2+)
@@ -52,13 +52,13 @@ class Response extends \localzet\Server\Protocols\Http\Response
      * @param array $headers Заголовки HTTP.
      * @param string $body Тело ответа.
      */
-    function __construct(
+    public function __construct(
         int    $status = 200,
         array  $headers = [],
         string $body = ''
     )
     {
-        $headers = $headers + config('app.http_headers', []);
+        $headers += config('app.http_headers', []);
         parent::__construct($status, $headers, $body);
     }
 
@@ -82,7 +82,7 @@ class Response extends \localzet\Server\Protocols\Http\Response
      * @param string $file Путь к файлу.
      * @return $this
      */
-    public function file(string $file): Response
+    public function file(string $file): self
     {
         if ($this->notModifiedSince($file)) {
             return $this->withStatus(304);
@@ -112,7 +112,7 @@ class Response extends \localzet\Server\Protocols\Http\Response
      * @param string $downloadName Имя файла для загрузки.
      * @return $this
      */
-    public function download(string $file, string $downloadName = ''): Response
+    public function download(string $file, string $downloadName = ''): self
     {
         $this->withFile($file);
         if ($downloadName) {

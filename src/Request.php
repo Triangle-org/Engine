@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package     Triangle Engine (FrameX Project)
  * @link        https://github.com/Triangle-org/Engine Triangle Engine (v2+)
@@ -62,29 +62,19 @@ class Request extends \localzet\Server\Protocols\Http\Request
      * @param string|null $name Имя файла.
      * @return File|File[]|null
      */
-    public function file($name = null): array|File|null
+    public function file(?string $name = null): array|File|null
     {
         $files = parent::file($name);
-        if (null === $files) {
+        if ($files === null) {
             return $name === null ? [] : null;
         }
         if ($name !== null) {
-            // Multi files
-            if (is_array(current($files))) {
-                return $this->parseFiles($files);
-            }
-            return $this->parseFile($files);
+            return is_array(current($files)) ? $this->parseFiles($files) : $this->parseFile($files);
         }
-        $uploadFiles = [];
-        foreach ($files as $name => $file) {
-            // Multi files
-            if (is_array(current($file))) {
-                $uploadFiles[$name] = $this->parseFiles($file);
-            } else {
-                $uploadFiles[$name] = $this->parseFile($file);
-            }
-        }
-        return $uploadFiles;
+
+        return array_map(function ($file) {
+            return is_array(current($file)) ? $this->parseFiles($file) : $this->parseFile($file);
+        }, $files);
     }
 
     /**
@@ -95,15 +85,9 @@ class Request extends \localzet\Server\Protocols\Http\Request
      */
     protected function parseFiles(array $files): array
     {
-        $uploadFiles = [];
-        foreach ($files as $key => $file) {
-            if (is_array(current($file))) {
-                $uploadFiles[$key] = $this->parseFiles($file);
-            } else {
-                $uploadFiles[$key] = $this->parseFile($file);
-            }
-        }
-        return $uploadFiles;
+        return array_map(function ($file) {
+            return is_array(current($file)) ? $this->parseFiles($file) : $this->parseFile($file);
+        }, $files);
     }
 
     /**
