@@ -58,12 +58,9 @@ class Environment implements BootstrapInterface
         self::load(run_path());
     }
 
-    public static function load(string $path, $file = '.env'): void
+    public static function load(string $path, string $file = '.env'): void
     {
-        if (
-            class_exists(Dotenv::class)
-            && file_exists(path_combine($path, $file))
-        ) {
+        if (class_exists(Dotenv::class) && file_exists(path_combine($path, $file))) {
             Dotenv::create(self::getRepository(), $path, $file)->safeLoad();
         }
     }
@@ -101,7 +98,7 @@ class Environment implements BootstrapInterface
             $builder = RepositoryBuilder::createWithDefaultAdapters();
 
             if (self::$putenv) {
-                $builder = $builder->addAdapter(PutenvAdapter::class);
+                $builder->addAdapter(PutenvAdapter::class);
             }
 
             self::$repository = $builder->immutable()->make();
@@ -127,7 +124,6 @@ class Environment implements BootstrapInterface
      *
      * @param string $key
      * @return mixed
-     *
      * @throws RuntimeException
      */
     public static function getOrFail(string $key): mixed
@@ -140,35 +136,39 @@ class Environment implements BootstrapInterface
      *
      * @param array $values
      * @param string $environmentFile
-     * @return false|int
+     * @return bool
      */
     public static function set(array $values, string $environmentFile = '.env'): bool
     {
         $envFile = file_exists($environmentFile) ? $environmentFile : run_path($environmentFile);
-        $envExample = base_path('.env.example') ?? run_path('.env.example');
+        $envExample = file_exists(base_path('.env.example')) ? base_path('.env.example') : run_path('.env.example');
+
         if (!file_exists($envFile) && file_exists($envExample)) {
             copy($envExample, $envFile);
         }
+
         $str = file_get_contents($envFile);
+        $str = self::updateEnvironmentFile($str, $values);
 
-        if (count($values) > 0) {
-            foreach ($values as $envKey => $envValue) {
-                $str .= "\n"; // Если искомая переменная находится в последней строке без \n
-                $keyPosition = strpos($str, "$envKey=");
+        return file_put_contents($envFile, $str) !== false;
+    }
 
-                if ($keyPosition) {
-                    $endOfLinePosition = strpos($str, "\n", $keyPosition);
-                    $oldLine = substr($str, $keyPosition, $endOfLinePosition - $keyPosition);
-                    $str = str_replace($oldLine, "$envKey=\"$envValue\"", $str);
-                } else {
-                    $str .= "\n$envKey=\"$envValue\"";
-                }
+    protected static function updateEnvironmentFile(string $str, array $values): string
+    {
+        foreach ($values as $envKey => $envValue) {
+            $str .= "\n";
+            $keyPosition = strpos($str, "$envKey=");
+
+            if ($keyPosition !== false) {
+                $endOfLinePosition = strpos($str, "\n", $keyPosition);
+                $oldLine = substr($str, $keyPosition, $endOfLinePosition - $keyPosition);
+                $str = str_replace($oldLine, "$envKey=\"$envValue\"", $str);
+            } else {
+                $str .= "$envKey=\"$envValue\"\n";
             }
         }
 
-        $str = substr($str, 0, -1);
-
-        return file_put_contents($envFile, $str) !== false;
+        return rtrim($str);
     }
 
     /**
@@ -179,7 +179,6 @@ class Environment implements BootstrapInterface
      */
     protected static function getOption(string $key): Some|Option
     {
-
         return Option::fromValue(self::getRepository()->get($key))
             ->map(function ($value) {
                 $valueMap = [
@@ -189,19 +188,7 @@ class Environment implements BootstrapInterface
                     'empty' => '',
                 ];
 
-                if (isset($valueMap[strtolower($value)])) {
-                    return $valueMap[strtolower($value)];
-                }
-
-                if (is_numeric($value)) {
-                    return $value + 0;
-                }
-
-                if (preg_match('/\A([\'"])(.*)\1\z/', $value, $matches)) {
-                    return $matches[2];
-                }
-
-                return $value;
+                return $valueMap[strtolower($value)] ?? (is_numeric($value) ? $value + 0 : preg_replace('/\A[\'"](.*)[\'"]\z/', '$1', $value));
             });
     }
 }

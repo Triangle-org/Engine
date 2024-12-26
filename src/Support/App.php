@@ -76,7 +76,7 @@ class App
                  ] as $key => $default
         ) {
             $path = runtime_path(config("server.master.$key", $default));
-            if ((!file_exists($path) || !is_dir(dirname($path))) && !mkdir(dirname($path), 0777, true)) {
+            if ((!file_exists($path) || !is_dir(dirname($path))) && !create_dir(dirname($path))) {
                 throw new RuntimeException("Failed to create runtime logs directory. Please check the permission.");
             }
             $server::$$key = $path;
@@ -92,21 +92,22 @@ class App
         // Windows не поддерживает кастомные процессы
         if (is_unix()) {
             $config = config();
+            $services = fn($c) => $c['server']['services'] ?? $c['servers'] ?? $c['process'] ?? [];
 
-            foreach ($config['servers'] ?? $config['process'] ?? [] as $processName => $processConfig) {
+            foreach ($services($config) as $processName => $processConfig) {
                 $processConfig['name'] ??= $processName;
                 $servers[] = $processConfig;
             }
 
-            Plugin::app_reduce(function ($plugin, $config) use (&$servers) {
-                foreach ($config['servers'] ?? $config['process'] ?? [] as $processName => $processConfig) {
+            Plugin::app_reduce(function ($plugin, $config) use (&$servers, $services) {
+                foreach ($services($config) as $processName => $processConfig) {
                     $processConfig['name'] ??= config('app.plugin_alias', 'plugin') . ".$plugin.$processName";
                     $servers[] = $processConfig;
                 }
             });
 
-            Plugin::plugin_reduce(function ($vendor, $plugins, $plugin, $config) use (&$servers) {
-                foreach ($config['servers'] ?? $config['process'] ?? [] as $processName => $processConfig) {
+            Plugin::plugin_reduce(function ($vendor, $plugins, $plugin, $config) use (&$servers, $services) {
+                foreach ($services($config) as $processName => $processConfig) {
                     $processConfig['name'] ??= "plugin.$vendor.$plugin.$processName";
                     $servers[] = $processConfig;
                 }

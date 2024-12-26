@@ -31,7 +31,6 @@ use SplFileInfo;
 use Triangle\Exception\FileException;
 use function chmod;
 use function is_dir;
-use function mkdir;
 use function pathinfo;
 use function restore_error_handler;
 use function set_error_handler;
@@ -142,7 +141,7 @@ class File extends SplFileInfo
             $error = $msg;
         });
         $path = pathinfo($destination, PATHINFO_DIRNAME);
-        if (!is_dir($path) && !mkdir($path, 0777, true)) {
+        if (!is_dir($path) && !create_dir($path)) {
             restore_error_handler();
             throw new FileException(sprintf('Unable to create the "%s" directory (%s)', $path, strip_tags($error)));
         }

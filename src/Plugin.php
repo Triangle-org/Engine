@@ -32,21 +32,20 @@ class Plugin
     public static function app_reduce($callback)
     {
         foreach (config(config('app.plugin_alias', 'plugin'), []) as $plugin => $config) {
-            if (!is_array($config)) {
-                continue;
+            if (is_array($config)) {
+                $callback($plugin, $config);
             }
-            $callback($plugin, $config);
         }
     }
 
     public static function app_by_path(string $path): ?string
     {
-        $path = trim($path, '/');
+        $trimmedPath = trim($path, '/');
         $suffix = trim(config('app.plugin_uri', 'app'), '/');
 
-        if (str_starts_with($path, $suffix)) {
-            $path = trim(substr($path, strlen($suffix)), '/');
-            return explode('/', $path)[0] ?? '';
+        if (str_starts_with($trimmedPath, $suffix)) {
+            $trimmedPath = trim(substr($trimmedPath, strlen($suffix)), '/');
+            return explode('/', $trimmedPath)[0] ?? '';
         }
 
         return null;
@@ -54,13 +53,12 @@ class Plugin
 
     public static function app_by_class(string $class): ?string
     {
-        $class = trim($class, '\\');
-        $suffix = trim(config('app.plugin_alias', 'plugin'), '/');
-        $suffix = str_replace('\\', '/', $suffix);
+        $trimmedClass = trim($class, '\\');
+        $suffix = str_replace('\\', '/', trim(config('app.plugin_alias', 'plugin'), '/'));
 
-        if (str_starts_with($class, $suffix)) {
-            $path = trim(substr($class, strlen($suffix)), '\\');
-            return explode('\\', $path)[0] ?? '';
+        if (str_starts_with($trimmedClass, $suffix)) {
+            $trimmedClass = trim(substr($trimmedClass, strlen($suffix)), '\\');
+            return explode('\\', $trimmedClass)[0] ?? '';
         }
 
         return null;
@@ -70,10 +68,9 @@ class Plugin
     {
         foreach (config('plugin', []) as $vendor => $plugins) {
             foreach ($plugins as $plugin => $config) {
-                if (!is_array($config)) {
-                    continue;
+                if (is_array($config)) {
+                    $callback($vendor, $plugins, $plugin, $config);
                 }
-                $callback($vendor, $plugins, $plugin, $config);
             }
         }
     }
@@ -84,31 +81,50 @@ class Plugin
         return is_callable($function) ? $function : null;
     }
 
-    /**
-     * Install.
-     * @param mixed $event
-     * @return void
-     */
     public static function install(mixed $event): void
     {
         static::findHelper();
-        $psr4 = static::getPsr4($event);
-        foreach ($psr4 as $namespace => $path) {
-            $pluginConst = "\\{$namespace}Install::TRIANGLE_PLUGIN";
-            if (!defined($pluginConst)) {
-                continue;
-            }
-            $installFunction = static::getFunction($namespace, 'install');
-            if ($installFunction) {
-                $installFunction(true);
+        foreach (static::getPsr4($event) as $namespace => $path) {
+            if (defined("\\{$namespace}Install::TRIANGLE_PLUGIN")) {
+                $installFunction = static::getFunction($namespace, 'install');
+                if ($installFunction) {
+                    $installFunction(true);
+                }
             }
         }
     }
 
-    /**
-     * FindHelper.
-     * @return void
-     */
+    public static function update(mixed $event): void
+    {
+        static::findHelper();
+        foreach (static::getPsr4($event) as $namespace => $path) {
+            if (defined("\\{$namespace}Install::TRIANGLE_PLUGIN")) {
+                $updateFunction = static::getFunction($namespace, 'update');
+                if ($updateFunction) {
+                    $updateFunction();
+                } else {
+                    $installFunction = static::getFunction($namespace, 'install');
+                    if ($installFunction) {
+                        $installFunction();
+                    }
+                }
+            }
+        }
+    }
+
+    public static function uninstall(mixed $event): void
+    {
+        static::findHelper();
+        foreach (static::getPsr4($event) as $namespace => $path) {
+            if (defined("\\{$namespace}Install::TRIANGLE_PLUGIN")) {
+                $uninstallFunction = static::getFunction($namespace, 'uninstall');
+                if ($uninstallFunction) {
+                    $uninstallFunction();
+                }
+            }
+        }
+    }
+
     protected static function findHelper(): void
     {
         $file = __DIR__ . '/functions.php';
@@ -117,63 +133,10 @@ class Plugin
         }
     }
 
-    /**
-     * Get psr-4 info
-     *
-     * @param mixed $event
-     * @return array
-     */
     protected static function getPsr4(mixed $event): array
     {
         $operation = $event->getOperation();
         $autoload = method_exists($operation, 'getPackage') ? $operation->getPackage()->getAutoload() : $operation->getTargetPackage()->getAutoload();
         return $autoload['psr-4'] ?? [];
-    }
-
-    /**
-     * Update.
-     * @param mixed $event
-     * @return void
-     */
-    public static function update(mixed $event): void
-    {
-        static::findHelper();
-        $psr4 = static::getPsr4($event);
-        foreach ($psr4 as $namespace => $path) {
-            $pluginConst = "\\{$namespace}Install::TRIANGLE_PLUGIN";
-            if (!defined($pluginConst)) {
-                continue;
-            }
-            $updateFunction = static::getFunction($namespace, 'update');
-            if ($updateFunction) {
-                $updateFunction();
-                continue;
-            }
-            $installFunction = static::getFunction($namespace, 'install');
-            if ($installFunction) {
-                $installFunction();
-            }
-        }
-    }
-
-    /**
-     * Uninstall.
-     * @param mixed $event
-     * @return void
-     */
-    public static function uninstall(mixed $event): void
-    {
-        static::findHelper();
-        $psr4 = static::getPsr4($event);
-        foreach ($psr4 as $namespace => $path) {
-            $pluginConst = "\\{$namespace}Install::TRIANGLE_PLUGIN";
-            if (!defined($pluginConst)) {
-                continue;
-            }
-            $uninstallFunction = static::getFunction($namespace, 'uninstall');
-            if ($uninstallFunction) {
-                $uninstallFunction();
-            }
-        }
     }
 }

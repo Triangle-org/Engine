@@ -68,11 +68,11 @@ class Path
         string $runtimePath = null,
     )
     {
-        static::$basePath = $basePath;
-        static::$configPath = $configPath;
-        static::$appPath = $appPath;
-        static::$publicPath = $publicPath;
-        static::$runtimePath = $runtimePath;
+        static::$basePath = $basePath ?? Path::basePath();
+        static::$configPath = $configPath ?? Path::configPath();
+        static::$appPath = $appPath ?? Path::appPath();
+        static::$publicPath = $publicPath ?? Path::publicPath();
+        static::$runtimePath = $runtimePath ?? Path::runtimePath();
     }
 
     /**

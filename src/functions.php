@@ -120,7 +120,7 @@ if (!function_exists('setEnv')) {
      */
     function setEnv(array $values): bool
     {
-        return Environment::set($values, config('server.env_file', '.env'));
+        return Environment::set($values);
     }
 }
 

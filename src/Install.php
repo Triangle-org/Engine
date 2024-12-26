@@ -41,50 +41,53 @@ class Install
 {
     public const TRIANGLE_PLUGIN = true;
 
-    /**
-     * @var array
-     */
     protected static array $pathRelation = [
         'Install/master' => 'master'
     ];
 
-    /**
-     * Установка плагина
-     * @return void
-     */
     public static function install(): void
     {
         foreach (static::$pathRelation as $source => $target) {
-            if ($target == 'master' && !class_exists('Triangle\Console')) {
+            if ($target === 'master' && !class_exists('Triangle\Console')) {
                 continue;
             }
 
-            $sourceFile = __DIR__ . "/$source";
-            $targetFile = base_path($target);
-
-            if ($pos = strrpos($target, '/')) {
-                $parentDir = base_path(substr($target, 0, $pos));
-                if (!is_dir($parentDir)) {
-                    create_dir($parentDir);
-                }
-            }
-
-            copy_dir($sourceFile, $targetFile, true);
-            echo "Создан $targetFile\r\n";
+            self::copyDirectory($source, $target);
         }
     }
 
-    /**
-     * Удаление плагина
-     * @return void
-     */
     public static function uninstall(): void
     {
         foreach (static::$pathRelation as $source => $target) {
-            $targetFile = base_path($target);
+            self::removeDirectory($target);
+        }
+    }
 
-            remove_dir($targetFile);
-            echo "Удалён $target\r\n";
+    private static function copyDirectory(string $source, string $target): void
+    {
+        $sourceFile = __DIR__ . "/$source";
+        $targetFile = base_path($target);
+
+        self::createParentDirectory($target);
+
+        copy_dir($sourceFile, $targetFile, true);
+        echo "Создан $targetFile\r\n";
+    }
+
+    private static function removeDirectory(string $target): void
+    {
+        $targetFile = base_path($target);
+        remove_dir($targetFile);
+        echo "Удалён $target\r\n";
+    }
+
+    private static function createParentDirectory(string $path): void
+    {
+        if ($pos = strrpos($path, '/')) {
+            $parentDir = base_path(substr($path, 0, $pos));
+            if (!is_dir($parentDir)) {
+                create_dir($parentDir);
+            }
         }
     }
 }

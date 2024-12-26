@@ -38,7 +38,6 @@ class Autoload
 {
     private const LOADERS = [
         [Bootstrap::class, 'start'],
-
         [MiddlewareBootstrap::class, 'start'],
         [DatabaseBootstrap::class, 'start'],
         [SessionBootstrap::class, 'start'],
@@ -53,12 +52,7 @@ class Autoload
 
     public static function loadAll(?Server $server = null): void
     {
-        Environment::start();
-        Config::reloadAll(['route']);
-
-        set_error_handler(fn($level, $message, $file = '', $line = 0) => (error_reporting() & $level) ? throw new ErrorException($message, 0, $level, $file, $line) : true);
-        if ($server) register_shutdown_function(fn($start_time) => (time() - $start_time <= 1) ? sleep(1) : true, time());
-        if (function_exists('config')) date_default_timezone_set(config('server.default_timezone', config('app.default_timezone', 'Europe/Moscow')));
+        self::initializeEnvironment($server);
 
         static::files();
 
@@ -68,32 +62,19 @@ class Autoload
             }
         }
 
-        if ($server && class_exists(Router::class)) {
-            $paths = [config_path()];
-            $directory = Path::basePath(config('app.plugin_alias', 'plugin'));
-            foreach (scan_dir($directory, false) as $name) {
-                $dir = "$directory/$name/config";
-                if (is_dir($dir)) {
-                    $paths[] = $dir;
-                }
-            }
-
-            Router::collect($paths);
-        }
+        self::collectRouterConfigs($server);
     }
 
     public static function files(): void
     {
-        foreach (config('autoload.files', []) as $file) {
+        $autoloadFiles = array_merge(
+            config('autoload.files', []),
+            glob(base_path('autoload/*.php')),
+            glob(base_path('autoload/*/*/*.php'))
+        );
+
+        foreach ($autoloadFiles as $file) {
             include_once $file;
-        }
-
-        foreach (glob(base_path('autoload/*.php')) as $file) {
-            include_once($file);
-        }
-
-        foreach (glob(base_path('autoload/*/*/*.php')) as $file) {
-            include_once($file);
         }
 
         Plugin::app_reduce(function ($plugin, $config) {
@@ -107,5 +88,42 @@ class Autoload
                 include_once $file;
             }
         });
+    }
+
+    private static function initializeEnvironment(?Server $server = null): void
+    {
+        Environment::start();
+        Config::reloadAll(['route']);
+        set_error_handler(
+            fn($level, $message, $file = '', $line = 0) => (error_reporting() & $level) ? throw new ErrorException($message, 0, $level, $file, $line) : true
+        );
+
+        if ($server) {
+            register_shutdown_function(
+                fn($start_time) => (time() - $start_time <= 1) ? sleep(1) : true,
+                time()
+            );
+        }
+
+        if (function_exists('config')) {
+            date_default_timezone_set(
+                config('server.default_timezone', config('app.default_timezone', 'Europe/Moscow'))
+            );
+        }
+    }
+
+    private static function collectRouterConfigs(?Server $server): void
+    {
+        if ($server && class_exists(Router::class)) {
+            $paths = [config_path()];
+            $directory = Path::basePath(config('app.plugin_alias', 'plugin'));
+            foreach (scan_dir($directory, false) as $name) {
+                $dir = "$directory/$name/config";
+                if (is_dir($dir)) {
+                    $paths[] = $dir;
+                }
+            }
+            Router::collect($paths);
+        }
     }
 }

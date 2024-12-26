@@ -34,7 +34,6 @@ use localzet\Server\Events\Swoole;
 use localzet\Server\Events\Swow;
 use SplObjectStorage;
 use StdClass;
-use Swow\Coroutine;
 use WeakMap;
 use function property_exists;
 
@@ -99,7 +98,7 @@ class Context
         return match (Server::$eventLoopClass) {
             Linux::class => Fiber::getCurrent(),
             Swoole::class => \Swoole\Coroutine::getContext(),
-            Swow::class => Coroutine::getCurrent(),
+            Swow::class => \Swow\Coroutine::getCurrent(),
             default => static::$object,
         };
     }

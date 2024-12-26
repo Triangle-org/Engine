@@ -34,8 +34,9 @@ class Bootstrap implements BootstrapInterface
     public static function start(?Server $server = null): void
     {
         $config = config();
+        $bootstrapClasses = $config['bootstrap'] ?? [];
 
-        self::load($config['bootstrap'] ?? [], $server);
+        self::load($bootstrapClasses, $server);
 
         Plugin::plugin_reduce(function ($vendor, $plugins, $plugin, $config) use ($server) {
             self::load($config['bootstrap'] ?? [], $server);
@@ -49,13 +50,12 @@ class Bootstrap implements BootstrapInterface
     public static function load(array $classes, ?Server $server = null): void
     {
         foreach ($classes as $class) {
-            if (!class_exists($class)) {
+            if (class_exists($class)) {
+                /** @var BootstrapInterface $class */
+                $class::start($server);
+            } else {
                 self::log("Внимание! Класса $class не существует\n");
-                continue;
             }
-
-            /** @var BootstrapInterface $class */
-            $class::start($server);
         }
     }
 

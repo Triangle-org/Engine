@@ -93,13 +93,11 @@ abstract class App extends ServerAbstract
         static::$requestClass = $requestClass;
         static::$logger = $logger;
 
-        new Path(
-            basePath: $basePath ?? Path::basePath(),
-            configPath: $configPath ?? Path::configPath(),
-            appPath: $appPath ?? config('server.app_path', config('app.app_path', Path::appPath())),
-            publicPath: $publicPath ?? config('server.public_path', config('app.public_path', Path::publicPath())),
-            runtimePath: $runtimePath ?? config('server.runtime_path', config('app.runtime_path', Path::runtimePath())),
-        );
+        Path::$basePath = $basePath ?? Path::basePath();
+        Path::$configPath = $configPath ?? Path::configPath();
+        Path::$appPath = $appPath ?? Path::appPath();
+        Path::$publicPath = $publicPath ?? Path::publicPath();
+        Path::$runtimePath = $runtimePath ?? Path::runtimePath();
     }
 
     /**
