@@ -339,9 +339,9 @@ if (!function_exists('connection')) {
 
 if (!function_exists('request')) {
     /**
-     * @return Request|\Triangle\Request
+     * @return Request
      */
-    function request(): Request|\Triangle\Request
+    function request(): Request
     {
         return config('server.handler')::request();
     }
@@ -362,10 +362,10 @@ if (!function_exists('response')) {
      * @param mixed $data
      * @param int $status
      * @param array $headers
-     * @return Response|\Triangle\Response
+     * @return Response
      * @throws Throwable
      */
-    function response(mixed $data = '', int $status = 200, array $headers = []): Response|\Triangle\Response
+    function response(mixed $data = '', int $status = 200, array $headers = []): Response
     {
         $status = config('app.http_always_200') ? 200 : $status;
         $body = compact('status', 'data');
@@ -385,9 +385,9 @@ if (!function_exists('response')) {
 /**
  * @param string $blob
  * @param string $type
- * @return Response|\Triangle\Response
+ * @return Response
  */
-function responseBlob(string $blob, string $type = 'text/plain'): Response|\Triangle\Response
+function responseBlob(string $blob, string $type = 'text/plain'): Response
 {
 
     return new Response(200, ['Content-Type' => $type], $blob);
