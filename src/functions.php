@@ -92,12 +92,29 @@ if (!function_exists('json')) {
 if (!function_exists('config')) {
     /**
      * @param string|null $key
+     * @param mixed|null $default
+     * @param string|null $plugin
+     * @return mixed
+     */
+    function config(string $key = null, mixed $default = null, ?string $plugin = null): mixed
+    {
+        return !empty($plugin)
+            ? plugin($plugin . ($key ? ".$key" : ''), $default)
+            : Config::get($key, $default);
+    }
+}
+
+if (!function_exists('plugin')) {
+    /**
+     * @param string|null $key
      * * @param mixed|null $default
      * @return mixed
      */
-    function config(string $key = null, mixed $default = null): mixed
+    function plugin(string $key = null, mixed $default = null): mixed
     {
-        return Config::get($key, $default);
+        return Config::get(
+            Config::get('app.plugin_alias', 'plugin') . ($key ? ".$key" : ''),
+            $default);
     }
 }
 
@@ -194,6 +211,15 @@ function runtime_path(string $path = ''): string
 function view_path(string $path = ''): string
 {
     return path_combine(app_path('view'), $path);
+}
+
+/**
+ * @param string $path
+ * @return string
+ */
+function plugin_path(string $path = ''): string
+{
+    return path_combine(Path::basePath(config('app.plugin_alias', 'plugin')), $path);
 }
 
 /**

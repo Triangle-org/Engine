@@ -80,6 +80,6 @@ class Container
      */
     public static function instance(?string $plugin = '')
     {
-        return Config::get($plugin ? config('app.plugin_alias', 'plugin') . ".$plugin.container" : 'container');
+        return $plugin ? plugin("$plugin.container") : config('container');
     }
 }

@@ -116,9 +116,8 @@ class Autoload
     {
         if ($server && class_exists(Router::class)) {
             $paths = [config_path()];
-            $directory = Path::basePath(config('app.plugin_alias', 'plugin'));
-            foreach (scan_dir($directory, false) as $name) {
-                $dir = "$directory/$name/config";
+            foreach (scan_dir(plugin_path(), false) as $name) {
+                $dir = plugin_path("$name/config");
                 if (is_dir($dir)) {
                     $paths[] = $dir;
                 }

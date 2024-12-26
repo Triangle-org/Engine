@@ -87,7 +87,7 @@ class Translation
     public static function instance(string $plugin = ''): Translator
     {
         if (!isset(static::$instance[$plugin])) {
-            $config = config($plugin ? config('app.plugin_alias', 'plugin') . ".$plugin.translation" : 'translation', []);
+            $config = config('translation', [], $plugin);
             $paths = (array)($config['path'] ?? []);
 
             static::$instance[$plugin] = $translator = new Translator($config['locale']);

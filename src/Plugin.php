@@ -31,7 +31,7 @@ class Plugin
 {
     public static function app_reduce($callback): void
     {
-        foreach (config(config('app.plugin_alias', 'plugin'), []) as $plugin => $config) {
+        foreach (plugin(default: []) as $plugin => $config) {
             if (is_array($config)) {
                 $callback($plugin, $config);
             }

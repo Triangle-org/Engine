@@ -82,12 +82,12 @@ abstract class App extends ServerAbstract
      */
     public function __construct(
         string $requestClass,
-        Logger  $logger,
-        string  $basePath = null,
-        string  $appPath = null,
-        string  $configPath = null,
-        string  $publicPath = null,
-        string  $runtimePath = null,
+        Logger $logger,
+        string $basePath = null,
+        string $appPath = null,
+        string $configPath = null,
+        string $publicPath = null,
+        string $runtimePath = null,
     )
     {
         static::$requestClass = $requestClass;
@@ -137,27 +137,6 @@ abstract class App extends ServerAbstract
     public static function server(): ?Server
     {
         return static::$server;
-    }
-
-    /**
-     * Конфигурация
-     * @param string|null $plugin
-     * @param string $key
-     * @param null $default
-     * @return array|mixed|null
-     */
-    protected static function config(?string $plugin, string $key, $default = null): mixed
-    {
-        return Config::get($plugin ? config('app.plugin_alias', 'plugin') . ".$plugin.$key" : $key, $default);
-    }
-
-    /**
-     * @param string|null $plugin
-     * @return ContainerInterface|array|null
-     */
-    public static function container(?string $plugin = ''): ContainerInterface|array|null
-    {
-        return static::config($plugin, 'container');
     }
 
     /**
@@ -254,7 +233,7 @@ abstract class App extends ServerAbstract
         $plugin = Plugin::app_by_path($path);
 
         // Получаем суффикс контроллера из конфигурации
-        $suffix = static::config($plugin, 'app.controller_suffix', '');
+        $suffix = config('app.controller_suffix', '', $plugin);
 
         // Получаем префиксы для конфигурации, пути и класса
         $pathPrefix = $plugin ? "/" . config('app.plugin_uri', 'app') . "/$plugin" : '';
@@ -374,7 +353,7 @@ abstract class App extends ServerAbstract
 
         // Разбиваем полное имя класса на части
         $explodes = explode('\\', strtolower(ltrim($controllerClass, '\\')));
-        $basePath = $explodes[0] === config('app.plugin_alias', 'plugin') ? Path::basePath(config('app.plugin_alias', 'plugin')) : app_path();
+        $basePath = $explodes[0] === config('app.plugin_alias', 'plugin') ? plugin_path() : app_path();
         unset($explodes[0]);
         $fileName = array_pop($explodes) . '.php';
         $found = true;
@@ -622,11 +601,11 @@ abstract class App extends ServerAbstract
         return function (Request $request) use ($plugin, $call, $args) {
             $reflector = static::getReflector($call);
             $args = array_values(static::resolveMethodDependencies(
-                static::container($plugin),
+                config('container', plugin: $plugin),
                 $request,
                 array_merge($request->all(), $args),
                 $reflector,
-                static::config($plugin, 'app.debug')
+                config('app.debug', plugin: $plugin)
             ));
             return $call(...$args);
         };
@@ -754,8 +733,8 @@ abstract class App extends ServerAbstract
 
         try {
             // Получаем конфигурацию исключений
-            $exceptionConfig = static::config($plugin, 'exception');
-            $appExceptionConfig = static::config("", 'exception');
+            $exceptionConfig = config('exception', plugin: $plugin);
+            $appExceptionConfig = config('exception');
 
             // Получаем класс обработчика исключений по умолчанию
             if (!isset($exceptionConfig['']) && isset($appExceptionConfig['@'])) {
@@ -769,7 +748,7 @@ abstract class App extends ServerAbstract
 
             // Создаем экземпляр обработчика исключений
             /** @var ExceptionHandlerInterface $exceptionHandler */
-            $exceptionHandler = (static::container($plugin) ?? static::container(''))
+            $exceptionHandler = (config('container', config('container'), $plugin))
                 ->make($exceptionHandlerClass, ['logger' => static::$logger]);
 
             // Отправляем отчет об исключении
@@ -780,7 +759,7 @@ abstract class App extends ServerAbstract
             return $response;
         } catch (Throwable $e) {
             // Если возникло исключение при обработке исключения, создаем ответ с кодом 500
-            $response = new Response(500, [], static::config($plugin ?? '', 'app.debug') ? (string)$e : $e->getMessage());
+            $response = new Response(500, [], config('app.debug', plugin: $plugin) ? (string)$e : $e->getMessage());
             $response->exception($e);
             return $response;
         }
