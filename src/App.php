@@ -73,7 +73,7 @@ abstract class App extends ServerAbstract
     protected static ?string $requestClass = null;
 
     /**
-     * @param string $requestClass
+     * @param Request $requestClass
      * @param Logger $logger
      * @param string|null $basePath
      * @param string|null $appPath
@@ -82,7 +82,7 @@ abstract class App extends ServerAbstract
      * @param string|null $runtimePath
      */
     public function __construct(
-        string $requestClass,
+        Request $requestClass,
         Logger $logger,
         string $basePath = null,
         string $appPath = null,
@@ -131,7 +131,7 @@ abstract class App extends ServerAbstract
      */
     public static function request(): Request|null
     {
-        return Context::get(Request::class);
+        return Context::get(static::$requestClass);
     }
 
     /**
