@@ -28,29 +28,14 @@ namespace Triangle\Engine;
 
 class Path
 {
-    /**
-     * @var string|null
-     */
     public static ?string $basePath = null;
 
-    /**
-     * @var string|null
-     */
     public static ?string $appPath = null;
 
-    /**
-     * @var string|null
-     */
     public static ?string $configPath = null;
 
-    /**
-     * @var string|null
-     */
     public static ?string $publicPath = null;
 
-    /**
-     * @var string|null
-     */
     public static ?string $runtimePath = null;
 
     /**
@@ -75,22 +60,15 @@ class Path
         static::$runtimePath = $runtimePath ?? Path::runtimePath();
     }
 
-    /**
-     * @param false|string $path
-     * @return string|null
-     */
     public static function basePath(false|string $path = ''): ?string
     {
         if (false === $path) {
             return run_path();
         }
+        
         return path_combine(static::$basePath ?? BASE_PATH, $path);
     }
 
-    /**
-     * @param string $path
-     * @return string|null
-     */
     public static function appPath(string $path = ''): ?string
     {
         static::$appPath ??= static::basePath('app');
@@ -112,30 +90,18 @@ class Path
         return path_combine(static::appPath('view'), $path);
     }
 
-    /**
-     * @param string $path
-     * @return string|null
-     */
     public static function configPath(string $path = ''): ?string
     {
         static::$configPath ??= static::basePath('config');
         return path_combine(static::$configPath, $path);
     }
 
-    /**
-     * @param string $path
-     * @return string|null
-     */
     public static function publicPath(string $path = ''): ?string
     {
         static::$publicPath ??= run_path('public');
         return empty($path) ? static::$publicPath : path_combine(static::$publicPath, $path);
     }
 
-    /**
-     * @param string $path
-     * @return string|null
-     */
     public static function runtimePath(string $path = ''): ?string
     {
         static::$runtimePath ??= run_path('runtime');
