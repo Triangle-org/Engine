@@ -43,11 +43,8 @@ define('BASE_PATH', str_starts_with($install_path, 'phar://') ? $install_path : 
 if (!function_exists('trans')) {
     /**
      * Translation
-     * @param string $id
-     * @param array $parameters
      * @param string|null $domain
      * @param string|null $locale
-     * @return string
      */
     function trans(string $id, array $parameters = [], string $domain = null, string $locale = null): string
     {
@@ -60,13 +57,13 @@ if (!function_exists('locale')) {
     /**
      * Locale
      * @param string|null $locale
-     * @return string
      */
     function locale(string $locale = null): string
     {
         if (!$locale) {
             return Translation::getLocale();
         }
+        
         Translation::setLocale($locale);
         return $locale;
     }
@@ -77,7 +74,6 @@ if (!function_exists('locale')) {
 if (!function_exists('json')) {
     /**
      * @param $value
-     * @param int $flags
      * @return string|false
      */
     function json($value, int $flags = JSON_NUMERIC_CHECK | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR): false|string
@@ -93,14 +89,12 @@ if (!function_exists('config')) {
     /**
      * @param string|null $key
      * @param mixed|null $default
-     * @param string|null $plugin
-     * @return mixed
      */
     function config(string $key = null, mixed $default = null, ?string $plugin = null): mixed
     {
-        return !empty($plugin)
-            ? plugin($plugin . ($key ? ".$key" : ''), $default)
-            : Config::get($key, $default);
+        return empty($plugin)
+            ? Config::get($key, $default)
+            : plugin($plugin . ($key ? ".$key" : ''), $default);
     }
 }
 
@@ -108,7 +102,6 @@ if (!function_exists('plugin')) {
     /**
      * @param string|null $key
      * * @param mixed|null $default
-     * @return mixed
      */
     function plugin(string $key = null, mixed $default = null): mixed
     {
@@ -122,7 +115,6 @@ if (!function_exists('env')) {
     /**
      * @param string|null $key
      * @param mixed|null $default
-     * @return mixed
      */
     function env(string $key = null, mixed $default = null): mixed
     {
@@ -131,10 +123,6 @@ if (!function_exists('env')) {
 }
 
 if (!function_exists('setEnv')) {
-    /**
-     * @param array $values
-     * @return bool
-     */
     function setEnv(array $values): bool
     {
         return Environment::set($values);
@@ -142,11 +130,8 @@ if (!function_exists('setEnv')) {
 }
 
 /** PATHS HELPERS */
-
 /**
  * return the program execute directory
- * @param string $path
- * @return string
  */
 function run_path(string $path = ''): string
 {
@@ -156,67 +141,40 @@ function run_path(string $path = ''): string
             dirname(Phar::running(false)) :
             base_path();
     }
+    
     return path_combine($runPath, $path);
 }
 
-/**
- * @param false|string $path
- * @return string
- */
 function base_path(false|string $path = ''): string
 {
     return Path::basePath($path);
 }
 
-/**
- * @param string $path
- * @return string
- */
 function app_path(string $path = ''): string
 {
     return Path::appPath($path);
 }
 
-/**
- * @param string $path
- * @return string
- */
 function config_path(string $path = ''): string
 {
     return Path::configPath($path);
 }
 
-/**
- * @param string $path
- * @return string
- */
 function public_path(string $path = ''): string
 {
     return Path::publicPath($path);
 }
 
-/**
- * @param string $path
- * @return string
- */
 function runtime_path(string $path = ''): string
 {
     return Path::runtimePath($path);
 }
 
-/**
- * @param string $path
- * @return string
- */
 function view_path(string $path = ''): string
 {
     return path_combine(app_path('view'), $path);
 }
 
-/**
- * @param string $path
- * @return string
- */
 function plugin_path(string $path = ''): string
 {
     return path_combine(Path::basePath(config('app.plugin_alias', 'plugin')), $path);
@@ -224,9 +182,6 @@ function plugin_path(string $path = ''): string
 
 /**
  * Generate paths based on given information
- * @param string $front
- * @param string $back
- * @return string
  */
 function path_combine(string $front, string $back): string
 {
@@ -235,26 +190,19 @@ function path_combine(string $front, string $back): string
 
 /**
  * Get realpath
- * @param string $filePath
  * @return string|false
  */
 function get_realpath(string $filePath): string|false
 {
     if (str_starts_with($filePath, 'phar://')) {
         return $filePath;
-    } else {
-        return realpath($filePath);
     }
+    return realpath($filePath);
 }
 
 /** DIR HELPERS */
-
 /**
  * Copy dir
- * @param string $source
- * @param string $dest
- * @param bool $overwrite
- * @return void
  */
 function copy_dir(string $source, string $dest, bool $overwrite = false): void
 {
@@ -262,52 +210,49 @@ function copy_dir(string $source, string $dest, bool $overwrite = false): void
         if (!is_dir($dest)) {
             create_dir($dest);
         }
+        
         $files = array_diff(scandir($source), ['.', '..']) ?: [];
         foreach ($files as $file) {
             copy_dir("$source/$file", "$dest/$file", $overwrite);
         }
-    } else if (file_exists($source) && ($overwrite || !file_exists($dest))) {
+    } elseif (file_exists($source) && ($overwrite || !file_exists($dest))) {
         copy($source, $dest);
     }
 }
 
 /**
  * ScanDir.
- * @param string $basePath
- * @param bool $withBasePath
- * @return array
  */
 function scan_dir(string $basePath, bool $withBasePath = true): array
 {
     if (!is_dir($basePath)) {
         return [];
     }
+    
     $paths = array_diff(scandir($basePath), ['.', '..']) ?: [];
-    return $withBasePath ? array_map(fn($path) => $basePath . DIRECTORY_SEPARATOR . $path, $paths) : $paths;
+    return $withBasePath ? array_map(fn($path): string => $basePath . DIRECTORY_SEPARATOR . $path, $paths) : $paths;
 }
 
 /**
  * Remove dir
- * @param string $dir
- * @return bool
  */
 function remove_dir(string $dir): bool
 {
     if (is_link($dir) || is_file($dir)) {
         return file_exists($dir) && unlink($dir);
     }
+    
     $files = array_diff(scandir($dir), ['.', '..']) ?: [];
     foreach ($files as $file) {
         $path = $dir . DIRECTORY_SEPARATOR . $file;
         is_dir($path) && !is_link($path) ? remove_dir($path) : file_exists($path) && unlink($path);
     }
+    
     return file_exists($dir) && rmdir($dir);
 }
 
 /**
  * Create directory
- * @param string $dir
- * @return bool
  */
 function create_dir(string $dir): bool
 {
@@ -316,18 +261,12 @@ function create_dir(string $dir): bool
 
 /**
  * Rename directory
- * @param string $oldName
- * @param string $newName
- * @return bool
  */
 function rename_dir(string $oldName, string $newName): bool
 {
     return rename($oldName, $newName);
 }
 
-/**
- * @return bool
- */
 function is_phar(): bool
 {
     return class_exists(Phar::class, false) && Phar::running();
@@ -335,8 +274,6 @@ function is_phar(): bool
 
 /**
  * Генерация ID
- *
- * @return string
  */
 function generateId(): string
 {
@@ -354,9 +291,6 @@ function generateId(): string
 }
 
 if (!function_exists('connection')) {
-    /**
-     * @return TcpConnection|null
-     */
     function connection(): ?TcpConnection
     {
         return config('server.handler')::connection();
@@ -364,9 +298,6 @@ if (!function_exists('connection')) {
 }
 
 if (!function_exists('request')) {
-    /**
-     * @return Request
-     */
     function request(): Request
     {
         return config('server.handler')::request();
@@ -374,9 +305,6 @@ if (!function_exists('request')) {
 }
 
 if (!function_exists('server')) {
-    /**
-     * @return Server|null
-     */
     function server(): ?Server
     {
         return config('server.handler')::server();
@@ -385,16 +313,12 @@ if (!function_exists('server')) {
 
 if (!function_exists('response')) {
     /**
-     * @param mixed $data
-     * @param int $status
-     * @param array $headers
-     * @return Response
      * @throws Throwable
      */
     function response(mixed $data = '', int $status = 200, array $headers = []): Response
     {
         $status = config('app.http_always_200') ? 200 : $status;
-        $body = compact('status', 'data');
+        $body = ['status' => $status, 'data' => $data];
 
         if (config('app.debug')) {
             $body['debug'] = config('app.debug');
@@ -402,17 +326,11 @@ if (!function_exists('response')) {
 
         if (!function_exists('responseView') || request()->expectsJson()) {
             return responseJson($body, $status, $headers);
-        } else {
-            return responseView($body, $status, $headers);
         }
+        return responseView($body, $status, $headers);
     }
 }
 
-/**
- * @param string $blob
- * @param string $type
- * @return Response
- */
 function responseBlob(string $blob, string $type = 'text/plain'): Response
 {
 
@@ -421,34 +339,24 @@ function responseBlob(string $blob, string $type = 'text/plain'): Response
 
 /**
  * @param $data
- * @param int $status
- * @param array $headers
- * @param int $options
- * @return Response
  */
 function responseJson($data, int $status = 200, array $headers = [], int $options = JSON_NUMERIC_CHECK | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR): Response
 {
     return new Response($status, ['Content-Type' => 'application/json'] + $headers, json($data, $options));
 }
 
-/**
- * @param string $location
- * @param int $status
- * @param array $headers
- * @return Response
- */
 function redirect(string $location, int $status = 302, array $headers = []): Response
 {
     $response = new Response($status, ['Location' => $location]);
     if (!empty($headers)) {
         $response->withHeaders($headers);
     }
+    
     return $response;
 }
 
 if (!function_exists('not_found')) {
     /**
-     * @return Response
      * @throws Throwable
      */
     function not_found(): Response
@@ -460,14 +368,13 @@ if (!function_exists('not_found')) {
 if (!function_exists('jsonp')) {
     /**
      * @param $data
-     * @param string $callbackName
-     * @return Response
      */
     function jsonp($data, string $callbackName = 'callback'): Response
     {
         if (!is_scalar($data) && null !== $data) {
             $data = json_encode($data);
         }
+        
         return new Response(200, [], "$callbackName($data)");
     }
 }
