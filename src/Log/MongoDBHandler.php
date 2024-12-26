@@ -60,8 +60,10 @@ class MongoDBHandler extends AbstractProcessingHandler
 {
     /** @var Collection $collection Коллекция MongoDB для записи логов. */
     private Collection $collection;
+    
     /** @var Client|Manager $manager Клиент или менеджер MongoDB. */
     private Manager|Client $manager;
+    
     /** @var string $namespace Пространство имен MongoDB. */
     private string $namespace;
 
@@ -77,7 +79,7 @@ class MongoDBHandler extends AbstractProcessingHandler
      */
     public function __construct($mongodb, string $database, string $collection, int $level = Logger::DEBUG, bool $bubble = true)
     {
-        if (!($mongodb instanceof Client || $mongodb instanceof Manager)) {
+        if (!$mongodb instanceof Client && !$mongodb instanceof Manager) {
             throw new InvalidArgumentException('MongoDB\Client or MongoDB\Driver\Manager instance required');
         }
 
@@ -103,16 +105,14 @@ class MongoDBHandler extends AbstractProcessingHandler
         }
 
         if (isset($this->manager, $this->namespace)) {
-            $bulk = new BulkWrite;
-            $bulk->insert($record["formatted"]);
-            $this->manager->executeBulkWrite($this->namespace, $bulk);
+            $bulkWrite = new BulkWrite;
+            $bulkWrite->insert($record["formatted"]);
+            $this->manager->executeBulkWrite($this->namespace, $bulkWrite);
         }
     }
 
     /**
      * Получить форматтер по умолчанию.
-     *
-     * @return FormatterInterface
      */
     protected function getDefaultFormatter(): FormatterInterface
     {
