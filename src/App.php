@@ -31,7 +31,6 @@ use ErrorException;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use localzet\Server;
-use localzet\Server\Connection\ConnectionInterface;
 use localzet\Server\Connection\TcpConnection;
 use localzet\ServerAbstract;
 use Monolog\Logger;
@@ -83,12 +82,12 @@ abstract class App extends ServerAbstract
      */
     public function __construct(
         Request $requestClass,
-        Logger $logger,
-        string $basePath = null,
-        string $appPath = null,
-        string $configPath = null,
-        string $publicPath = null,
-        string $runtimePath = null,
+        Logger  $logger,
+        string  $basePath = null,
+        string  $appPath = null,
+        string  $configPath = null,
+        string  $publicPath = null,
+        string  $runtimePath = null,
     )
     {
         static::$requestClass = $requestClass;

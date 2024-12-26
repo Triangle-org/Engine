@@ -28,14 +28,14 @@
 namespace Triangle\Engine;
 
 use Fiber;
+use localzet\Server;
+use localzet\Server\Events\Linux;
+use localzet\Server\Events\Swoole;
+use localzet\Server\Events\Swow;
 use SplObjectStorage;
 use StdClass;
 use Swow\Coroutine;
 use WeakMap;
-use localzet\Server\Events\Linux;
-use localzet\Server\Events\Swoole;
-use localzet\Server\Events\Swow;
-use localzet\Server;
 use function property_exists;
 
 /**

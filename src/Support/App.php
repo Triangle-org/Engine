@@ -30,7 +30,6 @@ namespace support;
 use localzet\Server;
 use localzet\Server\Connection\TcpConnection;
 use RuntimeException;
-use Throwable;
 use Triangle\Engine\Config;
 use Triangle\Engine\Environment;
 use Triangle\Engine\Plugin;
