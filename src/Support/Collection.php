@@ -36,8 +36,6 @@ class Collection
     /**
      * Коллекция данных.
      * Это свойство хранит все данные, которые были добавлены в коллекцию.
-     *
-     * @var array $collection
      */
     protected array $collection = [];
 
@@ -63,12 +61,15 @@ class Collection
     {
         if (is_array($data)) {
             return $data;
-        } elseif (is_object($data)) {
+        }
+        if (is_object($data)) {
             if (method_exists($data, 'toArray')) {
                 return $data->toArray();
             }
+            
             return (array)$data;
-        } else {
+        }
+        else {
             return [$data];
         }
     }
@@ -117,9 +118,7 @@ class Collection
      */
     public function filter(string|int $property): Collection
     {
-        $filtered = array_filter($this->collection, function ($key) use ($property) {
-            return $key == $property;
-        }, ARRAY_FILTER_USE_KEY);
+        $filtered = array_filter($this->collection, fn($key): bool => $key == $property, ARRAY_FILTER_USE_KEY);
 
         return new Collection($filtered);
     }
