@@ -36,17 +36,16 @@ interface ExceptionHandlerInterface
     /**
      * Отчет об исключении
      * Этот метод вызывается для обработки исключения.
-     * @param Throwable $exception Исключение, которое нужно обработать
-     * @return void
+     * @param Throwable $throwable Исключение, которое нужно обработать
      */
-    public function report(Throwable $exception): void;
+    public function report(Throwable $throwable): void;
 
     /**
      * Рендеринг исключения
      * Этот метод вызывается для отображения исключения пользователю.
      * @param Request $request Текущий HTTP-запрос
-     * @param Throwable $exception Исключение, которое нужно отобразить
+     * @param Throwable $throwable Исключение, которое нужно отобразить
      * @return Response Ответ, который следует отправить пользователю
      */
-    public function render(Request $request, Throwable $exception): Response;
+    public function render(Request $request, Throwable $throwable): Response;
 }

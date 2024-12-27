@@ -40,13 +40,11 @@ class ExceptionHandler implements ExceptionHandlerInterface
 {
     /**
      * Не сообщать об исключениях этих типов
-     * @var array
      */
     public array $dontReport = [BusinessException::class];
 
     /**
      * Конструктор обработчика исключений.
-     * @param LoggerInterface|null $logger
      */
     public function __construct(protected ?LoggerInterface $logger = null)
     {
@@ -54,12 +52,10 @@ class ExceptionHandler implements ExceptionHandlerInterface
 
     /**
      * Отчет об исключении
-     * @param Throwable $exception
-     * @return void
      */
-    public function report(Throwable $exception): void
+    public function report(Throwable $throwable): void
     {
-        if ($this->shouldnt($exception, config('exception.dont_report') ?: $this->dontReport)) {
+        if ($this->shouldnt($throwable, config('exception.dont_report') ?: $this->dontReport)) {
             return;
         }
 
@@ -72,46 +68,41 @@ class ExceptionHandler implements ExceptionHandlerInterface
         } catch (Throwable) {
         }
 
-        $this->logger->error($exception->getMessage(), $context);
+        $this->logger->error($throwable->getMessage(), $context);
     }
 
     /**
      * Проверка, следует ли игнорировать исключение
-     * @param Throwable $e
-     * @param array $exceptions
-     * @return bool
      */
-    protected function shouldnt(Throwable $e, array $exceptions): bool
+    protected function shouldnt(Throwable $throwable, array $exceptions): bool
     {
-        foreach ($exceptions as $type) {
-            if ($e instanceof $type) {
+        foreach ($exceptions as $exception) {
+            if ($throwable instanceof $exception) {
                 return true;
             }
         }
+        
         return false;
     }
 
     /**
      * Рендеринг исключения
-     * @param Request $request
-     * @param Throwable $exception
-     * @return Response
      * @throws Throwable
      */
-    public function render(Request $request, Throwable $exception): Response
+    public function render(Request $request, Throwable $throwable): Response
     {
-        if (method_exists($exception, 'render')) {
-            return $exception->render($request);
+        if (method_exists($throwable, 'render')) {
+            return $throwable->render($request);
         }
 
         $json = [
-            'status' => $exception->getCode() ?: 500,
-            'error' => config('debug') ? $exception->getMessage() : "Внутренняя ошибка",
+            'status' => $throwable->getCode() ?: 500,
+            'error' => config('debug') ? $throwable->getMessage() : "Внутренняя ошибка",
         ];
 
         if (config('debug')) {
             $json['debug'] = config('debug');
-            $json['traces'] = nl2br((string)$exception);
+            $json['traces'] = nl2br((string)$throwable);
         }
 
         return response($json, 500);

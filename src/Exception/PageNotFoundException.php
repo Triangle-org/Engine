@@ -33,17 +33,15 @@ use Triangle\Engine\Response;
 class PageNotFoundException extends NotFoundException
 {
     /**
-     * @param string $message
-     * @param int $code
-     * @param Throwable|null $previous
+     * @param Throwable|null $throwable
      */
     public function __construct(
         string    $message = '404 Not Found',
         int       $code = 404,
-        Throwable $previous = null
+        Throwable $throwable = null
     )
     {
-        parent::__construct($message, $code, $previous);
+        parent::__construct($message, $code, $throwable);
     }
 
     public function render(Request $request): ?Response
@@ -59,7 +57,9 @@ class PageNotFoundException extends NotFoundException
             $json['traces'] = nl2br((string)$this);
         }
 
-        if ($request->expectsJson()) return responseJson($json);
+        if ($request->expectsJson()) {
+            return responseJson($json);
+        }
 
         return responseView($json, 500);
     }

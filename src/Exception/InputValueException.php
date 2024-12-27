@@ -32,12 +32,9 @@ class InputValueException extends PageNotFoundException
 {
     /**
      * InputTypeException constructor.
-     * @param string $message
-     * @param int $code
-     * @param Throwable|null $previous
      */
-    public function __construct(string $message = 'Input :parameter is invalid.', int $code = 400, ?Throwable $previous = null)
+    public function __construct(string $message = 'Input :parameter is invalid.', int $code = 400, ?Throwable $throwable = null)
     {
-        parent::__construct($message, $code, $previous);
+        parent::__construct($message, $code, $throwable);
     }
 }

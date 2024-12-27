@@ -32,16 +32,14 @@ use Throwable;
 class InputTypeException extends PageNotFoundException
 {
     /**
-     * @param string $message
-     * @param int $code
-     * @param Throwable|null $previous
+     * @param Throwable|null $throwable
      */
     public function __construct(
         string    $message = 'Параметр ":parameter" должен быть :exceptType, а получен :actualType',
         int       $code = 400,
-        Throwable $previous = null
+        Throwable $throwable = null
     )
     {
-        parent::__construct($message, $code, $previous);
+        parent::__construct($message, $code, $throwable);
     }
 }

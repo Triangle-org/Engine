@@ -35,10 +35,10 @@ class MissingInputException extends PageNotFoundException implements ExceptionIn
     public function __construct(
         string    $message = 'Missing input parameter :parameter',
         int       $code = 400,
-        Throwable $previous = null
+        Throwable $throwable = null
     )
     {
-        parent::__construct($message, $code, $previous);
+        parent::__construct($message, $code, $throwable);
     }
 
     public function render(Request $request): ?Response
@@ -54,7 +54,9 @@ class MissingInputException extends PageNotFoundException implements ExceptionIn
             $json['traces'] = nl2br((string)$this);
         }
 
-        if ($request->expectsJson()) return responseJson($json);
+        if ($request->expectsJson()) {
+            return responseJson($json);
+        }
 
         return responseView($json, 500);
     }
