@@ -40,15 +40,11 @@ class Container implements ContainerInterface
 {
     /**
      * Массив для хранения экземпляров зарегистрированных зависимостей.
-     *
-     * @var array
      */
     protected array $instances = [];
 
     /**
      * Массив для хранения определений зависимостей.
-     *
-     * @var array
      */
     protected array $definitions = [];
 
@@ -69,9 +65,11 @@ class Container implements ContainerInterface
                 if (!class_exists($id)) {
                     throw new RuntimeException("Класс '$id' не найден");
                 }
+                
                 $this->instances[$id] = new $id();
             }
         }
+        
         return $this->instances[$id];
     }
 
@@ -83,8 +81,6 @@ class Container implements ContainerInterface
      * Однако это означает, что `get($id)` не будет вызывать `NotFoundExceptionInterface`.
      *
      * @param string $id Идентификатор записи для поиска.
-     *
-     * @return bool
      */
     public function has(string $id): bool
     {
@@ -106,6 +102,7 @@ class Container implements ContainerInterface
         if (!class_exists($name)) {
             throw new ("Класс '$name' не найден");
         }
+        
         return new $name(...array_values($constructor));
     }
 
@@ -113,8 +110,6 @@ class Container implements ContainerInterface
      * Добавляет определения в контейнер.
      *
      * @param array $definitions Определения для добавления.
-     *
-     * @return $this
      */
     public function addDefinitions(array $definitions): Container
     {
