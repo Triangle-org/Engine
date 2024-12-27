@@ -106,10 +106,10 @@ class Log
     {
         $handlerConfigs = $config['handlers'] ?? [[]];
         $handlers = [];
-        foreach ($handlerConfigs as $value) {
-            $class = $value['class'] ?? [];
-            $constructor = $value['constructor'] ?? [];
-            $formatter = $value['formatter'] ?? [];
+        foreach ($handlerConfigs as $handlerConfig) {
+            $class = $handlerConfig['class'] ?? [];
+            $constructor = $handlerConfig['constructor'] ?? [];
+            $formatter = $handlerConfig['formatter'] ?? [];
 
             $class && $handlers[] = self::handler($class, $constructor, $formatter);
         }
@@ -164,6 +164,7 @@ class Log
             if (is_array($value) && isset($value['class'])) {
                 $value = new $value['class'](...array_values($value['constructor'] ?? []));
             }
+            
             $result[] = $value;
         }
 
