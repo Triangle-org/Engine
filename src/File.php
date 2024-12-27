@@ -48,21 +48,6 @@ use function umask;
 class File extends SplFileInfo
 {
     /**
-     * @var string|null $uploadName Имя файла, указанное клиентом при загрузке.
-     */
-    protected ?string $uploadName = null;
-
-    /**
-     * @var string|null $uploadMimeType MIME-тип файла, указанный клиентом при загрузке.
-     */
-    protected ?string $uploadMimeType = null;
-
-    /**
-     * @var int|null $uploadErrorCode Код ошибки, возникшей при загрузке файла.
-     */
-    protected ?int $uploadErrorCode = null;
-
-    /**
      * Конструктор класса File.
      *
      * @param string $fileName Имя файла на сервере.
@@ -70,18 +55,13 @@ class File extends SplFileInfo
      * @param string $uploadMimeType MIME-тип файла.
      * @param int $uploadErrorCode Код ошибки загрузки.
      */
-    public function __construct(string $fileName, string $uploadName, string $uploadMimeType, int $uploadErrorCode)
+    public function __construct(string $fileName, protected ?string $uploadName, protected ?string $uploadMimeType, protected ?int $uploadErrorCode)
     {
-        $this->uploadName = $uploadName;
-        $this->uploadMimeType = $uploadMimeType;
-        $this->uploadErrorCode = $uploadErrorCode;
         parent::__construct($fileName);
     }
 
     /**
      * Получить имя файла, указанное клиентом.
-     *
-     * @return string|null
      */
     public function getUploadName(): ?string
     {
@@ -90,8 +70,6 @@ class File extends SplFileInfo
 
     /**
      * Получить MIME-тип файла.
-     *
-     * @return string|null
      */
     public function getUploadMimeType(): ?string
     {
@@ -100,18 +78,14 @@ class File extends SplFileInfo
 
     /**
      * Получить расширение файла.
-     *
-     * @return string
      */
     public function getUploadExtension(): string
     {
-        return pathinfo($this->uploadName, PATHINFO_EXTENSION);
+        return pathinfo((string) $this->uploadName, PATHINFO_EXTENSION);
     }
 
     /**
      * Получить код ошибки загрузки.
-     *
-     * @return int|null
      */
     public function getUploadErrorCode(): ?int
     {
@@ -120,8 +94,6 @@ class File extends SplFileInfo
 
     /**
      * Проверить, является ли загрузка файла действительной.
-     *
-     * @return bool
      */
     public function isValid(): bool
     {
@@ -137,18 +109,20 @@ class File extends SplFileInfo
      */
     public function move(string $destination): File
     {
-        set_error_handler(function ($type, $msg) use (&$error) {
+        set_error_handler(function ($type, $msg) use (&$error): void {
             $error = $msg;
         });
         $path = pathinfo($destination, PATHINFO_DIRNAME);
         if (!is_dir($path) && !create_dir($path)) {
             restore_error_handler();
-            throw new FileException(sprintf('Unable to create the "%s" directory (%s)', $path, strip_tags($error)));
+            throw new FileException(sprintf('Unable to create the "%s" directory (%s)', $path, strip_tags((string) $error)));
         }
+        
         if (!rename($this->getPathname(), $destination)) {
             restore_error_handler();
-            throw new FileException(sprintf('Could not move the file "%s" to "%s" (%s)', $this->getPathname(), $destination, strip_tags($error)));
+            throw new FileException(sprintf('Could not move the file "%s" to "%s" (%s)', $this->getPathname(), $destination, strip_tags((string) $error)));
         }
+        
         restore_error_handler();
         @chmod($destination, 0666 & ~umask());
 
