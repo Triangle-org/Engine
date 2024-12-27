@@ -41,7 +41,7 @@ class Plugin
     public static function app_by_path(string $path): ?string
     {
         $trimmedPath = trim($path, '/');
-        $suffix = trim(config('app.plugin_uri', 'app'), '/');
+        $suffix = trim((string) config('app.plugin_uri', 'app'), '/');
 
         if (str_starts_with($trimmedPath, $suffix)) {
             $trimmedPath = trim(substr($trimmedPath, strlen($suffix)), '/');
@@ -54,7 +54,7 @@ class Plugin
     public static function app_by_class(string $class): ?string
     {
         $trimmedClass = trim($class, '\\');
-        $suffix = str_replace('\\', '/', trim(config('app.plugin_alias', 'plugin'), '/'));
+        $suffix = str_replace('\\', '/', trim((string) config('app.plugin_alias', 'plugin'), '/'));
 
         if (str_starts_with($trimmedClass, $suffix)) {
             $trimmedClass = trim(substr($trimmedClass, strlen($suffix)), '\\');
@@ -84,10 +84,10 @@ class Plugin
     public static function install(mixed $event): void
     {
         static::findHelper();
-        foreach (static::getPsr4($event) as $namespace => $path) {
+        foreach (array_keys(static::getPsr4($event)) as $namespace) {
             if (defined("\\{$namespace}Install::TRIANGLE_PLUGIN")) {
                 $installFunction = static::getFunction($namespace, 'install');
-                if ($installFunction) {
+                if ($installFunction !== null) {
                     $installFunction(true);
                 }
             }
@@ -97,14 +97,14 @@ class Plugin
     public static function update(mixed $event): void
     {
         static::findHelper();
-        foreach (static::getPsr4($event) as $namespace => $path) {
+        foreach (array_keys(static::getPsr4($event)) as $namespace) {
             if (defined("\\{$namespace}Install::TRIANGLE_PLUGIN")) {
                 $updateFunction = static::getFunction($namespace, 'update');
-                if ($updateFunction) {
+                if ($updateFunction !== null) {
                     $updateFunction();
                 } else {
                     $installFunction = static::getFunction($namespace, 'install');
-                    if ($installFunction) {
+                    if ($installFunction !== null) {
                         $installFunction();
                     }
                 }
@@ -115,10 +115,10 @@ class Plugin
     public static function uninstall(mixed $event): void
     {
         static::findHelper();
-        foreach (static::getPsr4($event) as $namespace => $path) {
+        foreach (array_keys(static::getPsr4($event)) as $namespace) {
             if (defined("\\{$namespace}Install::TRIANGLE_PLUGIN")) {
                 $uninstallFunction = static::getFunction($namespace, 'uninstall');
-                if ($uninstallFunction) {
+                if ($uninstallFunction !== null) {
                     $uninstallFunction();
                 }
             }
