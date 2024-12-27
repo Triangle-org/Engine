@@ -84,7 +84,7 @@ class Environment implements BootstrapInterface
      */
     public static function getRepository(): ?RepositoryInterface
     {
-        if (!self::$repository instanceof \Dotenv\Repository\RepositoryInterface) {
+        if (!(self::$repository instanceof RepositoryInterface)) {
             $builder = RepositoryBuilder::createWithDefaultAdapters();
 
             if (self::$putenv) {

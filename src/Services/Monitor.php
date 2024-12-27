@@ -210,7 +210,7 @@ class Monitor
             if (!is_file($statusFile)) {
                 continue;
             }
-            
+
             if (!($status = file_get_contents($statusFile))) {
                 continue;
             }

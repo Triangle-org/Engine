@@ -62,7 +62,7 @@ class Collection
         if (is_array($data)) {
             return $data;
         }
-        
+
         if (is_object($data)) {
             if (method_exists($data, 'toArray')) {
                 return $data->toArray();

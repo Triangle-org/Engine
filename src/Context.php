@@ -62,7 +62,7 @@ class Context
      */
     public static function init(): void
     {
-        if (!static::$objectStorage instanceof \WeakMap) {
+        if (!(static::$objectStorage instanceof WeakMap)) {
             static::$objectStorage = class_exists(WeakMap::class) ? new WeakMap() : new SplObjectStorage();
             static::$object = new StdClass;
         }
@@ -99,7 +99,7 @@ class Context
      */
     public static function set(string $key, mixed $value): void
     {
-        if ($obj = static::getObject() instanceof \StdClass) {
+        if (($obj = static::getObject()) instanceof StdClass) {
             $obj->$key = $value;
         }
     }
@@ -110,7 +110,7 @@ class Context
      */
     public static function delete(string $key): void
     {
-        if ($obj = static::getObject() instanceof \StdClass) {
+        if (($obj = static::getObject()) instanceof StdClass) {
             unset($obj->$key);
         }
     }

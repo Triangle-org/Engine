@@ -47,7 +47,7 @@ class App
         if (!class_exists(\Triangle\Request::class)) {
             class_alias(Request::class, \Triangle\Request::class);
         }
-        
+
         if (!class_exists(\Triangle\Response::class)) {
             class_alias(Response::class, \Triangle\Response::class);
         }

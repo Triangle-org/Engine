@@ -197,7 +197,7 @@ function get_realpath(string $filePath): string|false
     if (str_starts_with($filePath, 'phar://')) {
         return $filePath;
     }
-    
+
     return realpath($filePath);
 }
 
@@ -328,7 +328,7 @@ if (!function_exists('response')) {
         if (!function_exists('responseView') || request()->expectsJson()) {
             return responseJson($body, $status, $headers);
         }
-        
+
         return responseView($body, $status, $headers);
     }
 }

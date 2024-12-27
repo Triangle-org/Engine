@@ -98,7 +98,7 @@ class Autoload
             fn($level, $message, $file = '', $line = 0): bool => (error_reporting() & $level) ? throw new ErrorException($message, 0, $level, $file, $line) : true
         );
 
-        if ($server instanceof \localzet\Server) {
+        if ($server instanceof Server) {
             register_shutdown_function(
                 fn($start_time): int|bool => (time() - $start_time <= 1) ? sleep(1) : true,
                 time()
@@ -114,7 +114,7 @@ class Autoload
 
     private static function collectRouterConfigs(?Server $server): void
     {
-        if ($server instanceof \localzet\Server && class_exists(Router::class)) {
+        if ($server instanceof Server && class_exists(Router::class)) {
             $paths = [config_path()];
             foreach (scan_dir(plugin_path(), false) as $name) {
                 $dir = plugin_path("$name/config");

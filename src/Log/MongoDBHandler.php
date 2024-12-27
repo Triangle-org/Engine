@@ -79,7 +79,7 @@ class MongoDBHandler extends AbstractProcessingHandler
      */
     public function __construct($mongodb, string $database, string $collection, int $level = Logger::DEBUG, bool $bubble = true)
     {
-        if (!$mongodb instanceof Client && !$mongodb instanceof Manager) {
+        if (!($mongodb instanceof Client) && !($mongodb instanceof Manager)) {
             throw new InvalidArgumentException('MongoDB\Client or MongoDB\Driver\Manager instance required');
         }
 

@@ -268,7 +268,7 @@ class Redis
 
     public static function instance(): ?Manager
     {
-        if (!static::$instance instanceof \Illuminate\Redis\RedisManager) {
+        if (!(static::$instance instanceof Manager)) {
             $config = config('redis');
             $client = $config['client'] ?? self::PHPREDIS_CLIENT;
 

@@ -85,7 +85,7 @@ class Config
             static::$loaded = true;
             return;
         }
-        
+
         if ($key !== null) {
             foreach (array_reverse(explode('.', $key)) as $k) {
                 $config = [$k => $config];
@@ -114,11 +114,11 @@ class Config
             if (is_dir((string)$file)) {
                 continue;
             }
-            
+
             if ($file->getExtension() !== 'php') {
                 continue;
             }
-            
+
             if (in_array($file->getBaseName('.php'), $excludeFile)) {
                 continue;
             }

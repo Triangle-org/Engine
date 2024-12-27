@@ -69,7 +69,7 @@ class Response extends \localzet\Server\Protocols\Http\Response
      */
     public function exception(Throwable $throwable = null): ?Throwable
     {
-        if ($throwable instanceof \Throwable) {
+        if ($throwable instanceof Throwable) {
             $this->exception = $throwable;
         }
 
