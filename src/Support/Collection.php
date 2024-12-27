@@ -70,6 +70,7 @@ class Collection
 
             return (array)$data;
         }
+
         return [$data];
     }
 
