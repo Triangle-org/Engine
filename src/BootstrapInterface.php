@@ -37,9 +37,7 @@ interface BootstrapInterface
     /**
      * Запускает приложение.
      *
-     * @param Server|null $server
      *
-     * @return void
      */
     public static function start(?Server $server): void;
 }
