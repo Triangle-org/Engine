@@ -41,15 +41,11 @@ class Environment implements BootstrapInterface
 {
     /**
      * Указывает, включен ли адаптер putenv.
-     *
-     * @var bool
      */
     protected static bool $putenv = true;
 
     /**
      * Экземпляр репозитория окружения.
-     *
-     * @var RepositoryInterface|null
      */
     protected static ?RepositoryInterface $repository = null;
 
@@ -67,8 +63,6 @@ class Environment implements BootstrapInterface
 
     /**
      * Включить адаптер putenv.
-     *
-     * @return void
      */
     public static function enablePutenv(): void
     {
@@ -78,8 +72,6 @@ class Environment implements BootstrapInterface
 
     /**
      * Отключить адаптер putenv.
-     *
-     * @return void
      */
     public static function disablePutenv(): void
     {
@@ -89,12 +81,10 @@ class Environment implements BootstrapInterface
 
     /**
      * Получить экземпляр репозитория окружения.
-     *
-     * @return RepositoryInterface|null
      */
     public static function getRepository(): ?RepositoryInterface
     {
-        if (self::$repository === null) {
+        if (!self::$repository instanceof \Dotenv\Repository\RepositoryInterface) {
             $builder = RepositoryBuilder::createWithDefaultAdapters();
 
             if (self::$putenv) {
@@ -110,9 +100,7 @@ class Environment implements BootstrapInterface
     /**
      * Получить значение переменной окружения.
      *
-     * @param string $key
      * @param mixed|null $default
-     * @return mixed
      */
     public static function get(string $key, mixed $default = null): mixed
     {
@@ -122,8 +110,6 @@ class Environment implements BootstrapInterface
     /**
      * Получить значение обязательной переменной окружения.
      *
-     * @param string $key
-     * @return mixed
      * @throws RuntimeException
      */
     public static function getOrFail(string $key): mixed
@@ -133,10 +119,6 @@ class Environment implements BootstrapInterface
 
     /**
      * Изменить значение переменной окружения.
-     *
-     * @param array $values
-     * @param string $environmentFile
-     * @return bool
      */
     public static function set(array $values, string $environmentFile = '.env'): bool
     {
@@ -173,14 +155,11 @@ class Environment implements BootstrapInterface
 
     /**
      * Получить возможный вариант для этой переменной окружения.
-     *
-     * @param string $key
-     * @return Option|Some
      */
     protected static function getOption(string $key): Some|Option
     {
         return Option::fromValue(self::getRepository()->get($key))
-            ->map(function ($value) {
+            ->map(function ($value): bool|int|float|string|array|null {
                 $valueMap = [
                     'true' => true,
                     'false' => false,
