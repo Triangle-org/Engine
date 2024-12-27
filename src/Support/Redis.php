@@ -225,11 +225,13 @@ class Redis
      * need to install phpredis extension
      */
     const PHPREDIS_CLIENT = 'phpredis';
+    
     /**
      * need to install the 'predis/predis' packgage.
      * cmd: composer install predis/predis
      */
     const PREDIS_CLIENT = 'predis';
+    
     /**
      * Support client collection
      */
@@ -237,14 +239,10 @@ class Redis
         self::PHPREDIS_CLIENT,
         self::PREDIS_CLIENT
     ];
-    /**
-     * @var Manager|null
-     */
+    
     protected static ?Manager $instance = null;
 
     /**
-     * @param string $name
-     * @param array $arguments
      * @return mixed
      */
     public static function __callStatic(string $name, array $arguments)
@@ -252,31 +250,25 @@ class Redis
         return static::connection()->{$name}(...$arguments);
     }
 
-    /**
-     * @param string $name
-     * @return Connection
-     */
     public static function connection(string $name = 'default'): Connection
     {
         static $timers = [];
         $connection = static::instance()->connection($name);
         if (!isset($timers[$name])) {
-            $timers[$name] = Server::getAllServers() ? Timer::add(55, function () use ($connection) {
+            $timers[$name] = Server::getAllServers() ? Timer::add(55, function () use ($connection): void {
                 $connection->get('ping');
             }) : 1;
             if (class_exists(Dispatcher::class)) {
                 $connection->setEventDispatcher(new Dispatcher());
             }
         }
+        
         return $connection;
     }
 
-    /**
-     * @return Manager|null
-     */
     public static function instance(): ?Manager
     {
-        if (!static::$instance) {
+        if (!static::$instance instanceof \Illuminate\Redis\RedisManager) {
             $config = config('redis');
             $client = $config['client'] ?? self::PHPREDIS_CLIENT;
 
@@ -286,6 +278,7 @@ class Redis
 
             static::$instance = new Manager('', $client, $config);
         }
+        
         return static::$instance;
     }
 }
