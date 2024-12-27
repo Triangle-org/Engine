@@ -44,20 +44,13 @@ use function property_exists;
  */
 class Context
 {
-    /**
-     * @var WeakMap|null
-     */
     protected static ?WeakMap $objectStorage = null;
 
-    /**
-     * @var StdClass
-     */
     protected static StdClass $object;
 
     /**
      * Получить значение из контекста
      * @param string|null $key Ключ значения
-     * @return mixed
      */
     public static function get(?string $key = null): mixed
     {
@@ -66,19 +59,15 @@ class Context
 
     /**
      * Получить объект контекста
-     * @return void
      */
     public static function init(): void
     {
-        if (!static::$objectStorage) {
+        if (!static::$objectStorage instanceof \WeakMap) {
             static::$objectStorage = class_exists(WeakMap::class) ? new WeakMap() : new SplObjectStorage();
             static::$object = new StdClass;
         }
     }
 
-    /**
-     * @return StdClass|null
-     */
     protected static function getObject(): StdClass|null
     {
         /** @var Fiber $key */
@@ -86,12 +75,12 @@ class Context
         if ($key && !isset(static::$objectStorage[$key])) {
             static::$objectStorage[$key] = new StdClass;
         }
+        
         return $key ? static::$objectStorage[$key] : null;
     }
 
     /**
      * Получить ключ контекста
-     * @return object
      */
     protected static function getKey(): object
     {
@@ -107,11 +96,10 @@ class Context
      * Установить значение в контекст
      * @param string $key Ключ значения
      * @param mixed $value Значение
-     * @return void
      */
     public static function set(string $key, mixed $value): void
     {
-        if ($obj = static::getObject()) {
+        if ($obj = static::getObject() instanceof \StdClass) {
             $obj->$key = $value;
         }
     }
@@ -119,11 +107,10 @@ class Context
     /**
      * Удалить значение из контекста
      * @param string $key Ключ значения
-     * @return void
      */
     public static function delete(string $key): void
     {
-        if ($obj = static::getObject()) {
+        if ($obj = static::getObject() instanceof \StdClass) {
             unset($obj->$key);
         }
     }
@@ -131,7 +118,6 @@ class Context
     /**
      * Проверить наличие значения в контексте
      * @param string $key Ключ значения
-     * @return bool
      */
     public static function has(string $key): bool
     {
@@ -140,7 +126,6 @@ class Context
 
     /**
      * Уничтожить контекст
-     * @return void
      */
     public static function destroy(): void
     {
