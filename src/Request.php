@@ -68,33 +68,28 @@ class Request extends \localzet\Server\Protocols\Http\Request
         if ($files === null) {
             return $name === null ? [] : null;
         }
+        
         if ($name !== null) {
             return is_array(current($files)) ? $this->parseFiles($files) : $this->parseFile($files);
         }
 
-        return array_map(function ($file) {
-            return is_array(current($file)) ? $this->parseFiles($file) : $this->parseFile($file);
-        }, $files);
+        return array_map(fn($file): \Triangle\Engine\File|array => is_array(current($file)) ? $this->parseFiles($file) : $this->parseFile($file), $files);
     }
 
     /**
      * Разобрать массив файлов.
      *
      * @param array $files Массив файлов.
-     * @return array
      */
     protected function parseFiles(array $files): array
     {
-        return array_map(function ($file) {
-            return is_array(current($file)) ? $this->parseFiles($file) : $this->parseFile($file);
-        }, $files);
+        return array_map(fn($file): \Triangle\Engine\File|array => is_array(current($file)) ? $this->parseFiles($file) : $this->parseFile($file), $files);
     }
 
     /**
      * Разобрать файл.
      *
      * @param array $file Файл.
-     * @return File
      */
     protected function parseFile(array $file): File
     {
