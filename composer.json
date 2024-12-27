@@ -35,16 +35,16 @@
     "ext-mongodb": "For Triangle\\Engine\\Log\\MongoDBHandler"
   },
   "require": {
-    "php": "^8.1",
+    "php": "^8",
     "ext-curl": "*",
     "ext-intl": "*",
     "ext-json": "*",
     "ext-mbstring": "*",
     "ext-zend-opcache": "*",
-    "localzet/server": "^4.2",
+    "localzet/server": "^4",
     "psr/container": ">=1.0",
-    "monolog/monolog": "^2.9",
-    "vlucas/phpdotenv": "^5.6"
+    "monolog/monolog": "^2",
+    "vlucas/phpdotenv": "^5"
   },
   "require-dev": {
     "rector/rector": "*"
