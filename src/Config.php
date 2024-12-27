@@ -44,19 +44,10 @@ use function str_replace;
 
 class Config
 {
-    /**
-     * @var array
-     */
     protected static array $config = [];
 
-    /**
-     * @var string
-     */
     protected static string $configPath = '';
 
-    /**
-     * @var bool
-     */
     protected static bool $loaded = false;
 
     public static function loadAll(array $excludes = []): void
@@ -79,16 +70,14 @@ class Config
 
     /**
      * Загрузи
-     * @param string $configPath
-     * @param array $excludeFile
      * @param string|null $key
-     * @return void
      */
     public static function load(string $configPath, array $excludeFile = [], string $key = null): void
     {
         if (!$configPath) {
             return;
         }
+        
         static::$configPath = $configPath;
         static::$loaded = false;
         $config = static::loadFromDir($configPath, $excludeFile);
@@ -101,6 +90,7 @@ class Config
                 $config = [$k => $config];
             }
         }
+        
         static::$config = array_replace_recursive(static::$config, $config);
         static::formatConfig();
         static::$loaded = true;
@@ -108,9 +98,6 @@ class Config
 
     /**
      * Загрузить из папки
-     * @param string $configPath
-     * @param array $excludeFile
-     * @return array
      */
     public static function loadFromDir(string $configPath, array $excludeFile = []): array
     {
@@ -118,13 +105,21 @@ class Config
         if (!is_dir($configPath)) {
             return [];
         }
+        
         $dirIterator = new RecursiveDirectoryIterator($configPath, FilesystemIterator::FOLLOW_SYMLINKS);
         $iterator = new RecursiveIteratorIterator($dirIterator);
         foreach ($iterator as $file) {
             /** @var SplFileInfo $file */
-            if (is_dir((string)$file) || $file->getExtension() != 'php' || in_array($file->getBaseName('.php'), $excludeFile)) {
+            if (is_dir((string)$file)) {
                 continue;
             }
+            if ($file->getExtension() !== 'php') {
+                continue;
+            }
+            if (in_array($file->getBaseName('.php'), $excludeFile)) {
+                continue;
+            }
+
             $relativePath = str_replace($configPath . DIRECTORY_SEPARATOR, '', substr((string)$file, 0, -4));
             $explode = array_reverse(explode(DIRECTORY_SEPARATOR, $relativePath));
             if (count($explode) >= 2) {
@@ -132,25 +127,28 @@ class Config
                 if (!is_file($appConfigFile)) {
                     continue;
                 }
+                
                 $appConfig = include $appConfigFile;
                 if (empty($appConfig['enable'])) {
                     continue;
                 }
             }
+            
             $config = include $file;
             foreach ($explode as $section) {
                 $tmp = [];
                 $tmp[$section] = $config;
                 $config = $tmp;
             }
+            
             $allConfig = array_replace_recursive($allConfig, $config);
         }
+        
         return $allConfig;
     }
 
     /**
      * Форматировать
-     * @return void
      */
     protected static function formatConfig(): void
     {
@@ -161,12 +159,15 @@ class Config
             if (!is_array($plugin_config)) {
                 continue;
             }
+            
             foreach ($plugin_config['log'] ?? [] as $key => $value) {
                 $config['log']["$plugin_path.$plugin.$key"] = $value;
             }
+            
             foreach ($plugin_config['database']['connections'] ?? [] as $key => $value) {
                 $config['database']['connections']["$plugin_path.$plugin.$key"] = $value;
             }
+            
             foreach ($plugin_config['redis'] ?? [] as $key => $value) {
                 $config['redis']["$plugin_path.$plugin.$key"] = $value;
             }
@@ -177,12 +178,15 @@ class Config
                 if (!is_array($plugin_config)) {
                     continue;
                 }
+                
                 foreach ($plugin_config['log'] ?? [] as $key => $value) {
                     $config['log']["plugin.$vendor.$plugin.$key"] = $value;
                 }
+                
                 foreach ($plugin_config['database']['connections'] ?? [] as $key => $value) {
                     $config['database']['connections']["plugin.$vendor.$plugin.$key"] = $value;
                 }
+                
                 foreach ($plugin_config['redis'] ?? [] as $key => $value) {
                     $config['redis']["plugin.$vendor.$plugin.$key"] = $value;
                 }
@@ -190,7 +194,7 @@ class Config
         }
 
         if (!empty($config['database']['connections'])) {
-            $config['database']['default'] = $config['database']['default'] ?? key($config['database']['connections']);
+            $config['database']['default'] ??= key($config['database']['connections']);
         }
 
         static::$config = $config;
@@ -198,7 +202,6 @@ class Config
 
     /**
      * Очистить
-     * @return void
      */
     public static function clear(): void
     {
@@ -216,6 +219,7 @@ class Config
         if ($key === null) {
             return static::$config;
         }
+        
         $keyArray = explode('.', $key);
         $value = static::$config;
         $found = true;
@@ -224,20 +228,23 @@ class Config
                 if (static::$loaded) {
                     return $default;
                 }
+                
                 $found = false;
                 break;
             }
+            
             $value = $value[$index];
         }
+        
         if ($found) {
             return $value;
         }
+        
         return static::read($key, $default);
     }
 
     /**
      * Считать
-     * @param string $key
      * @param mixed|null $default
      * @return array|mixed|null
      */
@@ -247,6 +254,7 @@ class Config
         if ($path === '') {
             return $default;
         }
+        
         $keys = $keyArray = explode('.', $key);
         foreach ($keyArray as $index => $section) {
             unset($keys[$index]);
@@ -254,18 +262,17 @@ class Config
                 $config = include $file;
                 return static::find($keys, $config, $default);
             }
+            
             if (!is_dir($path = "$path/$section")) {
                 return $default;
             }
         }
+        
         return $default;
     }
 
     /**
      * Найти
-     * @param array $keyArray
-     * @param mixed $stack
-     * @param mixed $default
      * @return array|mixed
      */
     protected static function find(array $keyArray, mixed $stack, mixed $default): mixed
@@ -273,19 +280,19 @@ class Config
         if (!is_array($stack)) {
             return $default;
         }
+        
         $value = $stack;
         foreach ($keyArray as $index) {
             if (!isset($value[$index])) {
                 return $default;
             }
+            
             $value = $value[$index];
         }
+        
         return $value;
     }
 
-    /**
-     * @param array $config
-     */
     public static function set(array $config): void
     {
         static::$config = array_replace_recursive(static::$config, $config);
