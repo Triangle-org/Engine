@@ -38,11 +38,11 @@ class Bootstrap implements BootstrapInterface
 
         self::load($bootstrapClasses, $server);
 
-        Plugin::plugin_reduce(function ($vendor, $plugins, $plugin, $config) use ($server) {
+        Plugin::plugin_reduce(function ($vendor, $plugins, $plugin, $config) use ($server): void {
             self::load($config['bootstrap'] ?? [], $server);
         });
 
-        Plugin::app_reduce(function ($plugin, $config) use ($server) {
+        Plugin::app_reduce(function ($plugin, $config) use ($server): void {
             self::load($config['bootstrap'] ?? [], $server);
         });
     }
