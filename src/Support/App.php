@@ -44,8 +44,12 @@ class App
     public static function run(): void
     {
         ini_set('display_errors', 'on');
-        class_exists(\Triangle\Request::class) || class_alias(Request::class, \Triangle\Request::class);
-        class_exists(\Triangle\Response::class) || class_alias(Response::class, \Triangle\Response::class);
+        if (!class_exists(\Triangle\Request::class)) {
+            class_alias(Request::class, \Triangle\Request::class);
+        }
+        if (!class_exists(\Triangle\Response::class)) {
+            class_alias(Response::class, \Triangle\Response::class);
+        }
 
         Environment::start();
         Config::reloadAll(['route', 'container']);
@@ -56,13 +60,11 @@ class App
         $server = config('server.server');
         $server = $server instanceof Server ? $server : Server::class;
 
-        $server::$onMasterReload = function () {
-            if (function_exists('opcache_get_status')) {
-                if ($status = opcache_get_status()) {
-                    if (isset($status['scripts'])) {
-                        foreach (array_keys($status['scripts']) as $file) {
-                            opcache_invalidate($file, true);
-                        }
+        $server::$onMasterReload = function (): void {
+            if (function_exists('opcache_get_status') && $status = opcache_get_status()) {
+                if (isset($status['scripts'])) {
+                    foreach (array_keys($status['scripts']) as $file) {
+                        opcache_invalidate($file, true);
                     }
                 }
             }
@@ -79,6 +81,7 @@ class App
             if ((!file_exists(dirname($path)) || !is_dir(dirname($path))) && !create_dir(dirname($path))) {
                 throw new RuntimeException("Failed to create runtime logs directory. Please check the permission.");
             }
+            
             $server::$$key = $path;
         }
 
@@ -99,14 +102,14 @@ class App
                 $servers[] = $processConfig;
             }
 
-            Plugin::app_reduce(function ($plugin, $config) use (&$servers, $services) {
+            Plugin::app_reduce(function ($plugin, $config) use (&$servers, $services): void {
                 foreach ($services($config) as $processName => $processConfig) {
                     $processConfig['name'] ??= config('app.plugin_alias', 'plugin') . ".$plugin.$processName";
                     $servers[] = $processConfig;
                 }
             });
 
-            Plugin::plugin_reduce(function ($vendor, $plugins, $plugin, $config) use (&$servers, $services) {
+            Plugin::plugin_reduce(function ($vendor, $plugins, $plugin, $config) use (&$servers, $services): void {
                 foreach ($services($config) as $processName => $processConfig) {
                     $processConfig['name'] ??= "plugin.$vendor.$plugin.$processName";
                     $servers[] = $processConfig;
@@ -114,22 +117,22 @@ class App
             });
         }
 
-        foreach ($servers as $config) {
+        foreach ($servers as $server) {
             localzet_start(
-                name: $config['name'] ?? null,
-                count: $config['count'] ?? null,
-                listen: $config['listen'] ?? null,
-                context: $config['context'] ?? null,
-                user: $config['user'] ?? null,
-                group: $config['group'] ?? null,
-                reloadable: $config['reloadable'] ?? null,
-                reusePort: $config['reusePort'] ?? null,
-                protocol: $config['protocol'] ?? null,
-                transport: $config['transport'] ?? null,
-                server: $config['server'] ?? null,
-                handler: $config['handler'] ?? null,
-                constructor: $config['constructor'] ?? null,
-                services: $config['services'] ?? null,
+                name: $server['name'] ?? null,
+                count: $server['count'] ?? null,
+                listen: $server['listen'] ?? null,
+                context: $server['context'] ?? null,
+                user: $server['user'] ?? null,
+                group: $server['group'] ?? null,
+                reloadable: $server['reloadable'] ?? null,
+                reusePort: $server['reusePort'] ?? null,
+                protocol: $server['protocol'] ?? null,
+                transport: $server['transport'] ?? null,
+                server: $server['server'] ?? null,
+                handler: $server['handler'] ?? null,
+                constructor: $server['constructor'] ?? null,
+                services: $server['services'] ?? null,
             );
         }
 
