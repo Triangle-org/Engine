@@ -77,13 +77,13 @@ class Autoload
             include_once $file;
         }
 
-        Plugin::app_reduce(function ($plugin, $config) {
+        Plugin::app_reduce(function ($plugin, array $config): void {
             foreach ($config['autoload']['files'] ?? [] as $file) {
                 include_once $file;
             }
         });
 
-        Plugin::plugin_reduce(function ($vendor, $plugins, $plugin, $config) {
+        Plugin::plugin_reduce(function ($vendor, $plugins, $plugin, array $config): void {
             foreach ($config['autoload']['files'] ?? [] as $file) {
                 include_once $file;
             }
@@ -95,12 +95,12 @@ class Autoload
         Environment::start();
         Config::reloadAll(['route']);
         set_error_handler(
-            fn($level, $message, $file = '', $line = 0) => (error_reporting() & $level) ? throw new ErrorException($message, 0, $level, $file, $line) : true
+            fn($level, $message, $file = '', $line = 0): bool => (error_reporting() & $level) ? throw new ErrorException($message, 0, $level, $file, $line) : true
         );
 
-        if ($server) {
+        if ($server instanceof \localzet\Server) {
             register_shutdown_function(
-                fn($start_time) => (time() - $start_time <= 1) ? sleep(1) : true,
+                fn($start_time): int|bool => (time() - $start_time <= 1) ? sleep(1) : true,
                 time()
             );
         }
@@ -114,7 +114,7 @@ class Autoload
 
     private static function collectRouterConfigs(?Server $server): void
     {
-        if ($server && class_exists(Router::class)) {
+        if ($server instanceof \localzet\Server && class_exists(Router::class)) {
             $paths = [config_path()];
             foreach (scan_dir(plugin_path(), false) as $name) {
                 $dir = plugin_path("$name/config");
@@ -122,6 +122,7 @@ class Autoload
                     $paths[] = $dir;
                 }
             }
+            
             Router::collect($paths);
         }
     }
