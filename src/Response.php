@@ -65,14 +65,14 @@ class Response extends \localzet\Server\Protocols\Http\Response
     /**
      * Получить или установить исключение.
      *
-     * @param Throwable|null $exception Исключение для установки.
-     * @return Throwable|null
+     * @param Throwable|null $throwable Исключение для установки.
      */
-    public function exception(Throwable $exception = null): ?Throwable
+    public function exception(Throwable $throwable = null): ?Throwable
     {
-        if ($exception) {
-            $this->exception = $exception;
+        if ($throwable instanceof \Throwable) {
+            $this->exception = $throwable;
         }
+        
         return $this->exception;
     }
 
@@ -87,6 +87,7 @@ class Response extends \localzet\Server\Protocols\Http\Response
         if ($this->notModifiedSince($file)) {
             return $this->withStatus(304);
         }
+        
         return $this->withFile($file);
     }
 
@@ -94,7 +95,6 @@ class Response extends \localzet\Server\Protocols\Http\Response
      * Проверить, был ли файл изменен с момента последнего запроса.
      *
      * @param string $file Путь к файлу.
-     * @return bool
      */
     protected function notModifiedSince(string $file): bool
     {
@@ -102,6 +102,7 @@ class Response extends \localzet\Server\Protocols\Http\Response
         if ($ifModifiedSince === null || !is_file($file) || !($mtime = filemtime($file))) {
             return false;
         }
+        
         return $ifModifiedSince === gmdate('D, d M Y H:i:s', $mtime) . ' GMT';
     }
 
@@ -118,6 +119,7 @@ class Response extends \localzet\Server\Protocols\Http\Response
         if ($downloadName) {
             $this->header('Content-Disposition', "attachment; filename=\"$downloadName\"");
         }
+        
         return $this;
     }
 }
