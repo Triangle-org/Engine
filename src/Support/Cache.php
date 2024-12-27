@@ -76,23 +76,22 @@ class Cache
      * Получить экземпляр кэша.
      * Если экземпляр кэша еще не создан, он будет создан и сохранен в статическом свойстве $instance.
      *
-     * @param string|null $name
-     * @return Psr16Cache|null
      *
      * @link https://www.php-fig.org/psr/psr-16/
      */
     public static function store(?string $name = null): Psr16Cache
     {
         $name = $name ?: config('cache.default', 'redis');
-        $stores = !config('cache') ? [
+        $stores = config('cache') ? config('cache.stores', []) : [
             'redis' => [
                 'driver' => 'redis',
                 'connection' => 'default'
             ],
-        ] : config('cache.stores', []);
+        ];
         if (!isset($stores[$name])) {
             throw new InvalidArgumentException("cache.store.$name is not defined. Please check config/cache.php");
         }
+        
         if (!isset(static::$instances[$name])) {
             $driver = $stores[$name]['driver'];
             switch ($driver) {
@@ -115,8 +114,10 @@ class Cache
                 default:
                     throw new InvalidArgumentException("cache.store.$name.driver=$driver is not supported.");
             }
+            
             static::$instances[$name] = new Psr16Cache($adapter);
         }
+        
         return static::$instances[$name];
     }
 }
