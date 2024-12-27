@@ -63,7 +63,7 @@ if (!function_exists('locale')) {
         if (!$locale) {
             return Translation::getLocale();
         }
-        
+
         Translation::setLocale($locale);
         return $locale;
     }
@@ -141,7 +141,7 @@ function run_path(string $path = ''): string
             dirname(Phar::running(false)) :
             base_path();
     }
-    
+
     return path_combine($runPath, $path);
 }
 
@@ -197,6 +197,7 @@ function get_realpath(string $filePath): string|false
     if (str_starts_with($filePath, 'phar://')) {
         return $filePath;
     }
+    
     return realpath($filePath);
 }
 
@@ -210,7 +211,7 @@ function copy_dir(string $source, string $dest, bool $overwrite = false): void
         if (!is_dir($dest)) {
             create_dir($dest);
         }
-        
+
         $files = array_diff(scandir($source), ['.', '..']) ?: [];
         foreach ($files as $file) {
             copy_dir("$source/$file", "$dest/$file", $overwrite);
@@ -228,7 +229,7 @@ function scan_dir(string $basePath, bool $withBasePath = true): array
     if (!is_dir($basePath)) {
         return [];
     }
-    
+
     $paths = array_diff(scandir($basePath), ['.', '..']) ?: [];
     return $withBasePath ? array_map(fn($path): string => $basePath . DIRECTORY_SEPARATOR . $path, $paths) : $paths;
 }
@@ -241,13 +242,13 @@ function remove_dir(string $dir): bool
     if (is_link($dir) || is_file($dir)) {
         return file_exists($dir) && unlink($dir);
     }
-    
+
     $files = array_diff(scandir($dir), ['.', '..']) ?: [];
     foreach ($files as $file) {
         $path = $dir . DIRECTORY_SEPARATOR . $file;
         is_dir($path) && !is_link($path) ? remove_dir($path) : file_exists($path) && unlink($path);
     }
-    
+
     return file_exists($dir) && rmdir($dir);
 }
 
@@ -327,6 +328,7 @@ if (!function_exists('response')) {
         if (!function_exists('responseView') || request()->expectsJson()) {
             return responseJson($body, $status, $headers);
         }
+        
         return responseView($body, $status, $headers);
     }
 }
@@ -351,7 +353,7 @@ function redirect(string $location, int $status = 302, array $headers = []): Res
     if (!empty($headers)) {
         $response->withHeaders($headers);
     }
-    
+
     return $response;
 }
 
@@ -374,7 +376,7 @@ if (!function_exists('jsonp')) {
         if (!is_scalar($data) && null !== $data) {
             $data = json_encode($data);
         }
-        
+
         return new Response(200, [], "$callbackName($data)");
     }
 }

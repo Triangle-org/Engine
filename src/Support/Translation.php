@@ -115,8 +115,8 @@ class Translation
                     $files = new RegexIterator($iterator, '/^.+' . preg_quote($opts['extension']) . '$/i', RegexIterator::GET_MATCH);
                     foreach ($files as $file) {
                         $file = $file[0];
-                        $domain = basename((string) $file, $opts['extension']);
-                        $dirName = pathinfo((string) $file, PATHINFO_DIRNAME);
+                        $domain = basename((string)$file, $opts['extension']);
+                        $dirName = pathinfo((string)$file, PATHINFO_DIRNAME);
                         $locale = substr(strrchr($dirName, DIRECTORY_SEPARATOR), 1);
                         if ($domain && $locale) {
                             $translator->addResource($opts['format'], $file, $locale, $domain);
@@ -125,7 +125,7 @@ class Translation
                 }
             }
         }
-        
+
         return static::$instance[$plugin];
     }
 }

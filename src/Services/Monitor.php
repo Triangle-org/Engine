@@ -119,13 +119,13 @@ class Monitor
         if (!$lastMtime) {
             $lastMtime = time();
         }
-        
+
         clearstatcache();
         if (!is_dir($monitorDir)) {
             if (!is_file($monitorDir)) {
                 return false;
             }
-            
+
             $iterator = [new SplFileInfo($monitorDir)];
         } else {
             // Рекурсивный обход каталогов
@@ -141,7 +141,7 @@ class Monitor
             if (is_dir($file->getRealPath())) {
                 continue;
             }
-            
+
             // Проверка времени
             if ($lastMtime < $file->getMTime() && in_array($file->getExtension(), $this->extensions, true)) {
                 $var = 0;
@@ -151,7 +151,7 @@ class Monitor
                 if ($var) {
                     continue;
                 }
-                
+
                 echo $file . " Обновлён и перезапущен\n";
                 // Отправляем SIGUSR1 в мастер-процесс для перезагрузки
                 $masterPid = is_file(Server::$pidFile) ? (int)file_get_contents(Server::$pidFile) : 0;
@@ -161,16 +161,16 @@ class Monitor
                     // Windows так не может
                     return true;
                 }
-                
+
                 break;
             }
         }
-        
+
         if (!$tooManyFilesCheck && $count > 1000) {
             echo "Монитор: Слишком много файлов ($count) в $monitorDir, что делает мониторинг файлов очень медленным\n";
             $tooManyFilesCheck = 1;
         }
-        
+
         return false;
     }
 
@@ -179,13 +179,13 @@ class Monitor
         if (static::isPaused()) {
             return false;
         }
-        
+
         foreach ($this->paths as $path) {
             if ($this->checkFilesChange($path)) {
                 return true;
             }
         }
-        
+
         return false;
     }
 
@@ -197,28 +197,29 @@ class Monitor
         if (static::isPaused() || $memoryLimit <= 0) {
             return;
         }
-        
+
         $ppid = posix_getppid();
         $childrenFile = "/proc/$ppid/task/$ppid/children";
         if (!is_file($childrenFile) || !($children = file_get_contents($childrenFile))) {
             return;
         }
-        
+
         foreach (explode(' ', $children) as $pid) {
             $pid = (int)$pid;
             $statusFile = "/proc/$pid/status";
             if (!is_file($statusFile)) {
                 continue;
             }
+            
             if (!($status = file_get_contents($statusFile))) {
                 continue;
             }
-            
+
             $mem = 0;
             if (preg_match('/VmRSS\s*?:\s*?(\d+?)\s*?kB/', $status, $match)) {
                 $mem = $match[1];
             }
-            
+
             $mem = (int)($mem / 1024);
             if ($mem >= $memoryLimit) {
                 posix_kill($pid, SIGINT);
@@ -235,7 +236,7 @@ class Monitor
         if ($memoryLimit === 0) {
             return 0;
         }
-        
+
         $usePhpIni = false;
         if (!$memoryLimit) {
             $memoryLimit = ini_get('memory_limit');
@@ -245,8 +246,8 @@ class Monitor
         if ($memoryLimit == -1) {
             return 0;
         }
-        
-        $unit = strtolower((string) $memoryLimit[strlen((string) $memoryLimit) - 1]);
+
+        $unit = strtolower((string)$memoryLimit[strlen((string)$memoryLimit) - 1]);
         if ($unit === 'g') {
             $memoryLimit = 1024 * (int)$memoryLimit;
         } elseif ($unit === 'm') {
@@ -256,15 +257,15 @@ class Monitor
         } else {
             $memoryLimit = ((int)$memoryLimit / (1024 * 1024));
         }
-        
+
         if ($memoryLimit < 30) {
             $memoryLimit = 30;
         }
-        
+
         if ($usePhpIni) {
-            $memoryLimit = (int)(0.8 * $memoryLimit);
+            return (int)(0.8 * $memoryLimit);
         }
-        
+
         return $memoryLimit;
     }
 }

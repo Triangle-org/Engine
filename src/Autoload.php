@@ -122,7 +122,7 @@ class Autoload
                     $paths[] = $dir;
                 }
             }
-            
+
             Router::collect($paths);
         }
     }

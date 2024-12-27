@@ -75,7 +75,7 @@ class Context
         if ($key && !isset(static::$objectStorage[$key])) {
             static::$objectStorage[$key] = new StdClass;
         }
-        
+
         return $key ? static::$objectStorage[$key] : null;
     }
 

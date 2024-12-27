@@ -225,13 +225,13 @@ class Redis
      * need to install phpredis extension
      */
     const PHPREDIS_CLIENT = 'phpredis';
-    
+
     /**
      * need to install the 'predis/predis' packgage.
      * cmd: composer install predis/predis
      */
     const PREDIS_CLIENT = 'predis';
-    
+
     /**
      * Support client collection
      */
@@ -239,7 +239,7 @@ class Redis
         self::PHPREDIS_CLIENT,
         self::PREDIS_CLIENT
     ];
-    
+
     protected static ?Manager $instance = null;
 
     /**
@@ -262,7 +262,7 @@ class Redis
                 $connection->setEventDispatcher(new Dispatcher());
             }
         }
-        
+
         return $connection;
     }
 
@@ -278,7 +278,7 @@ class Redis
 
             static::$instance = new Manager('', $client, $config);
         }
-        
+
         return static::$instance;
     }
 }

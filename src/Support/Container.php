@@ -28,7 +28,6 @@
 namespace support;
 
 use Exception;
-use Triangle\Engine\Config;
 use Triangle\Engine\Plugin;
 use Triangle\Http\App;
 

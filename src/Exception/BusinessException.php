@@ -40,7 +40,7 @@ use function nl2br;
 class BusinessException extends RuntimeException implements ExceptionInterface
 {
     public array $data = [];
-    
+
     protected bool $debug = false;
 
     /**
@@ -75,7 +75,7 @@ class BusinessException extends RuntimeException implements ExceptionInterface
         if ($data === null) {
             return $this->data;
         }
-        
+
         $this->data = $data;
         return $this;
     }
@@ -89,7 +89,7 @@ class BusinessException extends RuntimeException implements ExceptionInterface
         if ($value === null) {
             return $this->debug;
         }
-        
+
         $this->debug = $value;
         return $this;
     }
@@ -104,16 +104,16 @@ class BusinessException extends RuntimeException implements ExceptionInterface
         foreach ($parameters as $key => $parameter) {
             $args[":$key"] = $parameter;
         }
-        
+
         try {
             $message = trans($message, $args, $domain, $locale);
         } catch (Throwable) {
         }
-        
+
         foreach ($parameters as $key => $value) {
             $message = str_replace(":$key", $value, $message);
         }
-        
+
         return $message;
     }
 }

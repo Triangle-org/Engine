@@ -91,7 +91,7 @@ class Cache
         if (!isset($stores[$name])) {
             throw new InvalidArgumentException("cache.store.$name is not defined. Please check config/cache.php");
         }
-        
+
         if (!isset(static::$instances[$name])) {
             $driver = $stores[$name]['driver'];
             switch ($driver) {
@@ -114,10 +114,10 @@ class Cache
                 default:
                     throw new InvalidArgumentException("cache.store.$name.driver=$driver is not supported.");
             }
-            
+
             static::$instances[$name] = new Psr16Cache($adapter);
         }
-        
+
         return static::$instances[$name];
     }
 }

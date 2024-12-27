@@ -164,7 +164,7 @@ class Log
             if (is_array($value) && isset($value['class'])) {
                 $value = new $value['class'](...array_values($value['constructor'] ?? []));
             }
-            
+
             $result[] = $value;
         }
 

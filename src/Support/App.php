@@ -47,6 +47,7 @@ class App
         if (!class_exists(\Triangle\Request::class)) {
             class_alias(Request::class, \Triangle\Request::class);
         }
+        
         if (!class_exists(\Triangle\Response::class)) {
             class_alias(Response::class, \Triangle\Response::class);
         }
@@ -61,11 +62,9 @@ class App
         $server = $server instanceof Server ? $server : Server::class;
 
         $server::$onMasterReload = function (): void {
-            if (function_exists('opcache_get_status') && $status = opcache_get_status()) {
-                if (isset($status['scripts'])) {
-                    foreach (array_keys($status['scripts']) as $file) {
-                        opcache_invalidate($file, true);
-                    }
+            if (function_exists('opcache_get_status') && ($status = opcache_get_status()) && isset($status['scripts'])) {
+                foreach (array_keys($status['scripts']) as $file) {
+                    opcache_invalidate($file, true);
                 }
             }
         };
@@ -81,7 +80,7 @@ class App
             if ((!file_exists(dirname($path)) || !is_dir(dirname($path))) && !create_dir(dirname($path))) {
                 throw new RuntimeException("Failed to create runtime logs directory. Please check the permission.");
             }
-            
+
             $server::$$key = $path;
         }
 

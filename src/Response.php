@@ -72,7 +72,7 @@ class Response extends \localzet\Server\Protocols\Http\Response
         if ($throwable instanceof \Throwable) {
             $this->exception = $throwable;
         }
-        
+
         return $this->exception;
     }
 
@@ -87,7 +87,7 @@ class Response extends \localzet\Server\Protocols\Http\Response
         if ($this->notModifiedSince($file)) {
             return $this->withStatus(304);
         }
-        
+
         return $this->withFile($file);
     }
 
@@ -102,7 +102,7 @@ class Response extends \localzet\Server\Protocols\Http\Response
         if ($ifModifiedSince === null || !is_file($file) || !($mtime = filemtime($file))) {
             return false;
         }
-        
+
         return $ifModifiedSince === gmdate('D, d M Y H:i:s', $mtime) . ' GMT';
     }
 
@@ -119,7 +119,7 @@ class Response extends \localzet\Server\Protocols\Http\Response
         if ($downloadName) {
             $this->header('Content-Disposition', "attachment; filename=\"$downloadName\"");
         }
-        
+
         return $this;
     }
 }

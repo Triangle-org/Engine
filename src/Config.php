@@ -77,7 +77,7 @@ class Config
         if (!$configPath) {
             return;
         }
-        
+
         static::$configPath = $configPath;
         static::$loaded = false;
         $config = static::loadFromDir($configPath, $excludeFile);
@@ -85,12 +85,13 @@ class Config
             static::$loaded = true;
             return;
         }
+        
         if ($key !== null) {
             foreach (array_reverse(explode('.', $key)) as $k) {
                 $config = [$k => $config];
             }
         }
-        
+
         static::$config = array_replace_recursive(static::$config, $config);
         static::formatConfig();
         static::$loaded = true;
@@ -105,7 +106,7 @@ class Config
         if (!is_dir($configPath)) {
             return [];
         }
-        
+
         $dirIterator = new RecursiveDirectoryIterator($configPath, FilesystemIterator::FOLLOW_SYMLINKS);
         $iterator = new RecursiveIteratorIterator($dirIterator);
         foreach ($iterator as $file) {
@@ -113,9 +114,11 @@ class Config
             if (is_dir((string)$file)) {
                 continue;
             }
+            
             if ($file->getExtension() !== 'php') {
                 continue;
             }
+            
             if (in_array($file->getBaseName('.php'), $excludeFile)) {
                 continue;
             }
@@ -127,23 +130,23 @@ class Config
                 if (!is_file($appConfigFile)) {
                     continue;
                 }
-                
+
                 $appConfig = include $appConfigFile;
                 if (empty($appConfig['enable'])) {
                     continue;
                 }
             }
-            
+
             $config = include $file;
             foreach ($explode as $section) {
                 $tmp = [];
                 $tmp[$section] = $config;
                 $config = $tmp;
             }
-            
+
             $allConfig = array_replace_recursive($allConfig, $config);
         }
-        
+
         return $allConfig;
     }
 
@@ -159,15 +162,15 @@ class Config
             if (!is_array($plugin_config)) {
                 continue;
             }
-            
+
             foreach ($plugin_config['log'] ?? [] as $key => $value) {
                 $config['log']["$plugin_path.$plugin.$key"] = $value;
             }
-            
+
             foreach ($plugin_config['database']['connections'] ?? [] as $key => $value) {
                 $config['database']['connections']["$plugin_path.$plugin.$key"] = $value;
             }
-            
+
             foreach ($plugin_config['redis'] ?? [] as $key => $value) {
                 $config['redis']["$plugin_path.$plugin.$key"] = $value;
             }
@@ -178,15 +181,15 @@ class Config
                 if (!is_array($plugin_config)) {
                     continue;
                 }
-                
+
                 foreach ($plugin_config['log'] ?? [] as $key => $value) {
                     $config['log']["plugin.$vendor.$plugin.$key"] = $value;
                 }
-                
+
                 foreach ($plugin_config['database']['connections'] ?? [] as $key => $value) {
                     $config['database']['connections']["plugin.$vendor.$plugin.$key"] = $value;
                 }
-                
+
                 foreach ($plugin_config['redis'] ?? [] as $key => $value) {
                     $config['redis']["plugin.$vendor.$plugin.$key"] = $value;
                 }
@@ -219,7 +222,7 @@ class Config
         if ($key === null) {
             return static::$config;
         }
-        
+
         $keyArray = explode('.', $key);
         $value = static::$config;
         $found = true;
@@ -228,18 +231,18 @@ class Config
                 if (static::$loaded) {
                     return $default;
                 }
-                
+
                 $found = false;
                 break;
             }
-            
+
             $value = $value[$index];
         }
-        
+
         if ($found) {
             return $value;
         }
-        
+
         return static::read($key, $default);
     }
 
@@ -254,7 +257,7 @@ class Config
         if ($path === '') {
             return $default;
         }
-        
+
         $keys = $keyArray = explode('.', $key);
         foreach ($keyArray as $index => $section) {
             unset($keys[$index]);
@@ -262,12 +265,12 @@ class Config
                 $config = include $file;
                 return static::find($keys, $config, $default);
             }
-            
+
             if (!is_dir($path = "$path/$section")) {
                 return $default;
             }
         }
-        
+
         return $default;
     }
 
@@ -280,16 +283,16 @@ class Config
         if (!is_array($stack)) {
             return $default;
         }
-        
+
         $value = $stack;
         foreach ($keyArray as $index) {
             if (!isset($value[$index])) {
                 return $default;
             }
-            
+
             $value = $value[$index];
         }
-        
+
         return $value;
     }
 

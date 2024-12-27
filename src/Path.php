@@ -65,7 +65,7 @@ class Path
         if (false === $path) {
             return run_path();
         }
-        
+
         return path_combine(static::$basePath ?? BASE_PATH, $path);
     }
 

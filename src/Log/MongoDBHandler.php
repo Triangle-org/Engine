@@ -60,10 +60,10 @@ class MongoDBHandler extends AbstractProcessingHandler
 {
     /** @var Collection $collection Коллекция MongoDB для записи логов. */
     private Collection $collection;
-    
+
     /** @var Client|Manager $manager Клиент или менеджер MongoDB. */
     private Manager|Client $manager;
-    
+
     /** @var string $namespace Пространство имен MongoDB. */
     private string $namespace;
 

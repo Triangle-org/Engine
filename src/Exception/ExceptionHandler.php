@@ -81,7 +81,7 @@ class ExceptionHandler implements ExceptionHandlerInterface
                 return true;
             }
         }
-        
+
         return false;
     }
 

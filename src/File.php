@@ -81,7 +81,7 @@ class File extends SplFileInfo
      */
     public function getUploadExtension(): string
     {
-        return pathinfo((string) $this->uploadName, PATHINFO_EXTENSION);
+        return pathinfo((string)$this->uploadName, PATHINFO_EXTENSION);
     }
 
     /**
@@ -115,14 +115,14 @@ class File extends SplFileInfo
         $path = pathinfo($destination, PATHINFO_DIRNAME);
         if (!is_dir($path) && !create_dir($path)) {
             restore_error_handler();
-            throw new FileException(sprintf('Unable to create the "%s" directory (%s)', $path, strip_tags((string) $error)));
+            throw new FileException(sprintf('Unable to create the "%s" directory (%s)', $path, strip_tags((string)$error)));
         }
-        
+
         if (!rename($this->getPathname(), $destination)) {
             restore_error_handler();
-            throw new FileException(sprintf('Could not move the file "%s" to "%s" (%s)', $this->getPathname(), $destination, strip_tags((string) $error)));
+            throw new FileException(sprintf('Could not move the file "%s" to "%s" (%s)', $this->getPathname(), $destination, strip_tags((string)$error)));
         }
-        
+
         restore_error_handler();
         @chmod($destination, 0666 & ~umask());
 

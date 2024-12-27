@@ -68,7 +68,7 @@ class Request extends \localzet\Server\Protocols\Http\Request
         if ($files === null) {
             return $name === null ? [] : null;
         }
-        
+
         if ($name !== null) {
             return is_array(current($files)) ? $this->parseFiles($files) : $this->parseFile($files);
         }

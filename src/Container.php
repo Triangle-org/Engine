@@ -65,11 +65,11 @@ class Container implements ContainerInterface
                 if (!class_exists($id)) {
                     throw new RuntimeException("Класс '$id' не найден");
                 }
-                
+
                 $this->instances[$id] = new $id();
             }
         }
-        
+
         return $this->instances[$id];
     }
 
@@ -102,7 +102,7 @@ class Container implements ContainerInterface
         if (!class_exists($name)) {
             throw new ("Класс '$name' не найден");
         }
-        
+
         return new $name(...array_values($constructor));
     }
 

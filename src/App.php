@@ -101,7 +101,7 @@ abstract class App extends ServerAbstract
         if (class_exists($server->protocol) && method_exists($server->protocol, 'requestClass')) {
             $server->protocol::requestClass(static::$requestClass);
         }
-        
+
         Context::init();
         Autoload::loadAll($server);
     }
@@ -133,7 +133,7 @@ abstract class App extends ServerAbstract
         if ($call instanceof Closure || is_string($call)) {
             return new ReflectionFunction($call);
         }
-        
+
         return new ReflectionMethod($call[0], $call[1]);
     }
 
@@ -170,7 +170,7 @@ abstract class App extends ServerAbstract
                 return $candidate;
             }
         }
-        
+
         return $method;
     }
 
@@ -185,7 +185,7 @@ abstract class App extends ServerAbstract
         if (!isset($tmp[$pos])) {
             return '';
         }
-        
+
         return strtolower($tmp[$pos]) === 'controller' ? '' : $tmp[$pos];
     }
 
@@ -264,7 +264,7 @@ abstract class App extends ServerAbstract
             array_splice($tmp, $index, 1, [$section, 'controller']);
             $map[] = trim("$classPrefix\\" . implode('\\', array_merge(['app'], $tmp)), '\\');
         }
-        
+
         foreach ($map as $item) {
             $map[] = $item . '\\index';
         }
@@ -275,7 +275,7 @@ abstract class App extends ServerAbstract
             if (str_ends_with($controllerClass, '\\controller')) {
                 continue;
             }
-            
+
             $controllerClass .= $suffix;
             // Если контроллер и действие найдены, возвращаем информацию о них
             if ($controllerAction = static::getControllerAction($controllerClass, $action)) {
@@ -342,12 +342,12 @@ abstract class App extends ServerAbstract
             if (!$found) {
                 break;
             }
-            
+
             $dirs = scan_dir($basePath, false);
             $found = false;
             foreach ($dirs as $dir) {
                 $path = "$basePath/{$dir}";
-                if (is_dir($path) && strtolower((string) $dir) === $pathSection) {
+                if (is_dir($path) && strtolower((string)$dir) === $pathSection) {
                     $basePath = $path;
                     $found = true;
                     break;
@@ -436,7 +436,7 @@ abstract class App extends ServerAbstract
         } catch (Exception $exception) {
             echo $exception;
         }
-        
+
         return ob_get_clean();
     }
 
@@ -479,7 +479,7 @@ abstract class App extends ServerAbstract
                     continue;
                 }
             }
-            
+
             $parameterValue = $inputs[$parameterName] ?? null;
             switch ($typeName) {
                 case 'int':
@@ -491,7 +491,7 @@ abstract class App extends ServerAbstract
                             'actualType' => gettype($parameterValue),
                         ])->debug($debug);
                     }
-                    
+
                     $parameters[$parameterName] = $typeName === 'float' ? (float)$parameterValue : (int)$parameterValue;
                     break;
                 case 'bool':
@@ -506,7 +506,7 @@ abstract class App extends ServerAbstract
                             'actualType' => gettype($parameterValue),
                         ])->debug($debug);
                     }
-                    
+
                     $parameters[$parameterName] = $typeName === 'object' ? (object)$parameterValue : $parameterValue;
                     break;
                 case 'string':
@@ -524,7 +524,7 @@ abstract class App extends ServerAbstract
                         ]);
                         break;
                     }
-                    
+
                     if (enum_exists($typeName)) {
                         $reflection = new ReflectionEnum($typeName);
                         if ($reflection->hasCase($parameterValue)) {
@@ -538,23 +538,23 @@ abstract class App extends ServerAbstract
                                 }
                             }
                         }
-                        
+
                         if (!array_key_exists($parameterName, $parameters)) {
                             throw (new InputValueException())->data([
                                 'parameter' => $parameterName,
                                 'enum' => $typeName
                             ])->debug($debug);
                         }
-                        
+
                         break;
                     }
-                    
+
                     if ($constructor = (new ReflectionClass($typeName))->getConstructor()) {
                         $parameters[$parameterName] = $container->make($typeName, static::resolveMethodDependencies($container, $request, $subInputs, $constructor, $debug));
                     } else {
                         $parameters[$parameterName] = $container->make($typeName);
                     }
-                    
+
                     break;
             }
         }
@@ -625,7 +625,7 @@ abstract class App extends ServerAbstract
         if (!$reflectionParameters) {
             return false;
         }
-        
+
         $reflectionParameter = current($reflectionParameters);
         unset($reflectionParameters[key($reflectionParameters)]);
         $adaptersList = ['int', 'string', 'bool', 'array', 'object', 'float', 'mixed', 'resource'];
@@ -640,19 +640,19 @@ abstract class App extends ServerAbstract
                     $needInject = true;
                     continue;
                 }
-                
+
                 if (!array_key_exists($parameterName, $args)) {
                     $needInject = true;
                     continue;
                 }
-                
+
                 switch ($typeName) {
                     case 'int':
                     case 'float':
                         if (!is_numeric($args[$parameterName])) {
                             return true;
                         }
-                        
+
                         $args[$parameterName] = $typeName === 'int' ? (int)$args[$parameterName] : (float)$args[$parameterName];
                         break;
                     case 'bool':
@@ -663,7 +663,7 @@ abstract class App extends ServerAbstract
                         if (!is_array($args[$parameterName])) {
                             return true;
                         }
-                        
+
                         $args[$parameterName] = $typeName === 'array' ? $args[$parameterName] : (object)$args[$parameterName];
                         break;
                     case 'string':
@@ -673,11 +673,11 @@ abstract class App extends ServerAbstract
                 }
             }
         }
-        
+
         if (array_keys($args) !== $keys) {
             return true;
         }
-        
+
         if (!$reflectionParameter->hasType()) {
             return $reflectionParameter->getName() !== 'request';
         }
