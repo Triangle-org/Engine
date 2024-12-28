@@ -316,14 +316,18 @@ if (!function_exists('response')) {
     /**
      * @throws Throwable
      */
-    function response(mixed $data = '', int $status = 200, array $headers = []): Response
+    function response(mixed $data = '', int $status = 200, array $headers = [], bool $raw = false): Response
     {
-        $status = config('app.http_always_200') ? 200 : $status;
-        $body = ['status' => $status, 'data' => $data];
+        if ($raw) {
+            $body = $data;
+        } else {
+            $body = ['status' => $status, 'data' => $data];
 
-        if (config('app.debug')) {
-            $body['debug'] = config('app.debug');
+            if (config('app.debug')) {
+                $body['debug'] = config('app.debug');
+            }
         }
+        $status = config('app.http_always_200') ? 200 : $status;
 
         if (!function_exists('responseView') || request()->expectsJson()) {
             return responseJson($body, $status, $headers);

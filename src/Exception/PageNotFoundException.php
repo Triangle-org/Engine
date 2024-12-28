@@ -44,23 +44,26 @@ class PageNotFoundException extends NotFoundException
         parent::__construct($message, $code, $throwable);
     }
 
-    public function render(Request $request): ?Response
+    public function render(Request $request, bool $debug = null): ?Response
     {
+        $debug = $debug === null ? config('app.debug') : $debug;
         $json = [
             'status' => $this->getCode() ?? 404,
             'error' => $this->trans($this->getMessage(), $this->data),
             'data' => $this->data,
         ];
 
-        if (config('app.debug')) {
-            $json['debug'] = config('app.debug');
+        if ($debug) {
+            $json['debug'] = $debug;
             $json['traces'] = nl2br((string)$this);
         }
 
-        if ($request->expectsJson()) {
-            return responseJson($json);
+        $status = config('app.http_always_200') ? 200 : $json['status'];
+
+        if (!function_exists('responseView') || request()->expectsJson()) {
+            return responseJson($json, $status);
         }
 
-        return responseView($json, 500);
+        return responseView($json, $status);
     }
 }

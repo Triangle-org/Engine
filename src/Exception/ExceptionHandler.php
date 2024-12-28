@@ -46,7 +46,7 @@ class ExceptionHandler implements ExceptionHandlerInterface
     /**
      * Конструктор обработчика исключений.
      */
-    public function __construct(protected ?LoggerInterface $logger = null)
+    public function __construct(protected ?LoggerInterface $logger = null, protected bool $debug = false)
     {
     }
 
@@ -59,16 +59,7 @@ class ExceptionHandler implements ExceptionHandlerInterface
             return;
         }
 
-        $context = [];
-
-        try {
-            if ($request = request()) {
-                $context['request'] = $request->toArray();
-            }
-        } catch (Throwable) {
-        }
-
-        $this->logger->error($throwable->getMessage(), $context);
+        $this->logger->error($throwable->getMessage());
     }
 
     /**
@@ -92,19 +83,25 @@ class ExceptionHandler implements ExceptionHandlerInterface
     public function render(Request $request, Throwable $throwable): Response
     {
         if (method_exists($throwable, 'render')) {
-            return $throwable->render($request);
+            return $throwable->render($request, $this->debug);
         }
 
         $json = [
             'status' => $throwable->getCode() ?: 500,
-            'error' => config('debug') ? $throwable->getMessage() : "Внутренняя ошибка",
+            'error' => $this->debug ? $throwable->getMessage() : "Внутренняя ошибка",
         ];
 
-        if (config('debug')) {
-            $json['debug'] = config('debug');
+        if ($this->debug) {
+            $json['debug'] = $this->debug;
             $json['traces'] = nl2br((string)$throwable);
         }
 
-        return response($json, 500);
+        $status = config('app.http_always_200') ? 200 : $json['status'];
+
+        if (!function_exists('responseView') || request()->expectsJson()) {
+            return responseJson($json, $status);
+        }
+
+        return responseView($json, $status);
     }
 }

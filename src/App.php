@@ -720,7 +720,7 @@ abstract class App extends ServerAbstract
             // Создаем экземпляр обработчика исключений
             /** @var ExceptionHandlerInterface $exceptionHandler */
             $exceptionHandler = (config('container', config('container'), $plugin))
-                ->make($exceptionHandlerClass, ['logger' => static::$logger]);
+                ->make($exceptionHandlerClass, ['logger' => static::$logger, 'debug' => config('app.debug', config('app.debug'), $plugin)]);
 
             // Отправляем отчет об исключении
             $exceptionHandler->report($e);

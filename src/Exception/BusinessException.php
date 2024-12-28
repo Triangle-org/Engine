@@ -50,20 +50,27 @@ class BusinessException extends RuntimeException implements ExceptionInterface
      * @return Response|null Ответ, который следует отправить пользователю
      * @throws Throwable
      */
-    public function render(Request $request): ?Response
+    public function render(Request $request, bool $debug = null): ?Response
     {
+        $debug = $debug === null ? config('app.debug') : $debug;
         $json = [
             'status' => $this->getCode() ?? 500,
-            'error' => $this->getMessage(),
+            'error' => $this->trans($this->getMessage(), $this->data),
             'data' => $this->data,
         ];
 
-        if (config('app.debug')) {
-            $json['debug'] = config('app.debug');
+        if ($debug) {
+            $json['debug'] = $debug;
             $json['traces'] = nl2br((string)$this);
         }
 
-        return response($json, 500);
+        $status = config('app.http_always_200') ? 200 : $json['status'];
+
+        if (!function_exists('responseView') || request()->expectsJson()) {
+            return responseJson($json, $status);
+        }
+
+        return responseView($json, $status);
     }
 
     /**
