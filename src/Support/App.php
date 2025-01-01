@@ -97,12 +97,14 @@ class App
             $services = fn($c) => $c['server']['services'] ?? $c['servers'] ?? $c['process'] ?? [];
 
             foreach ($services($config) as $processName => $processConfig) {
+                if (isset($config['enable']) && !$config['enable']) continue;
                 $processConfig['name'] ??= $processName;
                 $servers[] = $processConfig;
             }
 
             Plugin::app_reduce(function ($plugin, $config) use (&$servers, $services): void {
                 foreach ($services($config) as $processName => $processConfig) {
+                    if (isset($config['enable']) && !$config['enable']) continue;
                     $processConfig['name'] ??= config('app.plugin_alias', 'plugin') . ".$plugin.$processName";
                     $servers[] = $processConfig;
                 }
@@ -110,6 +112,7 @@ class App
 
             Plugin::plugin_reduce(function ($vendor, $plugins, $plugin, $config) use (&$servers, $services): void {
                 foreach ($services($config) as $processName => $processConfig) {
+                    if (isset($config['enable']) && !$config['enable']) continue;
                     $processConfig['name'] ??= "plugin.$vendor.$plugin.$processName";
                     $servers[] = $processConfig;
                 }
