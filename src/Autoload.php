@@ -28,6 +28,7 @@ namespace Triangle\Engine;
 
 use ErrorException;
 use localzet\Server;
+use Triangle\Cron\Bootstrap as CronBootstrap;
 use Triangle\Database\Bootstrap as DatabaseBootstrap;
 use Triangle\Events\Bootstrap as EventsBootstrap;
 use Triangle\Middleware\Bootstrap as MiddlewareBootstrap;
@@ -42,6 +43,7 @@ class Autoload
         [DatabaseBootstrap::class, 'start'],
         [SessionBootstrap::class, 'start'],
         [EventsBootstrap::class, 'start'],
+        [CronBootstrap::class, 'start'],
     ];
 
     public static function loadCore(): void
