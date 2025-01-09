@@ -34,10 +34,5 @@ use localzet\Server;
  */
 interface BootstrapInterface
 {
-    /**
-     * Запускает приложение.
-     *
-     *
-     */
     public static function start(?Server $server): void;
 }

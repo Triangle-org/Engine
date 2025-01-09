@@ -27,40 +27,11 @@
 namespace Triangle\Engine;
 
 use localzet\Server;
-use support\Log;
 
-class Bootstrap implements BootstrapInterface
+/**
+ * Интерфейс AutoloadInterface.
+ */
+interface AutoloadInterface
 {
-    private const COMPONENTS = [
-        \Triangle\Middleware\Bootstrap::class,
-        \Triangle\Database\Bootstrap::class,
-        \Triangle\Session\Bootstrap::class,
-        \Triangle\Router\Bootstrap::class,
-        \Triangle\Events\Bootstrap::class,
-    ];
-
-    public static function start(?Server $server = null): void
-    {
-        self::load(static::COMPONENTS, $server, true);
-        self::load(config('bootstrap', []), $server);
-
-        Plugin::plugin_reduce(function ($vendor, $plugins, $plugin, $config) use ($server): void {
-            self::load($config['bootstrap'] ?? [], $server);
-        });
-
-        Plugin::app_reduce(function ($plugin, $config) use ($server): void {
-            self::load($config['bootstrap'] ?? [], $server);
-        });
-    }
-
-    public static function load(array $classes, ?Server $server = null, bool $ignore = false): void
-    {
-        foreach ($classes as $class) {
-            if (class_exists($class) && ($class instanceof BootstrapInterface)) {
-                $class::start($server);
-            } else if (!$ignore) {
-                Log::warning("Внимание! Класса $class не существует\n");
-            }
-        }
-    }
+    public static function start(?string $arg = null, ?Server $server = null): void;
 }

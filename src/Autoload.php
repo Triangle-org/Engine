@@ -29,23 +29,48 @@ namespace Triangle\Engine;
 use ErrorException;
 use localzet\Server;
 
-class Autoload
+class Autoload implements AutoloadInterface
 {
+    private const COMPONENTS = [
+        \Triangle\Cron\Autoload::class,
+    ];
+
     public static function start(?string $arg = null, ?Server $server = null): void
     {
         Config::reloadAll(['route']);
         static::system();
 
-        if (($server instanceof Server)
-            || !in_array($arg ?? '', ['start', 'restart', 'stop', 'status', 'reload', 'connections'])
-        ) {
-            if ($server instanceof Server) {
-                register_shutdown_function(fn($s): int|bool => (time() - $s <= 0.1) ? sleep(1) : true, time());
-            }
-            Context::init();
-            static::files();
-            Bootstrap::start($server);
+        if ($server instanceof Server) {
+            register_shutdown_function(fn($s): int|bool => (time() - $s <= 0.1) ? sleep(1) : true, time());
+            static::startServer($server);
+        } else {
+            static::startCLI($arg);
         }
+
+        foreach (static::COMPONENTS as $class) {
+            if (class_exists($class) && ($class instanceof AutoloadInterface)) {
+                $class::start($arg, $server);
+            }
+        }
+    }
+
+    public static function startCLI(?string $arg = null): void
+    {
+        if (!static::isManageCommand($arg)) {
+            static::startServer();
+        }
+    }
+
+    public static function startServer(?Server $server = null): void
+    {
+        Context::init();
+        static::files();
+        Bootstrap::start($server);
+    }
+
+    public static function isManageCommand(?string $arg = ''): bool
+    {
+        return in_array($arg ?? '', ['start', 'restart', 'stop', 'status', 'reload', 'connections']);
     }
 
     private static function system(): void
