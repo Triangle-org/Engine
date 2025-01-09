@@ -56,7 +56,7 @@ class Bootstrap implements BootstrapInterface
     public static function load(array $classes, ?Server $server = null, bool $ignore = false): void
     {
         foreach ($classes as $class) {
-            if (class_exists($class) && ($class instanceof BootstrapInterface)) {
+            if (class_exists($class)) {
                 $class::start($server);
             } else if (!$ignore) {
                 Log::warning("Внимание! Класса $class не существует\n");

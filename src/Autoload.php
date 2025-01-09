@@ -48,9 +48,7 @@ class Autoload implements AutoloadInterface
         }
 
         foreach (static::COMPONENTS as $class) {
-            if (class_exists($class) && ($class instanceof AutoloadInterface)) {
-                $class::start($arg, $server);
-            }
+            if (class_exists($class)) $class::start($arg, $server);
         }
     }
 
