@@ -43,6 +43,7 @@ class Autoload
             register_shutdown_function(fn($s): int|bool => (time() - $s <= 1) ? sleep(1) : true, time());
             static::system();
             static::files();
+            Bootstrap::start($server);
             Context::init();
         } else {
             // CLI
@@ -50,9 +51,8 @@ class Autoload
             set_error_handler(fn($l, $m, $f = '', $n = 0): bool => (error_reporting() & $l) ? throw new ErrorException($m, 0, $l, $f, $n) : true);
             static::system();
             static::files();
+            Bootstrap::start();
         }
-
-        Bootstrap::start($server);
     }
 
     private static function system(): void
