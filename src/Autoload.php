@@ -33,25 +33,18 @@ class Autoload
 {
     public static function start(?string $arg = null, ?Server $server = null): void
     {
-        if (in_array($arg ?? '', ['start', 'restart', 'stop', 'status', 'reload', 'connections'])) {
-            // Предзагрузка
-            Config::reloadAll(['route', 'container']);
-            static::system();
-        } else if ($server instanceof Server) {
-            // При старте сервера
-            Config::reloadAll(['route']);
-            register_shutdown_function(fn($s): int|bool => (time() - $s <= 1) ? sleep(1) : true, time());
-            static::system();
+        Config::reloadAll(['route']);
+        static::system();
+
+        if (($server instanceof Server)
+            || !in_array($arg ?? '', ['start', 'restart', 'stop', 'status', 'reload', 'connections'])
+        ) {
+            if ($server instanceof Server) {
+                register_shutdown_function(fn($s): int|bool => (time() - $s <= 0.1) ? sleep(1) : true, time());
+            }
+            Context::init();
             static::files();
             Bootstrap::start($server);
-            Context::init();
-        } else {
-            // CLI
-            Config::reloadAll(['route']);
-            set_error_handler(fn($l, $m, $f = '', $n = 0): bool => (error_reporting() & $l) ? throw new ErrorException($m, 0, $l, $f, $n) : true);
-            static::system();
-            static::files();
-            Bootstrap::start();
         }
     }
 
@@ -60,6 +53,7 @@ class Autoload
         ini_set('display_errors', 'on');
         error_reporting(config('server.error_reporting', E_ALL));
         date_default_timezone_set(config('server.default_timezone', config('app.default_timezone', 'Europe/Moscow')));
+        set_error_handler(fn($l, $m, $f = '', $n = 0): bool => (error_reporting() & $l) ? throw new ErrorException($m, 0, $l, $f, $n) : true);
     }
 
     public static function files(): void

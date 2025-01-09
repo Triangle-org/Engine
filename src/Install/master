@@ -29,7 +29,7 @@ use Triangle\Engine\Autoload;
 use Triangle\Engine\Environment;
 use Triangle\Engine\Path;
 
-chdir(__DIR__);
+if (!Phar::running()) chdir(__DIR__);
 require_once __DIR__ . '/vendor/autoload.php';
 
 // Основная директория проекта

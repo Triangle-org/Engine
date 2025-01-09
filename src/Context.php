@@ -32,7 +32,6 @@ use localzet\Server;
 use localzet\Server\Events\Linux;
 use localzet\Server\Events\Swoole;
 use localzet\Server\Events\Swow;
-use SplObjectStorage;
 use StdClass;
 use WeakMap;
 use function property_exists;
@@ -46,7 +45,7 @@ class Context
 {
     protected static ?WeakMap $objectStorage = null;
 
-    protected static StdClass $object;
+    protected static ?StdClass $object = null;
 
     /**
      * Получить значение из контекста
@@ -63,7 +62,7 @@ class Context
     public static function init(): void
     {
         if (!(static::$objectStorage instanceof WeakMap)) {
-            static::$objectStorage = class_exists(WeakMap::class) ? new WeakMap() : new SplObjectStorage();
+            static::$objectStorage = new WeakMap();
             static::$object = new StdClass;
         }
     }
@@ -125,10 +124,26 @@ class Context
     }
 
     /**
+     * @param $callback
+     * @return void
+     */
+    public static function onDestroy($callback): void
+    {
+        $obj = static::getObject();
+        $obj->destroyCallbacks[] = $callback;
+    }
+
+    /**
      * Уничтожить контекст
      */
     public static function destroy(): void
     {
+        $obj = static::getObject();
+        if (isset($obj->destroyCallbacks)) {
+            foreach ($obj->destroyCallbacks as $callback) {
+                $callback();
+            }
+        }
         if ($key = static::getKey()) {
             unset(static::$objectStorage[$key]);
         }
