@@ -31,12 +31,19 @@ use support\Log;
 
 class Bootstrap implements BootstrapInterface
 {
+    private const COMPONENTS = [
+        \Triangle\Middleware\Bootstrap::class,
+        \Triangle\Database\Bootstrap::class,
+        \Triangle\Session\Bootstrap::class,
+        \Triangle\Router\Bootstrap::class,
+        \Triangle\Events\Bootstrap::class,
+        \Triangle\Cron\Bootstrap::class,
+    ];
+
     public static function start(?Server $server = null): void
     {
-        $config = config();
-        $bootstrapClasses = $config['bootstrap'] ?? [];
-
-        self::load($bootstrapClasses, $server);
+        self::load(static::COMPONENTS, $server, true);
+        self::load(config('bootstrap', []), $server);
 
         Plugin::plugin_reduce(function ($vendor, $plugins, $plugin, $config) use ($server): void {
             self::load($config['bootstrap'] ?? [], $server);
@@ -47,13 +54,14 @@ class Bootstrap implements BootstrapInterface
         });
     }
 
-    public static function load(array $classes, ?Server $server = null): void
+    public static function load(array $classes, ?Server $server = null, bool $ignore = false): void
     {
         foreach ($classes as $class) {
-            if (class_exists($class)) {
-                /** @var BootstrapInterface $class */
+            if (class_exists($class)
+                && (($class instanceof BootstrapInterface) || method_exists($class, 'start'))
+            ) {
                 $class::start($server);
-            } else {
+            } else if (!$ignore) {
                 self::log("Внимание! Класса $class не существует\n");
             }
         }

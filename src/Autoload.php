@@ -28,43 +28,38 @@ namespace Triangle\Engine;
 
 use ErrorException;
 use localzet\Server;
-use Triangle\Cron\Bootstrap as CronBootstrap;
-use Triangle\Database\Bootstrap as DatabaseBootstrap;
-use Triangle\Events\Bootstrap as EventsBootstrap;
-use Triangle\Middleware\Bootstrap as MiddlewareBootstrap;
-use Triangle\Router;
-use Triangle\Session\Bootstrap as SessionBootstrap;
 
 class Autoload
 {
-    private const LOADERS = [
-        [Bootstrap::class, 'start'],
-        [MiddlewareBootstrap::class, 'start'],
-        [DatabaseBootstrap::class, 'start'],
-        [SessionBootstrap::class, 'start'],
-        [EventsBootstrap::class, 'start'],
-        [CronBootstrap::class, 'start'],
-    ];
-
-    public static function loadCore(): void
+    public static function start(?string $arg = null, ?Server $server = null): void
     {
-        Environment::start();
-        Config::reloadAll(['route', 'container']);
-    }
-
-    public static function loadAll(?Server $server = null): void
-    {
-        self::initializeEnvironment($server);
-
-        static::files();
-
-        foreach (self::LOADERS as $loader) {
-            if (class_exists($loader[0]) && method_exists($loader[0], $loader[1])) {
-                $loader[0]::{$loader[1]}($server);
-            }
+        if (in_array($arg ?? '', ['start', 'restart', 'stop', 'status', 'reload', 'connections'])) {
+            // Предзагрузка
+            Config::reloadAll(['route', 'container']);
+            static::system();
+        } else if ($server instanceof Server) {
+            // При старте сервера
+            Config::reloadAll(['route']);
+            register_shutdown_function(fn($s): int|bool => (time() - $s <= 1) ? sleep(1) : true, time());
+            static::system();
+            static::files();
+            Context::init();
+        } else {
+            // CLI
+            Config::reloadAll(['route']);
+            set_error_handler(fn($l, $m, $f = '', $n = 0): bool => (error_reporting() & $l) ? throw new ErrorException($m, 0, $l, $f, $n) : true);
+            static::system();
+            static::files();
         }
 
-        self::collectRouterConfigs($server);
+        Bootstrap::start($server);
+    }
+
+    private static function system(): void
+    {
+        ini_set('display_errors', 'on');
+        error_reporting(config('server.error_reporting', E_ALL));
+        date_default_timezone_set(config('server.default_timezone', config('app.default_timezone', 'Europe/Moscow')));
     }
 
     public static function files(): void
@@ -90,42 +85,5 @@ class Autoload
                 include_once $file;
             }
         });
-    }
-
-    private static function initializeEnvironment(?Server $server = null): void
-    {
-        Environment::start();
-        Config::reloadAll(['route']);
-        set_error_handler(
-            fn($level, $message, $file = '', $line = 0): bool => (error_reporting() & $level) ? throw new ErrorException($message, 0, $level, $file, $line) : true
-        );
-
-        if ($server instanceof Server) {
-            register_shutdown_function(
-                fn($start_time): int|bool => (time() - $start_time <= 1) ? sleep(1) : true,
-                time()
-            );
-        }
-
-        if (function_exists('config')) {
-            date_default_timezone_set(
-                config('server.default_timezone', config('app.default_timezone', 'Europe/Moscow'))
-            );
-        }
-    }
-
-    private static function collectRouterConfigs(?Server $server): void
-    {
-        if ($server instanceof Server && class_exists(Router::class)) {
-            $paths = [config_path()];
-            foreach (scan_dir(plugin_path(), false) as $name) {
-                $dir = plugin_path("$name/config");
-                if (is_dir($dir)) {
-                    $paths[] = $dir;
-                }
-            }
-
-            Router::collect($paths);
-        }
     }
 }

@@ -75,20 +75,13 @@ class Plugin
         }
     }
 
-    protected static function getFunction(string $namespace, string $type): ?callable
-    {
-        $function = "\\{$namespace}Install::$type";
-        return is_callable($function) ? $function : null;
-    }
-
     public static function install(mixed $event): void
     {
         static::findHelper();
         foreach (array_keys(static::getPsr4($event)) as $namespace) {
             if (defined("\\{$namespace}Install::TRIANGLE_PLUGIN")) {
-                $installFunction = static::getFunction($namespace, 'install');
-                if ($installFunction !== null) {
-                    $installFunction(true);
+                if (is_callable($function = "\\{$namespace}Install::install")) {
+                    $function(true);
                 }
             }
         }
@@ -99,14 +92,10 @@ class Plugin
         static::findHelper();
         foreach (array_keys(static::getPsr4($event)) as $namespace) {
             if (defined("\\{$namespace}Install::TRIANGLE_PLUGIN")) {
-                $updateFunction = static::getFunction($namespace, 'update');
-                if ($updateFunction !== null) {
-                    $updateFunction();
-                } else {
-                    $installFunction = static::getFunction($namespace, 'install');
-                    if ($installFunction !== null) {
-                        $installFunction();
-                    }
+                if (is_callable($function = "\\{$namespace}Install::update")) {
+                    $function();
+                } else if (is_callable($function = "\\{$namespace}Install::install")) {
+                    $function();
                 }
             }
         }
@@ -117,9 +106,8 @@ class Plugin
         static::findHelper();
         foreach (array_keys(static::getPsr4($event)) as $namespace) {
             if (defined("\\{$namespace}Install::TRIANGLE_PLUGIN")) {
-                $uninstallFunction = static::getFunction($namespace, 'uninstall');
-                if ($uninstallFunction !== null) {
-                    $uninstallFunction();
+                if (is_callable($function = "\\{$namespace}Install::uninstall")) {
+                    $function();
                 }
             }
         }

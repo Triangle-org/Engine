@@ -30,8 +30,6 @@ namespace support;
 use localzet\Server;
 use localzet\Server\Connection\TcpConnection;
 use RuntimeException;
-use Triangle\Engine\Config;
-use Triangle\Engine\Environment;
 use Triangle\Engine\Plugin;
 use Triangle\Engine\Request;
 use Triangle\Engine\Response;
@@ -43,7 +41,6 @@ class App
 {
     public static function run(): void
     {
-        ini_set('display_errors', 'on');
         if (!class_exists(\Triangle\Request::class)) {
             class_alias(Request::class, \Triangle\Request::class);
         }
@@ -52,20 +49,12 @@ class App
             class_alias(Response::class, \Triangle\Response::class);
         }
 
-        Environment::start();
-        Config::reloadAll(['route', 'container']);
-
-        error_reporting(config('server.error_reporting', E_ALL));
-        date_default_timezone_set(config('server.default_timezone', config('app.default_timezone', 'Europe/Moscow')));
-
         $server = config('server.server');
         $server = $server instanceof Server ? $server : Server::class;
 
         $server::$onMasterReload = function (): void {
-            if (function_exists('opcache_get_status') && ($status = opcache_get_status()) && isset($status['scripts'])) {
-                foreach (array_keys($status['scripts']) as $file) {
-                    opcache_invalidate($file, true);
-                }
+            if (function_exists('opcache_get_status') && ($s = opcache_get_status()) && !empty($s['scripts'])) {
+                foreach (array_keys($s['scripts']) as $f) opcache_invalidate($f, true);
             }
         };
 
@@ -94,24 +83,24 @@ class App
         // Windows не поддерживает кастомные процессы
         if (is_unix()) {
             $config = config();
-            $services = fn($c) => $c['server']['services'] ?? $c['servers'] ?? $c['process'] ?? [];
+            $fn = fn($c) => array_merge($c['servers'] ?? [], $c['process'] ?? []);
 
-            foreach ($services($config) as $processName => $processConfig) {
+            foreach ($fn($config) as $processName => $processConfig) {
                 if (isset($config['enable']) && !$config['enable']) continue;
                 $processConfig['name'] ??= $processName;
                 $servers[] = $processConfig;
             }
 
-            Plugin::app_reduce(function ($plugin, $config) use (&$servers, $services): void {
-                foreach ($services($config) as $processName => $processConfig) {
+            Plugin::app_reduce(function ($plugin, $config) use (&$servers, $fn): void {
+                foreach ($fn($config) as $processName => $processConfig) {
                     if (isset($config['enable']) && !$config['enable']) continue;
                     $processConfig['name'] ??= config('app.plugin_alias', 'plugin') . ".$plugin.$processName";
                     $servers[] = $processConfig;
                 }
             });
 
-            Plugin::plugin_reduce(function ($vendor, $plugins, $plugin, $config) use (&$servers, $services): void {
-                foreach ($services($config) as $processName => $processConfig) {
+            Plugin::plugin_reduce(function ($vendor, $plugins, $plugin, $config) use (&$servers, $fn): void {
+                foreach ($fn($config) as $processName => $processConfig) {
                     if (isset($config['enable']) && !$config['enable']) continue;
                     $processConfig['name'] ??= "plugin.$vendor.$plugin.$processName";
                     $servers[] = $processConfig;

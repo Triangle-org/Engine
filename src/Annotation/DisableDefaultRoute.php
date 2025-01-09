@@ -26,7 +26,9 @@
 
 namespace Triangle\Annotation;
 
-#[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD)]
+use Attribute;
+
+#[Attribute(Attribute::TARGET_CLASS | Attribute::TARGET_METHOD)]
 class DisableDefaultRoute
 {
 }

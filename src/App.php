@@ -102,8 +102,7 @@ abstract class App extends ServerAbstract
             $server->protocol::requestClass(static::$requestClass);
         }
 
-        Context::init();
-        Autoload::loadAll($server);
+        Autoload::start(server: $server);
     }
 
     public static function connection(): TcpConnection|null

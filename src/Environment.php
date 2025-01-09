@@ -37,7 +37,7 @@ use PhpOption\Option;
 use PhpOption\Some;
 use RuntimeException;
 
-class Environment implements BootstrapInterface
+class Environment
 {
     /**
      * Указывает, включен ли адаптер putenv.
@@ -49,12 +49,7 @@ class Environment implements BootstrapInterface
      */
     protected static ?RepositoryInterface $repository = null;
 
-    public static function start(?Server $server = null): void
-    {
-        self::load(run_path());
-    }
-
-    public static function load(string $path, string $file = '.env'): void
+    public static function load(string|array $path, string|array $file = '.env'): void
     {
         if (class_exists(Dotenv::class) && file_exists(path_combine($path, $file))) {
             Dotenv::create(self::getRepository(), $path, $file)->safeLoad();

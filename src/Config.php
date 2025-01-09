@@ -50,6 +50,11 @@ class Config
 
     protected static bool $loaded = false;
 
+    public static function isLoaded(): bool
+    {
+        return self::$loaded;
+    }
+
     public static function loadAll(array $excludes = []): void
     {
         Config::load(config_path(), $excludes);

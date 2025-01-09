@@ -26,8 +26,11 @@
 
 namespace Triangle\Engine;
 
+use Phar;
+
 class Path
 {
+    public static ?string $runPath = null;
     public static ?string $basePath = null;
 
     public static ?string $appPath = null;
@@ -60,10 +63,16 @@ class Path
         static::$runtimePath = $runtimePath ?? Path::runtimePath();
     }
 
+    public static function runPath(string $path = ''): string {
+        static::$runPath ??= is_phar() ? dirname(Phar::running(false)) : static::basePath();
+        return path_combine(static::$runPath, $path);
+
+    }
+
     public static function basePath(false|string $path = ''): ?string
     {
         if (false === $path) {
-            return run_path();
+            return static::runPath();
         }
 
         return path_combine(static::$basePath ?? BASE_PATH, $path);
@@ -98,13 +107,13 @@ class Path
 
     public static function publicPath(string $path = ''): ?string
     {
-        static::$publicPath ??= run_path('public');
+        static::$publicPath ??= static::runPath('public');
         return empty($path) ? static::$publicPath : path_combine(static::$publicPath, $path);
     }
 
     public static function runtimePath(string $path = ''): ?string
     {
-        static::$runtimePath ??= run_path('runtime');
+        static::$runtimePath ??= static::runPath('runtime');
         return path_combine(static::$runtimePath, $path);
     }
 }
