@@ -45,7 +45,7 @@ RUN pecl install ev event uv && \
 
 WORKDIR /opt/triangle
 
-COPY php.ini /etc/php/8.3/cli/
+COPY docker/php.ini /etc/php/8.3/cli/
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 RUN composer create-project triangle/web /opt/triangle && \
