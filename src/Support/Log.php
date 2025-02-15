@@ -70,7 +70,10 @@ class Log
      */
     public static function __callStatic(string $name, array $arguments)
     {
-        return static::channel()->{$name}(...$arguments);
+        $channel = 'default';
+        if (defined('TRIANGLE_SAPI') && TRIANGLE_SAPI === 'CLI'
+            && config("log.console")) $channel = 'console';
+        return static::channel($channel)->{$name}(...$arguments);
     }
 
     /**
