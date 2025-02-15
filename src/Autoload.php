@@ -41,7 +41,6 @@ class Autoload implements AutoloadInterface
         static::system();
 
         if ($server instanceof Server) {
-            register_shutdown_function(fn($s): int|bool => (time() - $s <= 0.1) ? sleep(1) : true, time());
             static::startServer($server);
         } else {
             static::startCLI($arg);
@@ -54,13 +53,23 @@ class Autoload implements AutoloadInterface
 
     public static function startCLI(?string $arg = null): void
     {
-        if (!static::isManageCommand($arg)) {
+        if (static::isManageCommand($arg)) {
+            // Инициализация сервера
+            static::sapi('SRV');
+        } else {
+            // Инициализация кастомных команд
+            static::sapi('CLI');
             static::startServer();
         }
     }
 
     public static function startServer(?Server $server = null): void
     {
+        if ($server instanceof Server) {
+            // Внутрисерверная среда
+            register_shutdown_function(fn($s): int|bool => (time() - $s <= 0.1) ? sleep(1) : true, time());
+            static::sapi('SRV');
+        }
         Context::init();
         static::files();
         Bootstrap::start($server);
@@ -102,5 +111,10 @@ class Autoload implements AutoloadInterface
                 include_once $file;
             }
         });
+    }
+
+    private static function sapi(string $sapi): void
+    {
+        if (!defined('TRIANGLE_SAPI')) define('TRIANGLE_SAPI', $sapi);
     }
 }
