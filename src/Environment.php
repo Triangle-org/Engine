@@ -27,79 +27,58 @@
 
 namespace Triangle\Engine;
 
-use Closure;
 use Dotenv\Dotenv;
-use Dotenv\Repository\Adapter\PutenvAdapter;
 use Dotenv\Repository\RepositoryBuilder;
 use Dotenv\Repository\RepositoryInterface;
-use localzet\Server;
-use PhpOption\Option;
-use PhpOption\Some;
 use RuntimeException;
 
 class Environment
 {
     /**
-     * Указывает, включен ли адаптер putenv.
+     * Флаг, показывающий, была ли загружена библиотека Dotenv.
      */
-    protected static bool $putenv = true;
+    protected static bool $dotenvLoaded = false;
 
     /**
      * Экземпляр репозитория окружения.
      */
     protected static ?RepositoryInterface $repository = null;
 
+    /**
+     * Загрузка переменных среды из файла `.env`, если он существует.
+     * Если файл отсутствует, используются системные переменные окружения.
+     */
     public static function load(string|array $path, string|array $file = '.env'): void
     {
         if (class_exists(Dotenv::class) && file_exists(path_combine($path, $file))) {
+            self::$dotenvLoaded = true;
             Dotenv::create(self::getRepository(), $path, $file)->safeLoad();
         }
     }
 
     /**
-     * Включить адаптер putenv.
-     */
-    public static function enablePutenv(): void
-    {
-        self::$putenv = true;
-        self::$repository = null;
-    }
-
-    /**
-     * Отключить адаптер putenv.
-     */
-    public static function disablePutenv(): void
-    {
-        self::$putenv = false;
-        self::$repository = null;
-    }
-
-    /**
-     * Получить экземпляр репозитория окружения.
-     */
-    public static function getRepository(): ?RepositoryInterface
-    {
-        if (!(self::$repository instanceof RepositoryInterface)) {
-            $builder = RepositoryBuilder::createWithDefaultAdapters();
-
-            if (self::$putenv) {
-                $builder->addAdapter(PutenvAdapter::class);
-            }
-
-            self::$repository = $builder->immutable()->make();
-        }
-
-        return self::$repository;
-    }
-
-    /**
      * Получить значение переменной окружения.
      *
-     * @param mixed|null $default
+     * @param string $key
+     * @param mixed|null $default Значение по умолчанию.
+     * @return mixed
      */
     public static function get(string $key, mixed $default = null): mixed
     {
-        return self::getOption($key)->getOrCall(fn() => $default instanceof Closure ? $default() : $default);
+        // Проверяем, загружена ли библиотека Dotenv
+        if (self::$dotenvLoaded) {
+            $value = self::getRepository()?->get($key);
+
+            // Если значение в `.env` существует, даже пустое, возвращаем его
+            if ($value !== null) {
+                return $value === '' ? '' : self::parseValue($value);
+            }
+        }
+
+        // Если переменной нет в `.env`, берем значение из системного окружения
+        $value = getenv($key);
+
+        return $value !== false ? self::parseValue($value) : ($default instanceof \Closure ? $default() : $default);
     }
 
     /**
@@ -109,60 +88,44 @@ class Environment
      */
     public static function getOrFail(string $key): mixed
     {
-        return self::getOption($key)->getOrThrow(new RuntimeException("Переменная окружения [$key] не имеет значения."));
+        $value = self::get($key);
+
+        if ($value === null) {
+            throw new RuntimeException("Переменная окружения [$key] не найдена.");
+        }
+
+        return $value;
     }
 
     /**
-     * Изменить значение переменной окружения.
+     * Получить экземпляр репозитория окружения.
      */
-    public static function set(array $values, string $environmentFile = '.env'): bool
+    protected static function getRepository(): RepositoryInterface
     {
-        $envFile = file_exists($environmentFile) ? $environmentFile : run_path($environmentFile);
-        $envExample = file_exists(base_path('.env.example')) ? base_path('.env.example') : run_path('.env.example');
-
-        if (!file_exists($envFile) && file_exists($envExample)) {
-            copy($envExample, $envFile);
+        if (self::$repository === null) {
+            self::$repository = RepositoryBuilder::createWithDefaultAdapters()->immutable()->make();
         }
 
-        $str = file_get_contents($envFile);
-        $str = self::updateEnvironmentFile($str, $values);
-
-        return file_put_contents($envFile, $str) !== false;
-    }
-
-    protected static function updateEnvironmentFile(string $str, array $values): string
-    {
-        foreach ($values as $envKey => $envValue) {
-            $str .= "\n";
-            $keyPosition = strpos($str, "$envKey=");
-
-            if ($keyPosition !== false) {
-                $endOfLinePosition = strpos($str, "\n", $keyPosition);
-                $oldLine = substr($str, $keyPosition, $endOfLinePosition - $keyPosition);
-                $str = str_replace($oldLine, "$envKey=\"$envValue\"", $str);
-            } else {
-                $str .= "$envKey=\"$envValue\"\n";
-            }
-        }
-
-        return rtrim($str);
+        return self::$repository;
     }
 
     /**
-     * Получить возможный вариант для этой переменной окружения.
+     * Парсинг значения переменной окружения.
+     *
+     * @param string $value Значение переменной.
+     * @return mixed
      */
-    protected static function getOption(string $key): Some|Option
+    protected static function parseValue(string $value): mixed
     {
-        return Option::fromValue(self::getRepository()->get($key))
-            ->map(function ($value): bool|int|float|string|array|null {
-                $valueMap = [
-                    'true' => true,
-                    'false' => false,
-                    'null' => null,
-                    'empty' => '',
-                ];
+        $valueMap = [
+            'true' => true,
+            'false' => false,
+            'null' => null,
+            'empty' => '',
+        ];
 
-                return $valueMap[strtolower($value)] ?? (is_numeric($value) ? $value + 0 : preg_replace('/\A[\'"](.*)[\'"]\z/', '$1', $value));
-            });
+        $lowerValue = strtolower(trim($value));
+
+        return $valueMap[$lowerValue] ?? (is_numeric($value) ? $value + 0 : $value);
     }
 }
