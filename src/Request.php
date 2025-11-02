@@ -33,7 +33,6 @@ namespace Triangle\Engine;
  * @link https://www.php-fig.org/psr/psr-7
  * @link https://www.php.net/manual/en/class.httprequest.php
  */
-#[\AllowDynamicProperties]
 class Request extends \localzet\Server\Protocols\Http\Request
 {
     /**

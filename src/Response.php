@@ -37,7 +37,6 @@ use function gmdate;
  * @link https://www.php-fig.org/psr/psr-7
  * @link https://www.php.net/manual/en/class.httpresponse.php
  */
-#[\AllowDynamicProperties]
 class Response extends \localzet\Server\Protocols\Http\Response
 {
     /**
