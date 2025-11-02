@@ -1,6 +1,6 @@
 {
   "name": "triangle/engine",
-  "description": "Triangle Engine - Next generation low-level HTTP engine",
+  "description": "Low-level HTTP engine for Triangle Framework",
   "type": "library",
   "keywords": [
     "localzet",
@@ -26,25 +26,19 @@
     "source": "https://github.com/Triangle-org/Engine"
   },
   "suggest": {
-    "ext-mysqli": "For support MySQL",
-    "ext-simplexml": "For XML",
-    "ext-libxml": "For XML",
-    "ext-openssl": "For JWT",
-    "ext-redis": "For Redis",
-    "ext-fileinfo": "For mime_content_type()",
-    "ext-mongodb": "For Triangle\\Engine\\Log\\MongoDBHandler"
+    "ext-mysqli": "For MySQL support",
+    "ext-redis": "For Redis support",
+    "ext-mongodb": "For MongoDB logging"
   },
   "require": {
     "php": "^8.1",
-    "ext-curl": "*",
     "ext-intl": "*",
     "ext-json": "*",
-    "ext-mbstring": "*",
-    "ext-zend-opcache": "*",
     "localzet/server": "^4",
-    "psr/container": ">=1.0",
     "monolog/monolog": "^2",
-    "vlucas/phpdotenv": "^5"
+    "psr/container": "^1.0",
+    "symfony/translation": "^6",
+    "symfony/cache": "^6"
   },
   "require-dev": {
     "rector/rector": "*"
