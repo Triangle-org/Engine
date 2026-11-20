@@ -5,7 +5,7 @@
  * @link        https://github.com/localzet-archive/FrameX-Public FrameX (v1-2)
  *
  * @author      Ivan Zorin <creator@localzet.com>
- * @copyright   Copyright (c) 2023-2025 Triangle Framework Team
+ * @copyright   Copyright © 2016-2026 Localzet Group. All rights reserved.
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License v3.0
  *
  *              This program is free software: you can redistribute it and/or modify
@@ -66,7 +66,7 @@ class Response extends \localzet\Server\Protocols\Http\Response
      *
      * @param Throwable|null $throwable Исключение для установки.
      */
-    public function exception(Throwable $throwable = null): ?Throwable
+    public function exception(?Throwable $throwable = null): ?Throwable
     {
         if ($throwable instanceof Throwable) {
             $this->exception = $throwable;

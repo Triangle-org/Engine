@@ -6,7 +6,7 @@
  * @link        https://github.com/localzet-archive/FrameX-Public FrameX (v1-2)
  *
  * @author      Ivan Zorin <creator@localzet.com>
- * @copyright   Copyright (c) 2023-2025 Triangle Framework Team
+ * @copyright   Copyright © 2016-2026 Localzet Group. All rights reserved.
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License v3.0
  *
  *              This program is free software: you can redistribute it and/or modify
@@ -31,8 +31,8 @@ use support\Translation;
 use Triangle\Engine\Config;
 use Triangle\Engine\Environment;
 use Triangle\Engine\Path;
-use Triangle\Request;
-use Triangle\Response;
+use Triangle\Engine\Request;
+use Triangle\Engine\Response;
 
 $install_path = Composer\InstalledVersions::getRootPackage()['install_path'] ?? null;
 define('BASE_PATH', str_starts_with($install_path, 'phar://') ? $install_path : realpath($install_path) ?? dirname(__DIR__));
@@ -46,7 +46,7 @@ if (!function_exists('trans')) {
      * @param string|null $domain
      * @param string|null $locale
      */
-    function trans(string $id, array $parameters = [], string $domain = null, string $locale = null): string
+    function trans(string $id, array $parameters = [], ?string $domain = null, ?string $locale = null): string
     {
         $res = Translation::trans($id, $parameters, $domain, $locale);
         return $res === '' ? $id : $res;
@@ -58,7 +58,7 @@ if (!function_exists('locale')) {
      * Locale
      * @param string|null $locale
      */
-    function locale(string $locale = null): string
+    function locale(?string $locale = null): string
     {
         if (!$locale) {
             return Translation::getLocale();
@@ -71,6 +71,18 @@ if (!function_exists('locale')) {
 
 /** FORMATS HELPERS */
 
+if (!function_exists('triangle_json')) {
+    /**
+     * Encode JSON using the Triangle Engine helper defaults.
+     *
+     * @param mixed $value
+     */
+    function triangle_json($value, int $flags = JSON_NUMERIC_CHECK | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR): false|string
+    {
+        return json_encode($value, $flags);
+    }
+}
+
 if (!function_exists('json')) {
     /**
      * @param $value
@@ -78,7 +90,7 @@ if (!function_exists('json')) {
      */
     function json($value, int $flags = JSON_NUMERIC_CHECK | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR): false|string
     {
-        return json_encode($value, $flags);
+        return triangle_json($value, $flags);
     }
 }
 
@@ -90,7 +102,7 @@ if (!function_exists('config')) {
      * @param string|null $key
      * @param mixed|null $default
      */
-    function config(string $key = null, mixed $default = null, ?string $plugin = null): mixed
+    function config(?string $key = null, mixed $default = null, ?string $plugin = null): mixed
     {
         return empty($plugin)
             ? Config::get($key, $default)
@@ -103,7 +115,7 @@ if (!function_exists('plugin')) {
      * @param string|null $key
      * * @param mixed|null $default
      */
-    function plugin(string $key = null, mixed $default = null): mixed
+    function plugin(?string $key = null, mixed $default = null): mixed
     {
         return Config::get(
             Config::get('app.plugin_alias', 'plugin') . ($key ? ".$key" : ''),
@@ -116,7 +128,7 @@ if (!function_exists('env')) {
      * @param string|null $key
      * @param mixed|null $default
      */
-    function env(string $key = null, mixed $default = null): mixed
+    function env(?string $key = null, mixed $default = null): mixed
     {
         return Environment::get($key, $default);
     }
@@ -312,11 +324,11 @@ if (!function_exists('server')) {
     }
 }
 
-if (!function_exists('response')) {
+if (!function_exists('triangle_response')) {
     /**
      * @throws Throwable
      */
-    function response(mixed $data = '', int $status = 200, array $headers = [], bool $raw = false): Response
+    function triangle_response(mixed $data = '', int $status = 200, array $headers = [], bool $raw = false): Response
     {
         if ($raw) {
             $body = $data;
@@ -337,6 +349,16 @@ if (!function_exists('response')) {
     }
 }
 
+if (!function_exists('response')) {
+    /**
+     * @throws Throwable
+     */
+    function response(mixed $data = '', int $status = 200, array $headers = [], bool $raw = false): Response
+    {
+        return triangle_response($data, $status, $headers, $raw);
+    }
+}
+
 function responseBlob(string $blob, string $type = 'text/plain'): Response
 {
 
@@ -348,17 +370,26 @@ function responseBlob(string $blob, string $type = 'text/plain'): Response
  */
 function responseJson($data, int $status = 200, array $headers = [], int $options = JSON_NUMERIC_CHECK | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR): Response
 {
-    return new Response($status, ['Content-Type' => 'application/json'] + $headers, json($data, $options));
+    return new Response($status, ['Content-Type' => 'application/json'] + $headers, triangle_json($data, $options));
 }
 
-function redirect(string $location, int $status = 302, array $headers = []): Response
-{
-    $response = new Response($status, ['Location' => $location]);
-    if (!empty($headers)) {
-        $response->withHeaders($headers);
-    }
+if (!function_exists('triangle_redirect')) {
+    function triangle_redirect(string $location, int $status = 302, array $headers = []): Response
+    {
+        $response = new Response($status, ['Location' => str_replace(["\r", "\n"], '', $location)]);
+        if (!empty($headers)) {
+            $response->withHeaders($headers);
+        }
 
-    return $response;
+        return $response;
+    }
+}
+
+if (!function_exists('redirect')) {
+    function redirect(string $location, int $status = 302, array $headers = []): Response
+    {
+        return triangle_redirect($location, $status, $headers);
+    }
 }
 
 if (!function_exists('not_found')) {
@@ -367,7 +398,7 @@ if (!function_exists('not_found')) {
      */
     function not_found(): Response
     {
-        return response('Ничего не найдено', 404);
+        return triangle_response('Ничего не найдено', 404);
     }
 }
 

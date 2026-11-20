@@ -6,7 +6,7 @@
  * @link        https://github.com/localzet-archive/FrameX-Public FrameX (v1-2)
  *
  * @author      Ivan Zorin <creator@localzet.com>
- * @copyright   Copyright (c) 2023-2025 Triangle Framework Team
+ * @copyright   Copyright © 2016-2026 Localzet Group. All rights reserved.
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License v3.0
  *
  *              This program is free software: you can redistribute it and/or modify
@@ -77,7 +77,7 @@ class Config
      * Загрузи
      * @param string|null $key
      */
-    public static function load(string $configPath, array $excludeFile = [], string $key = null): void
+    public static function load(string $configPath, array $excludeFile = [], ?string $key = null): void
     {
         if (!$configPath) {
             return;
@@ -222,7 +222,7 @@ class Config
      * @param mixed|null $default
      * @return array|mixed|void|null
      */
-    public static function get(string $key = null, mixed $default = null)
+    public static function get(?string $key = null, mixed $default = null)
     {
         if ($key === null) {
             return static::$config;
