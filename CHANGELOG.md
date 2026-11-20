@@ -7,10 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-This development version migrates the Engine source to Localzet Server 7.1. It has not been published as a stable release.
+## [9.0.0] - 2026-11-20
 
 ### Changed
-- Requires `localzet/server:^7.1`; the latest published `v8.1.11` package still requires Server 4.
+- Migrates the Engine runtime to Localzet Server 7.1+ with `localzet/server:^7.1`.
 - Upgrades the logging contract to Monolog 3.
 - Server-owned global `response()`, `json()`, and `redirect()` helpers now keep the Server 7 contract. Use `triangle_response()`, `triangle_json()`, and `triangle_redirect()` for the Engine behavior.
 - Fiber-backed request context is isolated by the active Fiber across Server 7 event loops.
@@ -22,3 +22,6 @@ This development version migrates the Engine source to Localzet Server 7.1. It h
 
 ### Security
 - Strip CR and LF from redirect locations created by `triangle_redirect()`.
+
+### Compatibility
+- This is a major release for Localzet Server 7. The previous stable `v8.1.11` package targets Server 4; update the Engine and Server dependencies together.
