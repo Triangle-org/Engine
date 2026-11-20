@@ -6,7 +6,7 @@
  * @link        https://github.com/localzet-archive/FrameX-Public FrameX (v1-2)
  *
  * @author      Ivan Zorin <creator@localzet.com>
- * @copyright   Copyright (c) 2023-2025 Triangle Framework Team
+ * @copyright   Copyright © 2016-2026 Localzet Group. All rights reserved.
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License v3.0
  *
  *              This program is free software: you can redistribute it and/or modify
@@ -29,7 +29,6 @@ namespace Triangle\Engine;
 
 use Fiber;
 use localzet\Server;
-use localzet\Server\Events\Linux;
 use localzet\Server\Events\Swoole;
 use localzet\Server\Events\Swow;
 use StdClass;
@@ -83,8 +82,11 @@ class Context
      */
     protected static function getKey(): object
     {
+        if (($fiber = Fiber::getCurrent()) instanceof Fiber) {
+            return $fiber;
+        }
+
         return match (Server::$eventLoopClass) {
-            Linux::class => Fiber::getCurrent(),
             Swoole::class => \Swoole\Coroutine::getContext(),
             Swow::class => \Swow\Coroutine::getCurrent(),
             default => static::$object,

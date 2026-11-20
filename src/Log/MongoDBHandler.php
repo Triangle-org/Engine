@@ -6,7 +6,7 @@
  * @link        https://github.com/localzet-archive/FrameX-Public FrameX (v1-2)
  *
  * @author      Ivan Zorin <creator@localzet.com>
- * @copyright   Copyright (c) 2023-2025 Triangle Framework Team
+ * @copyright   Copyright © 2016-2026 Localzet Group. All rights reserved.
  * @license     https://www.gnu.org/licenses/agpl-3.0 GNU Affero General Public License v3.0
  *
  *              This program is free software: you can redistribute it and/or modify
@@ -36,6 +36,7 @@ use Monolog\Formatter\FormatterInterface;
 use Monolog\Formatter\MongoDBFormatter;
 use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Logger;
+use Monolog\LogRecord;
 
 /**
  * Класс MongoDBHandler
@@ -96,17 +97,17 @@ class MongoDBHandler extends AbstractProcessingHandler
     /**
      * Записать лог.
      *
-     * @param array $record Запись лога.
+     * @param LogRecord $record Запись лога.
      */
-    protected function write(array $record): void
+    protected function write(LogRecord $record): void
     {
         if (isset($this->collection)) {
-            $this->collection->insertOne($record['formatted']);
+            $this->collection->insertOne($record->formatted);
         }
 
         if (isset($this->manager, $this->namespace)) {
             $bulkWrite = new BulkWrite;
-            $bulkWrite->insert($record["formatted"]);
+            $bulkWrite->insert($record->formatted);
             $this->manager->executeBulkWrite($this->namespace, $bulkWrite);
         }
     }
